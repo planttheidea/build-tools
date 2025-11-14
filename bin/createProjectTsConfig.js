@@ -8,7 +8,7 @@ import { createConfigs } from '../dist/tsconfig.js';
 const ROOT = gitRoot();
 
 const config = createConfigs({
-  includes: ['./src/**/*'],
+  include: ['./src/**/*'],
 });
 
 writeFileSync(
