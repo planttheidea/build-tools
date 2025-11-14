@@ -1,4 +1,5 @@
 import { writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 import type { CompilerOptions } from 'typescript';
 import {
   ModuleDetectionKind,
@@ -16,7 +17,33 @@ interface ConfigOptions {
   references?: string[];
 }
 
-const BASE_CONFIG: ConfigOptions = {
+type MergeOptions<Options extends ConfigOptions> = Omit<
+  typeof BASE_CONFIG,
+  keyof Options
+> &
+  Omit<Options, 'compilerOptions'> & {
+    compilerOptions: Omit<
+      ConfigOptions['compilerOptions'],
+      keyof Options['compilerOptions']
+    > &
+      Options['compilerOptions'];
+  };
+
+type MergeDeclarationOptions<Options extends ConfigOptions> = MergeOptions<
+  Omit<Options, 'compilerOptions'> & {
+    compilerOptions: Options['compilerOptions'] & {
+      declaration: true;
+      emitDeclarationOnly: true;
+    };
+  }
+>;
+
+interface Configs<Options extends ConfigOptions> {
+  declaration: MergeDeclarationOptions<Options>;
+  runtime: MergeOptions<Options>;
+}
+
+const BASE_CONFIG = {
   compilerOptions: {
     allowJs: true,
     baseUrl: 'src',
@@ -42,44 +69,63 @@ const BASE_CONFIG: ConfigOptions = {
     verbatimModuleSyntax: true,
     types: ['node'],
   },
-  exclude: ['node_modules'],
-};
+  exclude: ['**/node_modules/**'],
+} as const;
 
-type MergeOptions<
-  BaseOptions extends ConfigOptions,
-  Options extends ConfigOptions,
-> = BaseOptions &
-  Options & {
-    compilerOptions: BaseOptions['compilerOptions'] &
-      Options['compilerOptions'];
-  };
+function normalizeCompilerOptions<Options extends Record<string, any>>(
+  options: Options,
+): Options {
+  const normalizedOptions: Record<string, any> = {};
 
-type MergeDeclarationOptions<
-  BaseOptions extends ConfigOptions,
-  Options extends ConfigOptions,
-> = BaseOptions &
-  Options & {
-    compilerOptions: BaseOptions['compilerOptions'] &
-      Options['compilerOptions'] & {
-        declaration: true;
-        emitDeclarationOnly: true;
-      };
-  };
+  for (const name in options) {
+    if (!Object.hasOwn(options, name)) {
+      continue;
+    }
+
+    const value = options[name] as any;
+
+    if (typeof value !== 'number') {
+      normalizedOptions[name] = value;
+      continue;
+    }
+
+    switch (name) {
+      case 'module':
+        normalizedOptions[name] = ModuleKind[value];
+        break;
+
+      case 'moduleDetection':
+        normalizedOptions[name] = ModuleDetectionKind[value]?.toLowerCase();
+        break;
+
+      case 'moduleResolution':
+        normalizedOptions[name] = ModuleResolutionKind[value];
+        break;
+
+      case 'target':
+        normalizedOptions[name] = ScriptTarget[value];
+        break;
+
+      default:
+        normalizedOptions[name] = value;
+        break;
+    }
+  }
+
+  return normalizedOptions as Options;
+}
 
 export function createConfigs<const Options extends ConfigOptions>(
   options: Options = {} as Options,
-): {
-  declaration: MergeDeclarationOptions<typeof BASE_CONFIG, Options>;
-  runtime: MergeOptions<typeof BASE_CONFIG, Options>;
-} {
+): Configs<Options> {
   const runtime = {
     ...BASE_CONFIG,
     ...options,
-    compilerOptions: {
+    compilerOptions: normalizeCompilerOptions({
       ...BASE_CONFIG.compilerOptions,
       ...options.compilerOptions,
-    },
-  } as const;
+    }),
+  } as MergeOptions<Options>;
   const declaration = {
     ...runtime,
     compilerOptions: {
@@ -87,15 +133,40 @@ export function createConfigs<const Options extends ConfigOptions>(
       declaration: true,
       emitDeclarationOnly: true,
     },
-  } as const;
+  } as MergeDeclarationOptions<Options>;
 
   return { declaration, runtime };
 }
 
+export function writeConfigs<
+  const _Options extends ConfigOptions,
+  const ConfigMap extends Record<string, ConfigOptions>,
+>(
+  folder: string,
+  configs: ConfigMap,
+): {
+  [Key in keyof ConfigMap]: Configs<ConfigMap[Key]>;
+};
 export function writeConfigs<const Options extends ConfigOptions>(
+  folder: string,
   file: string,
   options?: Options,
-) {
+): Configs<Options>;
+export function writeConfigs<
+  const Options extends ConfigOptions,
+  const ConfigMap extends Record<string, ConfigOptions>,
+>(folder: string, fileOrConfigs: string | ConfigMap, options?: Options) {
+  if (typeof fileOrConfigs === 'object') {
+    return Object.fromEntries(
+      Object.entries(fileOrConfigs).map(([file, config]) => [
+        file,
+        writeConfigs(folder, file, config),
+      ]),
+    );
+  }
+
+  const file = fileOrConfigs;
+
   if (file.endsWith('.json')) {
     throw new ReferenceError(
       'Found extra `.json` suffix; please provoide only the base name.',
@@ -105,13 +176,15 @@ export function writeConfigs<const Options extends ConfigOptions>(
   const config = createConfigs(options);
 
   writeFileSync(
-    `${file}.json`,
+    join(folder, `${file}.json`),
     JSON.stringify(config.runtime, null, 2),
     'utf8',
   );
   writeFileSync(
-    `${file}.declaration.json`,
+    join(folder, `${file}.declaration.json`),
     JSON.stringify(config.declaration, null, 2),
     'utf8',
   );
+
+  return config;
 }

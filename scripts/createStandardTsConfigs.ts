@@ -1,31 +1,29 @@
-import { join, resolve } from 'node:path';
+import { resolve } from 'node:path';
 import { writeConfigs } from '../src/tsconfig.ts';
-import { ModuleKind, ModuleResolutionKind, ScriptTarget } from 'typescript';
+import { ModuleKind, ModuleResolutionKind } from 'typescript';
 
-const DESTINATION_FOLDER = resolve('tsconfig');
-
-function getDestination(file: string): string {
-  return join(DESTINATION_FOLDER, file);
-}
-
-writeConfigs(getDestination('base'));
-writeConfigs(getDestination('esm'), {
-  compilerOptions: {
-    module: ModuleKind.NodeNext,
-    moduleResolution: ModuleResolutionKind.NodeNext,
+writeConfigs(resolve('tsconfig'), {
+  base: { exclude: undefined },
+  cjs: {
+    compilerOptions: {
+      module: ModuleKind.Node16,
+      moduleResolution: ModuleResolutionKind.Node16,
+    },
+    exclude: undefined,
+  },
+  esm: {
+    compilerOptions: {
+      module: ModuleKind.NodeNext,
+      moduleResolution: ModuleResolutionKind.NodeNext,
+    },
+    exclude: undefined,
+  },
+  min: { exclude: undefined },
+  umd: {
+    compilerOptions: {
+      module: ModuleKind.ESNext,
+      moduleResolution: ModuleResolutionKind.Bundler,
+    },
+    exclude: undefined,
   },
 });
-writeConfigs(getDestination('cjs'), {
-  compilerOptions: {
-    module: ModuleKind.Node16,
-    moduleResolution: ModuleResolutionKind.Node16,
-  },
-});
-writeConfigs(getDestination('umd'), {
-  compilerOptions: {
-    module: ModuleKind.ESNext,
-    moduleResolution: ModuleResolutionKind.Bundler,
-    target: ScriptTarget.ES2015,
-  },
-});
-writeConfigs(getDestination('min'));

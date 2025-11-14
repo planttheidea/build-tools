@@ -9,9 +9,9 @@
     "lib": [
       "ESNext"
     ],
-    "module": 100,
-    "moduleDetection": 3,
-    "moduleResolution": 3,
+    "module": "Node16",
+    "moduleDetection": "force",
+    "moduleResolution": "Node16",
     "noFallthroughCasesInSwitch": true,
     "noImplicitAny": true,
     "noImplicitOverride": true,
@@ -22,13 +22,10 @@
     "strict": true,
     "strictNullChecks": true,
     "inlineSources": true,
-    "target": 2,
+    "target": "ES2015",
     "verbatimModuleSyntax": true,
     "types": [
       "node"
     ]
-  },
-  "exclude": [
-    "node_modules"
-  ]
+  }
 }
