@@ -3,7 +3,7 @@
 import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import gitRoot from 'git-root';
-import { createConfigs } from '../src/tsconfig.ts';
+import { createConfigs } from '../dist/tsconfig.js';
 
 const ROOT = gitRoot();
 
