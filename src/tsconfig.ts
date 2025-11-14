@@ -103,12 +103,14 @@ export function writeConfigs<const Options extends ConfigOptions>(
   }
 
   const config = createConfigs(options);
-  const declarationFile = `${file}.declaration.json`;
-  const runtimeFile = `${file}.json`;
 
-  writeFileSync(runtimeFile, JSON.stringify(config.runtime, null, 2), 'utf8');
   writeFileSync(
-    declarationFile,
+    `${file}.json`,
+    JSON.stringify(config.runtime, null, 2),
+    'utf8',
+  );
+  writeFileSync(
+    `${file}.declaration.json`,
     JSON.stringify(config.declaration, null, 2),
     'utf8',
   );

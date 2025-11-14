@@ -1,5 +1,5 @@
 import { join, resolve } from 'node:path';
-import { writeConfigs } from '../src/createConfig.ts';
+import { writeConfigs } from '../src/tsconfig.ts';
 import { ModuleKind, ModuleResolutionKind, ScriptTarget } from 'typescript';
 
 const DESTINATION_FOLDER = resolve('tsconfig');

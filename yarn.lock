@@ -870,6 +870,7 @@ __metadata:
     "@types/typescript": "npm:^2.0.0"
     eslint: "npm:^9.39.1"
     eslint-plugin-import: "npm:^2.32.0"
+    fast-glob: "npm:^3.3.3"
     prettier: "npm:^3.6.2"
     release-it: "npm:^19.0.6"
     rollup: "npm:^4.53.2"
@@ -2644,7 +2645,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fast-glob@npm:^3.3.2":
+"fast-glob@npm:^3.3.2, fast-glob@npm:^3.3.3":
   version: 3.3.3
   resolution: "fast-glob@npm:3.3.3"
   dependencies:

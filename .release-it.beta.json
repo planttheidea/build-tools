@@ -1,0 +1,12 @@
+{
+  "github": {
+    "release": true
+  },
+  "hooks": {
+    "before:init": ["npm run typecheck", "npm run dist"]
+  },
+  "npm": {
+    "tag": "next"
+  },
+  "preReleaseId": "beta"
+}

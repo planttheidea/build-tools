@@ -20,6 +20,7 @@
   "description": "Build tools for the suite of PTI packages",
   "devDependencies": {
     "@types/typescript": "^2.0.0",
+    "fast-glob": "^3.3.3",
     "ts-node": "^10.9.2"
   },
   "exports": {
@@ -46,9 +47,14 @@
   },
   "scripts": {
     "build": "npm run build:configs && npm run build:runtime",
-    "build:configs": "ts-node scripts/createStandardConfigs.ts",
+    "build:configs": "ts-node scripts/createStandardTsConfigs.ts",
+    "dist": "rm -rf dist && npm run build",
+    "release": "release-it",
+    "release:beta": "release-it --config=.release-it.beta.json",
+    "release:scripts": "npm run typecheck && npm run dist",
     "build:runtime": "rollup -c _internal/rollup.config.js",
-    "test": "vitest run"
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
   },
   "type": "module",
   "version": "1.0.0"
