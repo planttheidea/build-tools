@@ -66,7 +66,7 @@ type MergeDeclarationOptions<
       };
   };
 
-export function createConfig<const Options extends ConfigOptions>(
+export function createConfigs<const Options extends ConfigOptions>(
   options: Options = {} as Options,
 ): {
   declaration: MergeDeclarationOptions<typeof BASE_CONFIG, Options>;
@@ -102,7 +102,7 @@ export function writeConfigs<const Options extends ConfigOptions>(
     );
   }
 
-  const config = createConfig(options);
+  const config = createConfigs(options);
   const declarationFile = `${file}.declaration.json`;
   const runtimeFile = `${file}.json`;
 

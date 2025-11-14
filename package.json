@@ -18,8 +18,24 @@
     "vitest": "^4.0.9"
   },
   "description": "Build tools for the suite of PTI packages",
+  "devDependencies": {
+    "@types/typescript": "^2.0.0",
+    "ts-node": "^10.9.2"
+  },
+  "exports": {
+    "./*.js": {
+      "default": {
+        "types": "./dist/*.d.ts",
+        "default": "./dist/*.js"
+      }
+    },
+    "./tsconfig/*.json": "./tsconfig/*.json"
+  },
   "files": [
-    "tsconfig"
+    "dist",
+    "tsconfig",
+    "LICENSE",
+    "package.json"
   ],
   "homepage": "https://github.com/planttheidea/build-tools#readme",
   "license": "MIT",
@@ -35,9 +51,5 @@
     "test": "vitest run"
   },
   "type": "module",
-  "version": "1.0.0",
-  "devDependencies": {
-    "@types/typescript": "^2.0.0",
-    "ts-node": "^10.9.2"
-  }
+  "version": "1.0.0"
 }
