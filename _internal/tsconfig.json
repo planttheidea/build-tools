@@ -1,34 +1,30 @@
 {
   "compilerOptions": {
     "allowJs": true,
-    "baseUrl": "src",
-    "declaration": false,
-    "emitDeclarationOnly": false,
+    "baseUrl": "../src",
+    "declaration": true,
     "esModuleInterop": true,
     "isolatedModules": true,
-    "lib": [
-      "ESNext"
-    ],
-    "module": 99,
-    "moduleDetection": 3,
-    "moduleResolution": 100,
+    "lib": ["ESNext"],
+    "module": "NodeNext",
+    "moduleDetection": "force",
+    "moduleResolution": "NodeNext",
+    "noEmit": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitAny": true,
     "noImplicitOverride": true,
     "noUncheckedIndexedAccess": true,
+    "outDir": "../dist",
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "sourceMap": true,
     "strict": true,
     "strictNullChecks": true,
     "inlineSources": true,
-    "target": 2,
+    "target": "ES2015",
     "verbatimModuleSyntax": true,
-    "types": [
-      "node"
-    ]
+    "types": ["node"]
   },
-  "exclude": [
-    "node_modules"
-  ]
+  "exclude": ["node_modules"],
+  "include": ["../src/**/*.ts"]
 }

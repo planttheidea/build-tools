@@ -3,12 +3,15 @@
     "allowJs": true,
     "baseUrl": "src",
     "declaration": false,
+    "emitDeclarationOnly": false,
     "esModuleInterop": true,
     "isolatedModules": true,
-    "lib": ["ESNext"],
-    "module": "NodeNext",
-    "moduleDetection": "force",
-    "moduleResolution": "NodeNext",
+    "lib": [
+      "ESNext"
+    ],
+    "module": 199,
+    "moduleDetection": 3,
+    "moduleResolution": 99,
     "noFallthroughCasesInSwitch": true,
     "noImplicitAny": true,
     "noImplicitOverride": true,
@@ -19,9 +22,13 @@
     "strict": true,
     "strictNullChecks": true,
     "inlineSources": true,
-    "target": "ES2015",
-    "vertbatimModuleSyntax": true,
-    "types": ["node"]
+    "target": 2,
+    "verbatimModuleSyntax": true,
+    "types": [
+      "node"
+    ]
   },
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules"
+  ]
 }

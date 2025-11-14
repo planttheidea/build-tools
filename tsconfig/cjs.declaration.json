@@ -2,16 +2,16 @@
   "compilerOptions": {
     "allowJs": true,
     "baseUrl": "src",
-    "declaration": false,
-    "emitDeclarationOnly": false,
+    "declaration": true,
+    "emitDeclarationOnly": true,
     "esModuleInterop": true,
     "isolatedModules": true,
     "lib": [
       "ESNext"
     ],
-    "module": 99,
+    "module": 100,
     "moduleDetection": 3,
-    "moduleResolution": 100,
+    "moduleResolution": 3,
     "noFallthroughCasesInSwitch": true,
     "noImplicitAny": true,
     "noImplicitOverride": true,

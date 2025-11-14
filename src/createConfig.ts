@@ -21,6 +21,7 @@ const BASE_CONFIG: ConfigOptions = {
     allowJs: true,
     baseUrl: 'src',
     declaration: false,
+    emitDeclarationOnly: false,
     esModuleInterop: true,
     isolatedModules: true,
     lib: ['ESNext'],
@@ -44,34 +45,71 @@ const BASE_CONFIG: ConfigOptions = {
   exclude: ['node_modules'],
 };
 
-type MergeOptions<Options extends ConfigOptions> = typeof BASE_CONFIG &
+type MergeOptions<
+  BaseOptions extends ConfigOptions,
+  Options extends ConfigOptions,
+> = BaseOptions &
   Options & {
-    compilerOptions: typeof BASE_CONFIG.compilerOptions &
+    compilerOptions: BaseOptions['compilerOptions'] &
       Options['compilerOptions'];
   };
 
+type MergeDeclarationOptions<
+  BaseOptions extends ConfigOptions,
+  Options extends ConfigOptions,
+> = BaseOptions &
+  Options & {
+    compilerOptions: BaseOptions['compilerOptions'] &
+      Options['compilerOptions'] & {
+        declaration: true;
+        emitDeclarationOnly: true;
+      };
+  };
+
 export function createConfig<const Options extends ConfigOptions>(
-  options: Options,
-): MergeOptions<Options> {
-  return {
+  options: Options = {} as Options,
+): {
+  declaration: MergeDeclarationOptions<typeof BASE_CONFIG, Options>;
+  runtime: MergeOptions<typeof BASE_CONFIG, Options>;
+} {
+  const runtime = {
     ...BASE_CONFIG,
     ...options,
     compilerOptions: {
       ...BASE_CONFIG.compilerOptions,
       ...options.compilerOptions,
     },
-  };
+  } as const;
+  const declaration = {
+    ...runtime,
+    compilerOptions: {
+      ...runtime.compilerOptions,
+      declaration: true,
+      emitDeclarationOnly: true,
+    },
+  } as const;
+
+  return { declaration, runtime };
 }
 
-export function writeConfig<const Options extends ConfigOptions>(
+export function writeConfigs<const Options extends ConfigOptions>(
   file: string,
-  options: Options,
+  options?: Options,
 ) {
-  if (!file.endsWith('.json')) {
-    throw new ReferenceError('Destination file must be JSON.');
+  if (file.endsWith('.json')) {
+    throw new ReferenceError(
+      'Found extra `.json` suffix; please provoide only the base name.',
+    );
   }
 
   const config = createConfig(options);
+  const declarationFile = `${file}.declaration.json`;
+  const runtimeFile = `${file}.json`;
 
-  writeFileSync(file, JSON.stringify(config), 'utf8');
+  writeFileSync(runtimeFile, JSON.stringify(config.runtime, null, 2), 'utf8');
+  writeFileSync(
+    declarationFile,
+    JSON.stringify(config.declaration, null, 2),
+    'utf8',
+  );
 }

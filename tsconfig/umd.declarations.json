@@ -1,9 +1,0 @@
-{
-  "extends": "./base.declarations.json",
-  "compilerOptions": {
-    "lib": ["ES5"],
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
-    "target": "ES5"
-  }
-}
