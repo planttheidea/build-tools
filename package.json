@@ -1,5 +1,8 @@
 {
   "author": "tony.quetano@planttheidea.com",
+  "bin": {
+    "create-tsconfig": "./bin/createProjectConfig.js"
+  },
   "bugs": {
     "url": "https://github.com/planttheidea/build-tools/issues"
   },
@@ -9,6 +12,7 @@
     "@types/node": "^24.10.1",
     "eslint": "^9.39.1",
     "eslint-plugin-import": "^2.32.0",
+    "git-root": "^1.0.0",
     "prettier": "^3.6.2",
     "release-it": "^19.0.6",
     "rollup": "^4.53.2",
