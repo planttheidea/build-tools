@@ -1,0 +1,7 @@
+{
+  "extends": "./base.declarations.json",
+  "compilerOptions": {
+    "module": "Node16",
+    "moduleResolution": "Node16"
+  }
+}

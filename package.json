@@ -1,0 +1,30 @@
+{
+  "author": "tony.quetano@planttheidea.com",
+  "bugs": {
+    "url": "https://github.com/planttheidea/build-tools/issues"
+  },
+  "dependencies": {
+    "@rollup/plugin-typescript": "^12.3.0",
+    "rollup": "^4.53.2",
+    "typescript": "^5.9.3"
+  },
+  "description": "Build tools for the suite of PTI packages",
+  "devDependencies": {
+    "vitest": "^4.0.9"
+  },
+  "files": [
+    "tsconfig"
+  ],
+  "homepage": "https://github.com/planttheidea/build-tools#readme",
+  "license": "MIT",
+  "name": "@planttheidea/build-tools",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/planttheidea/build-tools.git"
+  },
+  "scripts": {
+    "test": "vitest run"
+  },
+  "type": "module",
+  "version": "1.0.0"
+}
