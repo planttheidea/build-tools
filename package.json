@@ -1,7 +1,7 @@
 {
   "author": "tony.quetano@planttheidea.com",
   "bin": {
-    "create-tsconfig": "./bin/createProjectConfig.js"
+    "create-tsconfig": "./bin/createProjectTsConfig.js"
   },
   "bugs": {
     "url": "https://github.com/planttheidea/build-tools/issues"
