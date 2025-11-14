@@ -41,6 +41,9 @@
   "homepage": "https://github.com/planttheidea/build-tools#readme",
   "license": "MIT",
   "name": "@planttheidea/build-tools",
+  "publishConfig": {
+    "access": "public"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/planttheidea/build-tools.git"
