@@ -19,10 +19,12 @@
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.46.4",
     "vite": "^7.2.2",
-    "vitest": "^4.0.9"
+    "vitest": "^4.0.9",
+    "yargs": "^18.0.0"
   },
   "description": "Build tools for the suite of PTI packages",
   "devDependencies": {
+    "@types/react": "^19.2.5",
     "@types/typescript": "^2.0.0",
     "fast-glob": "^3.3.3",
     "ts-node": "^10.9.2"
