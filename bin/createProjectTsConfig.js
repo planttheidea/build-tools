@@ -94,8 +94,10 @@ if (!existsSync(build)) {
   mkdirSync(build);
 }
 
-if (!existsSync(join(build, 'types'))) {
-  mkdirSync(join(build, 'types'));
+const buildTypes = join(build, 'types');
+
+if (!existsSync(buildTypes)) {
+  mkdirSync(buildTypes);
 }
 
 const typesPrefix = join('..', '..');
@@ -110,7 +112,7 @@ if (!dry) {
   /** WRITE FILES **/
 
   writeFileSync(join(ROOT, 'tsconfig.json'), baseConfig, 'utf8');
-  writeConfigs(resolve('types'), {
+  writeConfigs(resolve(buildTypes), {
     base: typesConfig,
     cjs: {
       ...typesConfig,
