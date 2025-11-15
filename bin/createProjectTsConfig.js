@@ -109,7 +109,7 @@ const typesConfig = {
   compilerOptions: {
     outDir: join(typesPrefix, library),
   },
-  include: getInclude(typesPrefix),
+  include: getInclude({ source, prefix: typesPrefix }),
 };
 
 if (!dry) {
@@ -129,6 +129,7 @@ if (!dry) {
     es: {
       ...typesConfig,
       compilerOptions: {
+        ...typesConfig.compilerOptions,
         module: ModuleKind.NodeNext,
         moduleResolution: ModuleResolutionKind.NodeNext,
       },

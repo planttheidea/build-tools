@@ -16,7 +16,6 @@ interface Config {
 export function createRollupConfig({
   buildTypesDir = join('build', 'types'),
   input = join('src', 'index.ts'),
-  outputDir = 'dist',
   outputFormat = 'es',
   plugins = [],
 }: Config = {}) {
@@ -59,7 +58,6 @@ export function createRollupConfig({
     external,
     input,
     output: {
-      dir: outputDir,
       exports: 'named',
       file,
       format: outputFormat,
