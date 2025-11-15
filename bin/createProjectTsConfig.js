@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 import gitRoot from 'git-root';
 import { ModuleKind, ModuleResolutionKind } from 'typescript';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import { createConfigs } from '../dist/tsconfig.js';
+import { createConfigs, writeConfigs } from '../dist/tsconfig.js';
 
 const ROOT = gitRoot();
 const ARGS = yargs(hideBin(process.argv))
