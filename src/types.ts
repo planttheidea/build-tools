@@ -153,7 +153,7 @@ export function createStandardConfig<const Options extends ConfigOptions>(
 
 export function renameModuleExtensions(type: 'cjs' | 'es', library = 'dist') {
   const extension =
-    type === 'cjs' ? '.d.ts' : type === 'es' ? '.d.mts' : undefined;
+    type === 'cjs' ? '.d.cts' : type === 'es' ? '.d.mts' : undefined;
 
   if (!extension) {
     throw new ReferenceError(

@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import { renameModuleExtensions } from '../dist/types.js';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
