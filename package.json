@@ -30,10 +30,22 @@
     "ts-node": "^10.9.2"
   },
   "exports": {
-    "./*.js": {
+    ".": {
       "default": {
-        "types": "./dist/*.d.ts",
-        "default": "./dist/*.js"
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    },
+    "./rollup": {
+      "default": {
+        "types": "./dist/rollup.d.ts",
+        "default": "./dist/rollup.js"
+      }
+    },
+    "./tsconfig": {
+      "default": {
+        "types": "./dist/tsconfig.d.ts",
+        "default": "./dist/tsconfig.js"
       }
     },
     "./tsconfig/*.json": "./tsconfig/*.json"

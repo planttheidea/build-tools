@@ -126,7 +126,7 @@ if (!dry) {
         moduleResolution: ModuleResolutionKind.Node16,
       },
     },
-    esm: {
+    es: {
       ...typesConfig,
       compilerOptions: {
         module: ModuleKind.NodeNext,

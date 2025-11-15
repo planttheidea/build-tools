@@ -19,7 +19,7 @@ export function createRollupConfig({
   outputDir = 'dist',
   outputFormat = 'es',
   plugins = [],
-}: Config) {
+}: Config = {}) {
   const pkgJsonPath = getPathFromRoot('package.json');
   const pkgJson = JSON.parse(readFileSync(pkgJsonPath, 'utf8'));
   const external = [
@@ -27,12 +27,19 @@ export function createRollupConfig({
     ...Object.keys(pkgJson.peerDependencies || {}),
     /node:/,
   ];
-  const globals = external.reduce<Record<string, string>>((map, name) => {
-    if (typeof name === 'string') {
-      map[name] = name;
-    }
-    return map;
-  }, {});
+  const globals = external.reduce<Record<string, string> | undefined>(
+    (map, name) => {
+      if (typeof name === 'string') {
+        if (!map) {
+          map = {};
+        }
+
+        map[name] = name;
+      }
+      return map;
+    },
+    undefined,
+  );
 
   const fileSource =
     outputFormat === 'es'
@@ -57,12 +64,13 @@ export function createRollupConfig({
       file,
       format: outputFormat,
       globals,
+      name: pkgJson.name,
       sourcemap: true,
     },
     plugins: [
       // @ts-expect-error - the plugin is still a CJS format in types, so it is not registering as callable.
       typescript({
-        tsconfig: resolve(gitRoot(), buildTypesDir, 'tsconfig.json'),
+        tsconfig: resolve(gitRoot(), buildTypesDir, `${outputFormat}.json`),
         typescript: tsc,
       }),
       ...plugins,
