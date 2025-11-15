@@ -1,18 +1,19 @@
 #!/usr/bin/env node
 
-import { writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import gitRoot from 'git-root';
+import { ModuleKind, ModuleResolutionKind } from 'typescript';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import { createConfigs } from '../dist/tsconfig.js';
 
 const ROOT = gitRoot();
 const ARGS = yargs(hideBin(process.argv))
-  .option('config', {
-    alias: 'c',
-    default: 'cfg',
-    description: 'Location of configuration files',
+  .option('build', {
+    alias: 'b',
+    default: 'build',
+    description: 'Location of build configuration files',
     type: 'string',
   })
   .option('development', {
@@ -53,11 +54,21 @@ const ARGS = yargs(hideBin(process.argv))
   })
   .parse();
 
-const { config, development, dry, library, react, source } = ARGS;
+const { build, development, dry, library, react, source } = ARGS;
 
-const include = [config, development, source].flatMap((folder) =>
-  react ? [`${folder}/**/*.ts`, `${folder}/**/*.tsx`] : [`${folder}/**/*.ts`],
-);
+function getInclude({ build, development, source, prefix = '.' }) {
+  const files = [build, development, source].filter(Boolean);
+
+  if (!files.length) {
+    return;
+  }
+
+  return files.flatMap((folder) => {
+    const standard = join(prefix, folder, '**', '*.ts');
+
+    return react ? [standard, `${standard}x`] : [standard];
+  });
+}
 
 const configs = createConfigs({
   compilerOptions: {
@@ -67,12 +78,62 @@ const configs = createConfigs({
     types: react ? ['node', 'react'] : ['node'],
   },
   exclude: ['**/node_modules/**', `${library}/**/*`],
-  include,
+  include: getInclude({ build, development, source }),
 });
 const baseConfig = JSON.stringify(configs.runtime, null, 2);
 
-if (dry) {
-  console.log(baseConfig);
-} else {
+if (!existsSync(source)) {
+  mkdirSync(source);
+}
+
+if (!existsSync(join(source, 'index.ts'))) {
+  writeFileSync(join(source, 'index.ts'), 'export REPLACE_ME = {};', 'utf8');
+}
+
+if (!existsSync(build)) {
+  mkdirSync(build);
+}
+
+if (!existsSync(join(build, 'types'))) {
+  mkdirSync(join(build, 'types'));
+}
+
+const typesPrefix = join('..', '..');
+const typesConfig = {
+  compilerOptions: {
+    outDir: join(typesPrefix, library),
+  },
+  include: getInclude(typesPrefix),
+};
+
+if (!dry) {
+  /** WRITE FILES **/
+
   writeFileSync(join(ROOT, 'tsconfig.json'), baseConfig, 'utf8');
+  writeConfigs(resolve('types'), {
+    base: typesConfig,
+    cjs: {
+      ...typesConfig,
+      compilerOptions: {
+        ...typesConfig.compilerOptions,
+        module: ModuleKind.Node16,
+        moduleResolution: ModuleResolutionKind.Node16,
+      },
+    },
+    esm: {
+      ...typesConfig,
+      compilerOptions: {
+        module: ModuleKind.NodeNext,
+        moduleResolution: ModuleResolutionKind.NodeNext,
+      },
+    },
+    umd: {
+      ...typesConfig,
+      compilerOptions: {
+        ...typesConfig.compilerOptions,
+        module: ModuleKind.ESNext,
+        moduleResolution: ModuleResolutionKind.Bundler,
+      },
+    },
+  });
 }
