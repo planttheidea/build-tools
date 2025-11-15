@@ -6,7 +6,7 @@ import gitRoot from 'git-root';
 import { ModuleKind, ModuleResolutionKind } from 'typescript';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import { createConfigs, writeConfigs } from '../dist/tsconfig.js';
+import { createStandardConfig, writeConfigs } from '../dist/types.js';
 
 const ROOT = gitRoot();
 const ARGS = yargs(hideBin(process.argv))
@@ -70,18 +70,6 @@ function getInclude({ build, development, source, prefix = '.' }) {
   });
 }
 
-const configs = createConfigs({
-  compilerOptions: {
-    baseUrl: source,
-    jsx: react ? 'react-jsx' : undefined,
-    outDir: library,
-    types: react ? ['node', 'react'] : ['node'],
-  },
-  exclude: ['**/node_modules/**', `${library}/**/*`],
-  include: getInclude({ build, development, source }),
-});
-const baseConfig = JSON.stringify(configs.runtime, null, 2);
-
 if (!existsSync(source)) {
   mkdirSync(source);
 }
@@ -106,10 +94,27 @@ if (!existsSync(buildTypes)) {
 
 if (!dry) {
   /** WRITE FILES **/
+
+  const baseConfig = createStandardConfig({
+    compilerOptions: {
+      baseUrl: source,
+      jsx: react ? 'react-jsx' : undefined,
+      outDir: library,
+      types: react ? ['node', 'react'] : ['node'],
+    },
+    exclude: ['**/node_modules/**', `${library}/**/*`],
+    include: getInclude({ build, development, source }),
+  });
+
+  writeFileSync(
+    join(ROOT, 'tsconfig.json'),
+    JSON.stringify(baseConfig, null, 2),
+    'utf8',
+  );
+
   const prefix = join('..', '..');
   const include = getInclude({ source, prefix });
 
-  writeFileSync(join(ROOT, 'tsconfig.json'), baseConfig, 'utf8');
   writeConfigs(resolve(buildTypes), {
     cjs: {
       compilerOptions: {

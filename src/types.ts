@@ -1,5 +1,6 @@
-import { writeFileSync } from 'node:fs';
+import { readdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import gitRoot from 'git-root';
 import type { CompilerOptions } from 'typescript';
 import {
   ModuleDetectionKind,
@@ -117,29 +118,6 @@ function normalizeCompilerOptions<Options extends Record<string, any>>(
   return normalizedOptions as Options;
 }
 
-export function createConfigs<const Options extends ConfigOptions>(
-  options: Options = {} as Options,
-): Configs<Options> {
-  const runtime = {
-    ...BASE_CONFIG,
-    ...options,
-    compilerOptions: normalizeCompilerOptions({
-      ...BASE_CONFIG.compilerOptions,
-      ...options.compilerOptions,
-    }),
-  } as MergeOptions<Options>;
-  const declaration = {
-    ...runtime,
-    compilerOptions: {
-      ...runtime.compilerOptions,
-      declaration: true,
-      emitDeclarationOnly: true,
-    },
-  } as MergeDeclarationOptions<Options>;
-
-  return { declaration, runtime };
-}
-
 export function createDeclarationConfig<const Options extends ConfigOptions>(
   file: string,
   options: Options = {} as Options,
@@ -171,6 +149,33 @@ export function createStandardConfig<const Options extends ConfigOptions>(
       ...options.compilerOptions,
     }),
   };
+}
+
+export function renameModuleExtensions(type: 'cjs' | 'es', library = 'dist') {
+  const extension =
+    type === 'cjs' ? '.d.ts' : type === 'es' ? '.d.mts' : undefined;
+
+  if (!extension) {
+    throw new ReferenceError(
+      `Type "${type}" is invalid; please pass either "cjs" or "es".`,
+    );
+  }
+
+  const typesDir = join(gitRoot(), library, type, 'types');
+  const files = readdirSync(typesDir, 'utf8');
+
+  files.forEach((file) => {
+    const filePath = join(typesDir, file);
+    const content = readFileSync(filePath, 'utf8');
+    const updatedContent = content
+      .replaceAll('.ts', extension)
+      .replaceAll('.js', extension)
+      .replaceAll('import {', 'import type {');
+
+    writeFileSync(filePath, updatedContent, 'utf8');
+
+    renameSync(filePath, filePath.replace('.d.ts', extension));
+  });
 }
 
 export function writeConfig<const Options extends ConfigOptions>(

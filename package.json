@@ -1,7 +1,8 @@
 {
   "author": "tony.quetano@planttheidea.com",
   "bin": {
-    "create-tsconfig": "./bin/createProjectTsConfig.js"
+    "pti-module-types": "./bin/renameTypeDefinition.js",
+    "pti-tsconfig": "./bin/createProjectTsConfig.js"
   },
   "bugs": {
     "url": "https://github.com/planttheidea/build-tools/issues"
@@ -42,7 +43,7 @@
         "default": "./dist/rollup.js"
       }
     },
-    "./tsconfig": {
+    "./types": {
       "default": {
         "types": "./dist/tsconfig.d.ts",
         "default": "./dist/tsconfig.js"
