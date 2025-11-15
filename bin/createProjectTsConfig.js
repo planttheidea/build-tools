@@ -87,7 +87,11 @@ if (!existsSync(source)) {
 }
 
 if (!existsSync(join(source, 'index.ts'))) {
-  writeFileSync(join(source, 'index.ts'), 'export REPLACE_ME = {};', 'utf8');
+  writeFileSync(
+    join(source, 'index.ts'),
+    'export const REPLACE_ME = {};',
+    'utf8',
+  );
 }
 
 if (!existsSync(build)) {
