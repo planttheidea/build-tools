@@ -68,13 +68,11 @@
     "url": "git+https://github.com/planttheidea/build-tools.git"
   },
   "scripts": {
-    "build": "npm run build:configs && npm run build:runtime",
-    "build:configs": "ts-node scripts/createStandardTsConfigs.ts",
+    "build": "rollup -c _internal/rollup.config.js",
     "dist": "rm -rf dist && npm run build",
     "release": "release-it",
     "release:beta": "release-it --config=.release-it.beta.json",
     "release:scripts": "npm run typecheck && npm run dist",
-    "build:runtime": "rollup -c _internal/rollup.config.js",
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },

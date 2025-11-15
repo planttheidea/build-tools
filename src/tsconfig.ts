@@ -9,7 +9,9 @@ import {
 } from 'typescript';
 
 interface ConfigOptions {
-  compilerOptions?: CompilerOptions;
+  compilerOptions: Omit<CompilerOptions, 'outDir'> & {
+    outDir: Required<CompilerOptions>['outDir'];
+  };
   exclude?: string[];
   extends?: string;
   files?: string[];
@@ -138,53 +140,79 @@ export function createConfigs<const Options extends ConfigOptions>(
   return { declaration, runtime };
 }
 
-export function writeConfigs<
-  const _Options extends ConfigOptions,
-  const ConfigMap extends Record<string, ConfigOptions>,
->(
-  folder: string,
-  configs: ConfigMap,
-): {
-  [Key in keyof ConfigMap]: Configs<ConfigMap[Key]>;
-};
-export function writeConfigs<const Options extends ConfigOptions>(
+export function createDeclarationConfig<const Options extends ConfigOptions>(
+  file: string,
+  options: Options = {} as Options,
+): MergeDeclarationOptions<Options> {
+  return {
+    ...BASE_CONFIG,
+    ...options,
+    compilerOptions: normalizeCompilerOptions({
+      ...BASE_CONFIG.compilerOptions,
+      ...options.compilerOptions,
+      declaration: true,
+      declarationDir:
+        options.compilerOptions.declarationDir ??
+        join(options.compilerOptions.outDir, file, 'types'),
+      emitDeclarationOnly: true,
+      outDir: undefined,
+    }),
+  };
+}
+
+export function createStandardConfig<const Options extends ConfigOptions>(
+  options: Options = {} as Options,
+): MergeOptions<Options> {
+  return {
+    ...BASE_CONFIG,
+    ...options,
+    compilerOptions: normalizeCompilerOptions({
+      ...BASE_CONFIG.compilerOptions,
+      ...options.compilerOptions,
+    }),
+  };
+}
+
+export function writeConfig<const Options extends ConfigOptions>(
   folder: string,
   file: string,
-  options?: Options,
-): Configs<Options>;
-export function writeConfigs<
-  const Options extends ConfigOptions,
-  const ConfigMap extends Record<string, ConfigOptions>,
->(folder: string, fileOrConfigs: string | ConfigMap, options?: Options) {
-  if (typeof fileOrConfigs === 'object') {
-    return Object.fromEntries(
-      Object.entries(fileOrConfigs).map(([file, config]) => [
-        file,
-        writeConfigs(folder, file, config),
-      ]),
-    );
-  }
-
-  const file = fileOrConfigs;
-
+  options: Options,
+) {
   if (file.endsWith('.json')) {
     throw new ReferenceError(
       'Found extra `.json` suffix; please provoide only the base name.',
     );
   }
 
-  const config = createConfigs(options);
+  const runtimeConfig = createStandardConfig(options);
+  const declarationConfig = createDeclarationConfig(file, options);
 
   writeFileSync(
     join(folder, `${file}.json`),
-    JSON.stringify(config.runtime, null, 2),
+    JSON.stringify(runtimeConfig, null, 2),
     'utf8',
   );
   writeFileSync(
     join(folder, `${file}.declaration.json`),
-    JSON.stringify(config.declaration, null, 2),
+    JSON.stringify(declarationConfig, null, 2),
     'utf8',
   );
 
-  return config;
+  return { declaration: declarationConfig, runtime: runtimeConfig };
+}
+
+export function writeConfigs<
+  const OptionsMap extends Record<string, ConfigOptions>,
+>(
+  folder: string,
+  optionsMap: OptionsMap,
+): {
+  [Key in keyof OptionsMap]: Configs<OptionsMap[Key]>;
+} {
+  return Object.fromEntries(
+    Object.entries(optionsMap).map(([file, options]) => [
+      file,
+      writeConfig(folder, file, options),
+    ]),
+  ) as any;
 }

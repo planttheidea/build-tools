@@ -104,43 +104,36 @@ if (!existsSync(buildTypes)) {
   mkdirSync(buildTypes);
 }
 
-const typesPrefix = join('..', '..');
-const typesConfig = {
-  compilerOptions: {
-    outDir: join(typesPrefix, library),
-  },
-  include: getInclude({ source, prefix: typesPrefix }),
-};
-
 if (!dry) {
   /** WRITE FILES **/
+  const prefix = join('..', '..');
+  const include = getInclude({ source, prefix });
 
   writeFileSync(join(ROOT, 'tsconfig.json'), baseConfig, 'utf8');
   writeConfigs(resolve(buildTypes), {
-    base: typesConfig,
     cjs: {
-      ...typesConfig,
       compilerOptions: {
-        ...typesConfig.compilerOptions,
         module: ModuleKind.Node16,
         moduleResolution: ModuleResolutionKind.Node16,
+        outDir: join(prefix, library),
       },
+      include,
     },
     es: {
-      ...typesConfig,
       compilerOptions: {
-        ...typesConfig.compilerOptions,
         module: ModuleKind.NodeNext,
         moduleResolution: ModuleResolutionKind.NodeNext,
+        outDir: join(prefix, library),
       },
+      include,
     },
     umd: {
-      ...typesConfig,
       compilerOptions: {
-        ...typesConfig.compilerOptions,
         module: ModuleKind.ESNext,
         moduleResolution: ModuleResolutionKind.Bundler,
+        outDir: join(prefix, library),
       },
+      include,
     },
   });
 }
