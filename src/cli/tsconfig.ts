@@ -215,7 +215,7 @@ export function createProjectTsConfigs(argv: string[]) {
         compilerOptions: {
           module: ModuleKind.Node16,
           moduleResolution: ModuleResolutionKind.Node16,
-          outDir: join(prefix, library),
+          outDir: join(prefix, library, 'cjs'),
         },
         include,
       },
@@ -223,7 +223,7 @@ export function createProjectTsConfigs(argv: string[]) {
         compilerOptions: {
           module: ModuleKind.NodeNext,
           moduleResolution: ModuleResolutionKind.NodeNext,
-          outDir: join(prefix, library),
+          outDir: join(prefix, library, 'es'),
         },
         include,
       },
@@ -231,7 +231,7 @@ export function createProjectTsConfigs(argv: string[]) {
         compilerOptions: {
           module: ModuleKind.ESNext,
           moduleResolution: ModuleResolutionKind.Bundler,
-          outDir: join(prefix, library),
+          outDir: join(prefix, library, 'umd'),
         },
         include,
       },
@@ -283,7 +283,6 @@ function normalizeCompilerOptions<Options extends Record<string, any>>(
 }
 
 function createDeclarationConfig<const Options extends ConfigOptions>(
-  file: string,
   options: Options = {} as Options,
 ): MergeDeclarationOptions<Options> {
   return {
@@ -295,7 +294,7 @@ function createDeclarationConfig<const Options extends ConfigOptions>(
       declaration: true,
       declarationDir:
         options.compilerOptions.declarationDir ??
-        join(options.compilerOptions.outDir, file),
+        join(options.compilerOptions.outDir, 'types'),
       emitDeclarationOnly: true,
       outDir: undefined,
     }),
@@ -327,7 +326,7 @@ function writeConfig<const Options extends ConfigOptions>(
   }
 
   const runtimeConfig = createStandardConfig(options);
-  const declarationConfig = createDeclarationConfig(file, options);
+  const declarationConfig = createDeclarationConfig(options);
 
   writeFileSync(
     join(folder, `${file}.json`),
