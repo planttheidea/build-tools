@@ -36,7 +36,7 @@ function cleanPackageJson(library: string, build: string) {
       '.': {
         import: {
           types: `./${library}/es/index.d.mts`,
-          default: `./${build}/es/index.mjs`,
+          default: `./${library}/es/index.mjs`,
         },
         require: {
           types: `./${library}/cjs/index.d.cts`,
@@ -44,7 +44,7 @@ function cleanPackageJson(library: string, build: string) {
         },
         default: {
           types: `./${library}/umd/index.d.ts`,
-          default: `./${library}/umd/umd.js`,
+          default: `./${library}/umd/index.js`,
         },
       },
     },
