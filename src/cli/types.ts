@@ -1,8 +1,30 @@
 import { readdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import gitRoot from 'git-root';
+import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
 
-export function renameModuleExtensions(type: 'cjs' | 'es', library = 'dist') {
+export function createRenamedModuleExtensions(argv: string[]) {
+  const { library, type } = yargs(hideBin(argv))
+    .option('type', {
+      alias: 't',
+      choices: ['cjs', 'es'] as const,
+      description: 'Location of build configuration files',
+      required: true,
+      type: 'string',
+    })
+    .option('library', {
+      alias: 'l',
+      default: 'dist',
+      description: 'Location of library files',
+      type: 'string',
+    })
+    .parseSync();
+
+  renameModuleExtensions(type, library);
+}
+
+function renameModuleExtensions(type: 'cjs' | 'es', library = 'dist') {
   const extension =
     type === 'cjs' ? '.d.cts' : type === 'es' ? '.d.mts' : undefined;
 
