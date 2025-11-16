@@ -2,6 +2,7 @@
   "author": "tony.quetano@planttheidea.com",
   "bin": {
     "pti-module-types": "./bin/renameTypeDefinitions.js",
+    "pti-package-json": "./bin/cleanPackageJson.js",
     "pti-rollup": "./bin/createRollupConfigs.js",
     "pti-tsconfig": "./bin/createTsConfigs.js"
   },
