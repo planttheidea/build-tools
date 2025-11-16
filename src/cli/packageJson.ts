@@ -1,5 +1,5 @@
 import { readFileSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 import gitRoot from 'git-root';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
@@ -25,13 +25,23 @@ export function createCleanPackageJson(argv: string[]) {
 
 function cleanPackageJson(library: string, config: string) {
   const root = gitRoot();
-  const packageJson = JSON.parse(
+  const targetPackageJson = JSON.parse(
     readFileSync(join(root, 'package.json'), 'utf8'),
   );
+  const ownPackageJson = JSON.parse(
+    readFileSync(
+      resolve(import.meta.dirname, '..', '..', 'package.json'),
+      'utf8',
+    ),
+  );
 
-  const updatedPackageJson = sortObject({
-    ...packageJson,
+  const updatedTargetPackageJson = sortObject({
+    ...targetPackageJson,
     browser: `${library}/umd/index.js`,
+    devDependencies: {
+      ...targetPackageJson.devDependencies,
+      ...getDevDependencies(),
+    },
     exports: {
       '.': {
         import: {
@@ -51,12 +61,12 @@ function cleanPackageJson(library: string, config: string) {
     main: `${library}/cjs/index.cjs`,
     module: `${library}/es/index.mjs`,
     scripts: {
-      ...packageJson.scripts,
-      ...getconfigCommands('cjs', config),
+      ...targetPackageJson.scripts,
+      ...getBuildCommands('cjs', config),
       ...getCleanCommands('cjs', library),
-      ...getconfigCommands('es', config),
+      ...getBuildCommands('es', config),
       ...getCleanCommands('es', library),
-      ...getconfigCommands('umd', config),
+      ...getBuildCommands('umd', config),
       ...getCleanCommands('umd', library),
       build:
         'npm run clean && npm run build:es && npm run build:es:types && npm run build:cjs && npm run build:cjs:types && npm run build:umd && npm run build:umd:types',
@@ -76,21 +86,21 @@ function cleanPackageJson(library: string, config: string) {
 
   writeFileSync(
     join(root, 'package.json'),
-    JSON.stringify(updatedPackageJson, null, 2),
+    JSON.stringify(updatedTargetPackageJson, null, 2),
     'utf8',
   );
 }
 
-function getconfigCommands(type: 'cjs' | 'es' | 'umd', config: string) {
-  let configTypes = `tsc -p ${config}/types/${type}.declaration.json`;
+function getBuildCommands(type: 'cjs' | 'es' | 'umd', config: string) {
+  let buildTypes = `tsc -p ${config}/types/${type}.declaration.json`;
 
   if (type !== 'umd') {
-    configTypes += ` && pti-module-types -t ${type}`;
+    buildTypes += ` && pti-module-types -t ${type}`;
   }
 
   return {
     [`build:${type}`]: `NODE_ENV=production rollup -c ${config}/rollup/${type}.config.js`,
-    [`build:${type}:types`]: configTypes,
+    [`build:${type}:types`]: buildTypes,
   };
 }
 
@@ -98,6 +108,31 @@ function getCleanCommands(type: 'cjs' | 'es' | 'umd', library: string) {
   return {
     [`clean:${type}`]: `rm -rf ${library}/${type}`,
   };
+}
+
+function getDevDependencies() {
+  const ownPackageJson = JSON.parse(
+    readFileSync(
+      resolve(import.meta.dirname, '..', '..', 'package.json'),
+      'utf8',
+    ),
+  );
+
+  return ['eslint', 'rollup', 'typescript', 'vite', 'vitest'].reduce<
+    Record<string, string>
+  >((devDependencies, name) => {
+    const dependency = ownPackageJson.dependencies[name];
+
+    if (!dependency) {
+      throw new Error(
+        `Dependency "${name}" is not available in build tools dependencies.`,
+      );
+    }
+
+    devDependencies[name] = dependency;
+
+    return devDependencies;
+  }, {});
 }
 
 function shouldSortNestedKey(key: string): boolean {
