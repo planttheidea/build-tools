@@ -61,6 +61,13 @@ function cleanPackageJson(library: string, build: string) {
       build:
         'npm run clean && npm run build:es && npm run build:es:types && npm run build:cjs && npm run build:cjs:types && npm run build:umd && npm run build:umd:types',
       clean: `rm -rf ${library}`,
+      release: `release-it --config=${build}/release-it/stable.json`,
+      'release:alpha': `release-it --config=${build}/release-it/alpha.json`,
+      'release:beta': `release-it --config=${build}/release-it/beta.json`,
+      'release:rc': `release-it --config=${build}/release-it/rc.json`,
+      'release:scripts':
+        'npm run typecheck && npm run lint && npm run test:coverage && npm run build',
+      typecheck: 'tsc --noEmit',
     },
     types: 'index.d.ts',
   });
