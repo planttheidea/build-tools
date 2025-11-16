@@ -115,7 +115,7 @@ function getInclude({
   });
 }
 
-export function createProjectTsConfigs(argv: string[]) {
+export function createTsConfigs(argv: string[]) {
   const { build, development, dry, library, react, source } = yargs(
     hideBin(argv),
   )
@@ -190,7 +190,7 @@ export function createProjectTsConfigs(argv: string[]) {
 
     const root = gitRoot();
 
-    const baseConfig = createStandardConfig({
+    const baseConfig = getStandardConfig({
       compilerOptions: {
         baseUrl: source,
         jsx: react ? 'react-jsx' : undefined,
@@ -239,7 +239,26 @@ export function createProjectTsConfigs(argv: string[]) {
   }
 }
 
-function normalizeCompilerOptions<Options extends Record<string, any>>(
+function getDeclarationConfig<const Options extends ConfigOptions>(
+  options: Options = {} as Options,
+): MergeDeclarationOptions<Options> {
+  return {
+    ...BASE_CONFIG,
+    ...options,
+    compilerOptions: getNormalizedCompilerOptions({
+      ...BASE_CONFIG.compilerOptions,
+      ...options.compilerOptions,
+      declaration: true,
+      declarationDir:
+        options.compilerOptions.declarationDir ??
+        options.compilerOptions.outDir,
+      emitDeclarationOnly: true,
+      outDir: undefined,
+    }),
+  };
+}
+
+function getNormalizedCompilerOptions<Options extends Record<string, any>>(
   options: Options,
 ): Options {
   const normalizedOptions: Record<string, any> = {};
@@ -282,32 +301,13 @@ function normalizeCompilerOptions<Options extends Record<string, any>>(
   return normalizedOptions as Options;
 }
 
-function createDeclarationConfig<const Options extends ConfigOptions>(
-  options: Options = {} as Options,
-): MergeDeclarationOptions<Options> {
-  return {
-    ...BASE_CONFIG,
-    ...options,
-    compilerOptions: normalizeCompilerOptions({
-      ...BASE_CONFIG.compilerOptions,
-      ...options.compilerOptions,
-      declaration: true,
-      declarationDir:
-        options.compilerOptions.declarationDir ??
-        options.compilerOptions.outDir,
-      emitDeclarationOnly: true,
-      outDir: undefined,
-    }),
-  };
-}
-
-function createStandardConfig<const Options extends ConfigOptions>(
+function getStandardConfig<const Options extends ConfigOptions>(
   options: Options = {} as Options,
 ): MergeOptions<Options> {
   return {
     ...BASE_CONFIG,
     ...options,
-    compilerOptions: normalizeCompilerOptions({
+    compilerOptions: getNormalizedCompilerOptions({
       ...BASE_CONFIG.compilerOptions,
       ...options.compilerOptions,
     }),
@@ -325,8 +325,8 @@ function writeConfig<const Options extends ConfigOptions>(
     );
   }
 
-  const runtimeConfig = createStandardConfig(options);
-  const declarationConfig = createDeclarationConfig(options);
+  const runtimeConfig = getStandardConfig(options);
+  const declarationConfig = getDeclarationConfig(options);
 
   writeFileSync(
     join(folder, `${file}.json`),
