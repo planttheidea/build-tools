@@ -59,7 +59,7 @@ function cleanPackageJson(library: string, config: string) {
       ...getconfigCommands('umd', config),
       ...getCleanCommands('umd', library),
       build:
-        'npm run clean && npm run build:es && npm run build:es:types && npm run build:cjs && npm run build:cjs:types && npm run build:umd && npm run buildq:umd:types',
+        'npm run clean && npm run build:es && npm run build:es:types && npm run build:cjs && npm run build:cjs:types && npm run build:umd && npm run build:umd:types',
       clean: `rm -rf ${library}`,
       lint: 'echo "TODO LINT"',
       release: `release-it --config=${config}/release-it/stable.json`,
