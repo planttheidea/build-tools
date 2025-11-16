@@ -3,7 +3,7 @@
   "bin": {
     "pti-module-types": "./bin/renameTypeDefinitions.js",
     "pti-package-json": "./bin/cleanPackageJson.js",
-    "pti-release-it": "./bin/createRekeaseItConfigs.js",
+    "pti-release-it": "./bin/createReleaseItConfigs.js",
     "pti-rollup": "./bin/createRollupConfigs.js",
     "pti-tsconfig": "./bin/createTsConfigs.js"
   },
