@@ -44,7 +44,7 @@ function cleanPackageJson(library: string, build: string) {
         },
         default: {
           types: `./${library}/umd/index.d.ts`,
-          default: `./${library}/cjs/umd.js`,
+          default: `./${library}/umd/umd.js`,
         },
       },
     },
@@ -73,9 +73,15 @@ function cleanPackageJson(library: string, build: string) {
 }
 
 function getBuildCommands(type: 'cjs' | 'es' | 'umd', build: string) {
+  let buildTypes = `tsc -p ${build}/types/${type}.declaration.json`;
+
+  if (type !== 'umd') {
+    buildTypes += ` && pti-module-types -t ${type}`;
+  }
+
   return {
     [`build:${type}`]: `NODE_ENV=production rollup -c ${build}/rollup/${type}.config.js`,
-    [`build:${type}:types`]: `tsc -p ${build}/types/${type}.declaration.json && pti-module-types -t ${build}`,
+    [`build:${type}:types`]: buildTypes,
   };
 }
 
