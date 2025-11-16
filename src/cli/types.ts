@@ -1,8 +1,11 @@
-import { readdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
+import { readFileSync, renameSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import fastGlob from 'fast-glob';
 import gitRoot from 'git-root';
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
+
+const { globSync } = fastGlob;
 
 export function createRenamedModuleExtensions(argv: string[]) {
   const { library, type } = yargs(hideBin(argv))
@@ -36,18 +39,15 @@ function renameModuleExtensions(type: 'cjs' | 'es', library = 'dist') {
 
   const root = gitRoot();
   const typesDir = join(root, library, type);
-  const files = readdirSync(typesDir, 'utf8');
+  const files = globSync(join(typesDir, '*.d.ts'), { absolute: true });
 
   files.forEach((file) => {
-    const filePath = join(typesDir, file);
-    const content = readFileSync(filePath, 'utf8');
+    const content = readFileSync(file, 'utf8');
     const updatedContent = content
-      .replaceAll('.ts', extension)
-      .replaceAll('.js', extension)
+      .replaceAll(".ts';", `${extension}';`)
+      .replaceAll(".js';", `${extension}';`)
       .replaceAll('import {', 'import type {');
-
-    writeFileSync(filePath, updatedContent, 'utf8');
-
-    renameSync(filePath, filePath.replace('.d.ts', extension));
+    writeFileSync(file, updatedContent, 'utf8');
+    renameSync(file, file.replace('.d.ts', extension));
   });
 }

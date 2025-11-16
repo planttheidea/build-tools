@@ -294,7 +294,7 @@ function createDeclarationConfig<const Options extends ConfigOptions>(
       declaration: true,
       declarationDir:
         options.compilerOptions.declarationDir ??
-        join(options.compilerOptions.outDir, 'types'),
+        options.compilerOptions.outDir,
       emitDeclarationOnly: true,
       outDir: undefined,
     }),

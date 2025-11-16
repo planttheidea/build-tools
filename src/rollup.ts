@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import typescript from '@rollup/plugin-typescript';
+import camelCase from 'camelcase';
 import gitRoot from 'git-root';
 import tsc from 'typescript';
 import type { Plugin } from 'rollup/dist/rollup.d.ts';
@@ -16,18 +17,12 @@ interface Config {
 
 export function createRollupConfig({
   buildTypesDir = join('build', 'types'),
-  globals,
   input = join('src', 'index.ts'),
   outputFormat = 'es',
   plugins = [],
 }: Config = {}) {
   const pkgJsonPath = getPathFromRoot('package.json');
   const pkgJson = JSON.parse(readFileSync(pkgJsonPath, 'utf8'));
-  const external = [
-    ...Object.keys(pkgJson.dependencies || {}),
-    ...Object.keys(pkgJson.peerDependencies || {}),
-    /node:/,
-  ];
 
   const fileSource =
     outputFormat === 'es'
@@ -42,6 +37,26 @@ export function createRollupConfig({
       `The file for format ${outputFormat} was not found; expected entry to exist in the "${fileSource}" field in package.json.`,
     );
   }
+
+  const external = [
+    ...Object.keys(pkgJson.dependencies || {}),
+    ...Object.keys(pkgJson.peerDependencies || {}),
+    /node:/,
+  ];
+  const globals =
+    outputFormat === 'umd'
+      ? external.reduce<Record<string, string> | undefined>((globals, name) => {
+          if (typeof name === 'string') {
+            if (!globals) {
+              globals = {};
+            }
+
+            globals[name] = camelCase(name);
+          }
+
+          return globals;
+        }, undefined)
+      : undefined;
 
   return {
     external,

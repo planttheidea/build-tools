@@ -870,6 +870,7 @@ __metadata:
     "@types/react": "npm:^19.2.5"
     "@types/typescript": "npm:^2.0.0"
     "@types/yargs": "npm:^17.0.35"
+    camelcase: "npm:^9.0.0"
     eslint: "npm:^9.39.1"
     eslint-plugin-import: "npm:^2.32.0"
     fast-glob: "npm:^3.3.3"
@@ -1818,6 +1819,13 @@ __metadata:
   version: 3.1.0
   resolution: "callsites@npm:3.1.0"
   checksum: 10c0/fff92277400eb06c3079f9e74f3af120db9f8ea03bad0e84d9aede54bbe2d44a56cccb5f6cf12211f93f52306df87077ecec5b712794c5a9b5dac6d615a3f301
+  languageName: node
+  linkType: hard
+
+"camelcase@npm:^9.0.0":
+  version: 9.0.0
+  resolution: "camelcase@npm:9.0.0"
+  checksum: 10c0/7171e1540b9b227cab9d59b7afa05174d14c10268171c18bdf2240eb1485ad6851592f1253ddc291f7ae34caad42c18206d339538965c67fb17fc995c0bb509b
   languageName: node
   linkType: hard
 
