@@ -35,16 +35,16 @@ function cleanPackageJson(library: string, build: string) {
     exports: {
       '.': {
         import: {
-          types: `./${build}/es/index.mjs`,
-          default: `./${build}/es/index.d.mts`,
+          types: `./${library}/es/index.d.mts`,
+          default: `./${build}/es/index.mjs`,
         },
         require: {
-          types: `./${build}/cjs/index.cjs`,
-          default: `./${build}/cjs/index.d.cts`,
+          types: `./${library}/cjs/index.d.cts`,
+          default: `./${library}/cjs/index.cjs`,
         },
         default: {
-          types: `./${build}/umd/index.js`,
-          default: `./${build}/cjs/umd.d.ts`,
+          types: `./${library}/umd/index.d.ts`,
+          default: `./${library}/cjs/umd.js`,
         },
       },
     },
@@ -74,8 +74,8 @@ function cleanPackageJson(library: string, build: string) {
 
 function getBuildCommands(type: 'cjs' | 'es' | 'umd', build: string) {
   return {
-    [`build:${type}`]: `NODE_ENV=production rollup -c ${build}/rollup/cjs.config.js`,
-    [`build:${type}:types`]: `tsc -p ${build}/types/cjs.declaration.json && pti-module-types -t ${build}`,
+    [`build:${type}`]: `NODE_ENV=production rollup -c ${build}/rollup/${type}.config.js`,
+    [`build:${type}:types`]: `tsc -p ${build}/types/${type}.declaration.json && pti-module-types -t ${build}`,
   };
 }
 
