@@ -5,11 +5,11 @@ import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 
 export function createCleanPackageJson(argv: string[]) {
-  const { build, library } = yargs(hideBin(argv))
-    .option('build', {
+  const { config, library } = yargs(hideBin(argv))
+    .option('config', {
       alias: 'b',
-      default: 'build',
-      description: 'Location of build configuration files',
+      default: 'config',
+      description: 'Location of configuration files',
       type: 'string',
     })
     .option('library', {
@@ -20,10 +20,10 @@ export function createCleanPackageJson(argv: string[]) {
     })
     .parseSync();
 
-  cleanPackageJson(library, build);
+  cleanPackageJson(library, config);
 }
 
-function cleanPackageJson(library: string, build: string) {
+function cleanPackageJson(library: string, config: string) {
   const root = gitRoot();
   const packageJson = JSON.parse(
     readFileSync(join(root, 'package.json'), 'utf8'),
@@ -52,21 +52,23 @@ function cleanPackageJson(library: string, build: string) {
     module: `${library}/es/index.mjs`,
     scripts: {
       ...packageJson.scripts,
-      ...getBuildCommands('cjs', build),
+      ...getconfigCommands('cjs', config),
       ...getCleanCommands('cjs', library),
-      ...getBuildCommands('es', build),
+      ...getconfigCommands('es', config),
       ...getCleanCommands('es', library),
-      ...getBuildCommands('umd', build),
+      ...getconfigCommands('umd', config),
       ...getCleanCommands('umd', library),
-      build:
-        'npm run clean && npm run build:es && npm run build:es:types && npm run build:cjs && npm run build:cjs:types && npm run build:umd && npm run build:umd:types',
+      config:
+        'npm run clean && npm run config:es && npm run config:es:types && npm run config:cjs && npm run config:cjs:types && npm run config:umd && npm run config:umd:types',
       clean: `rm -rf ${library}`,
-      release: `release-it --config=${build}/release-it/stable.json`,
-      'release:alpha': `release-it --config=${build}/release-it/alpha.json`,
-      'release:beta': `release-it --config=${build}/release-it/beta.json`,
-      'release:rc': `release-it --config=${build}/release-it/rc.json`,
+      lint: 'echo "TODO LINT"',
+      release: `release-it --config=${config}/release-it/stable.json`,
+      'release:alpha': `release-it --config=${config}/release-it/alpha.json`,
+      'release:beta': `release-it --config=${config}/release-it/beta.json`,
+      'release:rc': `release-it --config=${config}/release-it/rc.json`,
       'release:scripts':
-        'npm run typecheck && npm run lint && npm run test:coverage && npm run build',
+        'npm run typecheck && npm run lint && npm run test:coverage && npm run config',
+      test: 'echo "TODO TEST"',
       typecheck: 'tsc --noEmit',
     },
     types: 'index.d.ts',
@@ -79,16 +81,16 @@ function cleanPackageJson(library: string, build: string) {
   );
 }
 
-function getBuildCommands(type: 'cjs' | 'es' | 'umd', build: string) {
-  let buildTypes = `tsc -p ${build}/types/${type}.declaration.json`;
+function getconfigCommands(type: 'cjs' | 'es' | 'umd', config: string) {
+  let configTypes = `tsc -p ${config}/types/${type}.declaration.json`;
 
   if (type !== 'umd') {
-    buildTypes += ` && pti-module-types -t ${type}`;
+    configTypes += ` && pti-module-types -t ${type}`;
   }
 
   return {
-    [`build:${type}`]: `NODE_ENV=production rollup -c ${build}/rollup/${type}.config.js`,
-    [`build:${type}:types`]: buildTypes,
+    [`config:${type}`]: `NODE_ENV=production rollup -c ${config}/rollup/${type}.config.js`,
+    [`config:${type}:types`]: configTypes,
   };
 }
 

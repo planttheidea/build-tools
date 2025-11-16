@@ -80,7 +80,7 @@ const BASE_CONFIG = {
 } as const;
 
 interface Args {
-  build?: string;
+  config?: string;
   development?: string;
   dry?: boolean;
   library?: string;
@@ -89,18 +89,18 @@ interface Args {
 }
 
 interface IncludeArgs
-  extends Pick<Args, 'build' | 'development' | 'react' | 'source'> {
+  extends Pick<Args, 'config' | 'development' | 'react' | 'source'> {
   prefix?: string;
 }
 
 function getInclude({
-  build,
+  config,
   development,
   react,
   source,
   prefix = '.',
 }: IncludeArgs) {
-  const files = [build, development, source].filter(
+  const files = [config, development, source].filter(
     (file) => typeof file === 'string',
   );
 
@@ -116,13 +116,13 @@ function getInclude({
 }
 
 export function createTsConfigs(argv: string[]) {
-  const { build, development, dry, library, react, source } = yargs(
+  const { config, development, dry, library, react, source } = yargs(
     hideBin(argv),
   )
-    .option('build', {
+    .option('config', {
       alias: 'b',
-      default: 'build',
-      description: 'Location of build configuration files',
+      default: 'config',
+      description: 'Location of configuration files',
       type: 'string',
     })
     .option('development', {
@@ -175,14 +175,14 @@ export function createTsConfigs(argv: string[]) {
     );
   }
 
-  if (!existsSync(build)) {
-    mkdirSync(build);
+  if (!existsSync(config)) {
+    mkdirSync(config);
   }
 
-  const buildTypes = join(build, 'types');
+  const configTypes = join(config, 'types');
 
-  if (!existsSync(buildTypes)) {
-    mkdirSync(buildTypes);
+  if (!existsSync(configTypes)) {
+    mkdirSync(configTypes);
   }
 
   if (!dry) {
@@ -198,7 +198,7 @@ export function createTsConfigs(argv: string[]) {
         types: react ? ['node', 'react'] : ['node'],
       },
       exclude: ['**/node_modules/**', `${library}/**/*`],
-      include: getInclude({ build, development, source }),
+      include: getInclude({ config, development, source }),
     });
 
     writeFileSync(
@@ -210,7 +210,7 @@ export function createTsConfigs(argv: string[]) {
     const prefix = join('..', '..');
     const include = getInclude({ source, prefix });
 
-    writeConfigs(resolve(buildTypes), {
+    writeConfigs(resolve(configTypes), {
       cjs: {
         compilerOptions: {
           module: ModuleKind.Node16,

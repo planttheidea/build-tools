@@ -1,9 +1,0 @@
-{
-  "github": {
-    "release": true,
-    "tagName": "v${version}"
-  },
-  "hooks": {
-    "before:init": ["npm run typecheck", "npm run build"]
-  }
-}

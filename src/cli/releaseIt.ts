@@ -7,27 +7,27 @@ import { hideBin } from 'yargs/helpers';
 const folderName = 'release-it';
 
 export function createReleaseItConfigs(argv: string[]) {
-  const { build } = yargs(hideBin(argv))
-    .option('build', {
+  const { config } = yargs(hideBin(argv))
+    .option('config', {
       alias: 'b',
-      default: 'build',
-      description: 'Location of build configuration files',
+      default: 'config',
+      description: 'Location of configuration files',
       type: 'string',
     })
     .parseSync();
 
-  writeConfigs(build);
+  writeConfigs(config);
 }
 
-function writeConfigs(build: string) {
+function writeConfigs(config: string) {
   const root = gitRoot();
-  const buildDir = join(root, build);
+  const configDir = join(root, config);
 
-  if (!existsSync(buildDir)) {
-    mkdirSync(buildDir);
+  if (!existsSync(configDir)) {
+    mkdirSync(configDir);
   }
 
-  const releaseItConfigDir = join(buildDir, folderName);
+  const releaseItConfigDir = join(configDir, folderName);
 
   if (!existsSync(releaseItConfigDir)) {
     mkdirSync(releaseItConfigDir);

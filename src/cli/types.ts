@@ -12,7 +12,7 @@ export function createRenamedModuleExtensions(argv: string[]) {
     .option('type', {
       alias: 't',
       choices: ['cjs', 'es'] as const,
-      description: 'Location of build configuration files',
+      description: 'Module types to rename',
       required: true,
       type: 'string',
     })
