@@ -59,7 +59,7 @@ function cleanPackageJson(library: string, config: string) {
       ...getconfigCommands('umd', config),
       ...getCleanCommands('umd', library),
       build:
-        'npm run clean && npm run build:es && npm run build:es:types && npm run build:cjs && npm run build:cjs:types && npm run build:umd && npm run build:umd:types',
+        'npm run clean && npm run build:es && npm run build:es:types && npm run build:cjs && npm run build:cjs:types && npm run build:umd && npm run buildq:umd:types',
       clean: `rm -rf ${library}`,
       lint: 'echo "TODO LINT"',
       release: `release-it --config=${config}/release-it/stable.json`,
@@ -67,7 +67,7 @@ function cleanPackageJson(library: string, config: string) {
       'release:beta': `release-it --config=${config}/release-it/beta.json`,
       'release:rc': `release-it --config=${config}/release-it/rc.json`,
       'release:scripts':
-        'npm run typecheck && npm run lint && npm run test:coverage && npm run config',
+        'npm run typecheck && npm run lint && npm run test && npm run config',
       test: 'echo "TODO TEST"',
       typecheck: 'tsc --noEmit',
     },
