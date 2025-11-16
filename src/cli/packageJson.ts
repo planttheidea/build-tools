@@ -67,7 +67,7 @@ function cleanPackageJson(library: string, config: string) {
       'release:beta': `release-it --config=${config}/release-it/beta.json`,
       'release:rc': `release-it --config=${config}/release-it/rc.json`,
       'release:scripts':
-        'npm run typecheck && npm run lint && npm run test && npm run config',
+        'npm run typecheck && npm run lint && npm run test && npm run build',
       test: 'echo "TODO TEST"',
       typecheck: 'tsc --noEmit',
     },
