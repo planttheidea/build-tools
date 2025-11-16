@@ -58,8 +58,8 @@ function cleanPackageJson(library: string, config: string) {
       ...getCleanCommands('es', library),
       ...getconfigCommands('umd', config),
       ...getCleanCommands('umd', library),
-      config:
-        'npm run clean && npm run config:es && npm run config:es:types && npm run config:cjs && npm run config:cjs:types && npm run config:umd && npm run config:umd:types',
+      build:
+        'npm run clean && npm run build:es && npm run build:es:types && npm run build:cjs && npm run build:cjs:types && npm run build:umd && npm run build:umd:types',
       clean: `rm -rf ${library}`,
       lint: 'echo "TODO LINT"',
       release: `release-it --config=${config}/release-it/stable.json`,
@@ -89,8 +89,8 @@ function getconfigCommands(type: 'cjs' | 'es' | 'umd', config: string) {
   }
 
   return {
-    [`config:${type}`]: `NODE_ENV=production rollup -c ${config}/rollup/${type}.config.js`,
-    [`config:${type}:types`]: configTypes,
+    [`build:${type}`]: `NODE_ENV=production rollup -c ${config}/rollup/${type}.config.js`,
+    [`build:${type}:types`]: configTypes,
   };
 }
 
