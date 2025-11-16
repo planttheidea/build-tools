@@ -27,6 +27,7 @@
   "devDependencies": {
     "@types/react": "^19.2.5",
     "@types/typescript": "^2.0.0",
+    "@types/yargs": "^17.0.35",
     "fast-glob": "^3.3.3",
     "ts-node": "^10.9.2"
   },
@@ -42,14 +43,7 @@
         "types": "./dist/rollup.d.ts",
         "default": "./dist/rollup.js"
       }
-    },
-    "./types": {
-      "default": {
-        "types": "./dist/tsconfig.d.ts",
-        "default": "./dist/tsconfig.js"
-      }
-    },
-    "./tsconfig/*.json": "./tsconfig/*.json"
+    }
   },
   "files": [
     "bin",
@@ -69,11 +63,12 @@
     "url": "git+https://github.com/planttheidea/build-tools.git"
   },
   "scripts": {
-    "build": "rollup -c _internal/rollup.config.js",
-    "dist": "rm -rf dist && npm run build",
+    "build": "npm run clean && npm run build:dist",
+    "build:dist": "rollup -c cfg/rollup.config.js",
+    "clean": "rm -rf dist",
     "release": "release-it",
     "release:beta": "release-it --config=.release-it.beta.json",
-    "release:scripts": "npm run typecheck && npm run dist",
+    "release:scripts": "npm run typecheck && npm run build",
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },

@@ -13,11 +13,8 @@ const external = [
   ...Object.keys(pkgJson.dependencies || {}),
   ...Object.keys(pkgJson.peerDependencies || {}),
   /node:/,
+  'yargs/helpers',
 ];
-const globals = external.reduce((globals, name) => {
-  globals[name] = name;
-  return globals;
-}, {});
 const input = Object.fromEntries(
   globSync('src/**/*.ts').map((file) => [
     relative('src', file.slice(0, file.length - extname(file).length)),
@@ -32,12 +29,11 @@ export default {
     dir: 'dist',
     exports: 'named',
     format: 'es',
-    globals,
     sourcemap: true,
   },
   plugins: [
     typescript({
-      tsconfig: resolve(ROOT, '_internal', 'tsconfig.json'),
+      tsconfig: resolve(ROOT, 'tsconfig.json'),
       typescript: tsc,
     }),
   ],

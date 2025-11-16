@@ -1,6 +1,10 @@
-import { readdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+#!/usr/bin/env node
+
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { join, resolve } from 'node:path';
 import gitRoot from 'git-root';
+import yargs from 'yargs';
+import { hideBin } from 'yargs/helpers';
 import type { CompilerOptions } from 'typescript';
 import {
   ModuleDetectionKind,
@@ -75,6 +79,166 @@ const BASE_CONFIG = {
   exclude: ['**/node_modules/**'],
 } as const;
 
+interface Args {
+  build?: string;
+  development?: string;
+  dry?: boolean;
+  library?: string;
+  react?: boolean;
+  source?: string;
+}
+
+interface IncludeArgs
+  extends Pick<Args, 'build' | 'development' | 'react' | 'source'> {
+  prefix?: string;
+}
+
+function getInclude({
+  build,
+  development,
+  react,
+  source,
+  prefix = '.',
+}: IncludeArgs) {
+  const files = [build, development, source].filter(
+    (file) => typeof file === 'string',
+  );
+
+  if (!files.length) {
+    return;
+  }
+
+  return files.flatMap((folder) => {
+    const standard = join(prefix, folder, '**', '*.ts');
+
+    return react ? [standard, `${standard}x`] : [standard];
+  });
+}
+
+export function createProjectTsConfigs(argv: string[]) {
+  const { build, development, dry, library, react, source } = yargs(
+    hideBin(argv),
+  )
+    .option('build', {
+      alias: 'b',
+      default: 'build',
+      description: 'Location of build configuration files',
+      type: 'string',
+    })
+    .option('development', {
+      alias: 'd',
+      default: 'dev',
+      description: 'Location of development files',
+      type: 'string',
+    })
+    .option('dry', {
+      default: false,
+      description:
+        'Whether the output of the script is a dry run or should write the files',
+      type: 'boolean',
+    })
+    .option('help', {
+      alias: 'h',
+      description: 'Help documentation',
+      type: 'boolean',
+    })
+    .option('library', {
+      alias: 'l',
+      default: 'dist',
+      description: 'Location of library files',
+      type: 'string',
+    })
+    .option('react', {
+      alias: 'r',
+      default: false,
+      description:
+        'Whether React is used, either for development or the library itself',
+      type: 'boolean',
+    })
+    .option('source', {
+      alias: 's',
+      default: 'src',
+      description: 'Location of source files',
+      type: 'string',
+    })
+    .parseSync();
+
+  if (!existsSync(source)) {
+    mkdirSync(source);
+  }
+
+  if (!existsSync(join(source, 'index.ts'))) {
+    writeFileSync(
+      join(source, 'index.ts'),
+      'export const REPLACE_ME = {};',
+      'utf8',
+    );
+  }
+
+  if (!existsSync(build)) {
+    mkdirSync(build);
+  }
+
+  const buildTypes = join(build, 'types');
+
+  if (!existsSync(buildTypes)) {
+    mkdirSync(buildTypes);
+  }
+
+  if (!dry) {
+    /** WRITE FILES **/
+
+    const root = gitRoot();
+
+    const baseConfig = createStandardConfig({
+      compilerOptions: {
+        baseUrl: source,
+        jsx: react ? 'react-jsx' : undefined,
+        outDir: library,
+        types: react ? ['node', 'react'] : ['node'],
+      },
+      exclude: ['**/node_modules/**', `${library}/**/*`],
+      include: getInclude({ build, development, source }),
+    });
+
+    writeFileSync(
+      join(root, 'tsconfig.json'),
+      JSON.stringify(baseConfig, null, 2),
+      'utf8',
+    );
+
+    const prefix = join('..', '..');
+    const include = getInclude({ source, prefix });
+
+    writeConfigs(resolve(buildTypes), {
+      cjs: {
+        compilerOptions: {
+          module: ModuleKind.Node16,
+          moduleResolution: ModuleResolutionKind.Node16,
+          outDir: join(prefix, library),
+        },
+        include,
+      },
+      es: {
+        compilerOptions: {
+          module: ModuleKind.NodeNext,
+          moduleResolution: ModuleResolutionKind.NodeNext,
+          outDir: join(prefix, library),
+        },
+        include,
+      },
+      umd: {
+        compilerOptions: {
+          module: ModuleKind.ESNext,
+          moduleResolution: ModuleResolutionKind.Bundler,
+          outDir: join(prefix, library),
+        },
+        include,
+      },
+    });
+  }
+}
+
 function normalizeCompilerOptions<Options extends Record<string, any>>(
   options: Options,
 ): Options {
@@ -118,7 +282,7 @@ function normalizeCompilerOptions<Options extends Record<string, any>>(
   return normalizedOptions as Options;
 }
 
-export function createDeclarationConfig<const Options extends ConfigOptions>(
+function createDeclarationConfig<const Options extends ConfigOptions>(
   file: string,
   options: Options = {} as Options,
 ): MergeDeclarationOptions<Options> {
@@ -131,14 +295,14 @@ export function createDeclarationConfig<const Options extends ConfigOptions>(
       declaration: true,
       declarationDir:
         options.compilerOptions.declarationDir ??
-        join(options.compilerOptions.outDir, file, 'types'),
+        join(options.compilerOptions.outDir, file),
       emitDeclarationOnly: true,
       outDir: undefined,
     }),
   };
 }
 
-export function createStandardConfig<const Options extends ConfigOptions>(
+function createStandardConfig<const Options extends ConfigOptions>(
   options: Options = {} as Options,
 ): MergeOptions<Options> {
   return {
@@ -151,34 +315,7 @@ export function createStandardConfig<const Options extends ConfigOptions>(
   };
 }
 
-export function renameModuleExtensions(type: 'cjs' | 'es', library = 'dist') {
-  const extension =
-    type === 'cjs' ? '.d.cts' : type === 'es' ? '.d.mts' : undefined;
-
-  if (!extension) {
-    throw new ReferenceError(
-      `Type "${type}" is invalid; please pass either "cjs" or "es".`,
-    );
-  }
-
-  const typesDir = join(gitRoot(), library, type, 'types');
-  const files = readdirSync(typesDir, 'utf8');
-
-  files.forEach((file) => {
-    const filePath = join(typesDir, file);
-    const content = readFileSync(filePath, 'utf8');
-    const updatedContent = content
-      .replaceAll('.ts', extension)
-      .replaceAll('.js', extension)
-      .replaceAll('import {', 'import type {');
-
-    writeFileSync(filePath, updatedContent, 'utf8');
-
-    renameSync(filePath, filePath.replace('.d.ts', extension));
-  });
-}
-
-export function writeConfig<const Options extends ConfigOptions>(
+function writeConfig<const Options extends ConfigOptions>(
   folder: string,
   file: string,
   options: Options,
@@ -206,9 +343,7 @@ export function writeConfig<const Options extends ConfigOptions>(
   return { declaration: declarationConfig, runtime: runtimeConfig };
 }
 
-export function writeConfigs<
-  const OptionsMap extends Record<string, ConfigOptions>,
->(
+function writeConfigs<const OptionsMap extends Record<string, ConfigOptions>>(
   folder: string,
   optionsMap: OptionsMap,
 ): {

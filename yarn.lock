@@ -869,6 +869,7 @@ __metadata:
     "@types/node": "npm:^24.10.1"
     "@types/react": "npm:^19.2.5"
     "@types/typescript": "npm:^2.0.0"
+    "@types/yargs": "npm:^17.0.35"
     eslint: "npm:^9.39.1"
     eslint-plugin-import: "npm:^2.32.0"
     fast-glob: "npm:^3.3.3"
@@ -883,7 +884,8 @@ __metadata:
     vitest: "npm:^4.0.9"
     yargs: "npm:^18.0.0"
   bin:
-    create-tsconfig: ./bin/createProjectTsConfig.js
+    pti-module-types: ./bin/renameTypeDefinitions.js
+    pti-tsconfig: ./bin/createProjectTsConfig.js
   languageName: unknown
   linkType: soft
 
@@ -1210,6 +1212,22 @@ __metadata:
   dependencies:
     typescript: "npm:*"
   checksum: 10c0/2c938ca2f61a03d50b68080374a0b2dba71ed9f9ec902062df9f2fa1d4ffe582978be5da9283498b0229ddbd6d745c152f25934497d015dfe8e2b8913eae5eda
+  languageName: node
+  linkType: hard
+
+"@types/yargs-parser@npm:*":
+  version: 21.0.3
+  resolution: "@types/yargs-parser@npm:21.0.3"
+  checksum: 10c0/e71c3bd9d0b73ca82e10bee2064c384ab70f61034bbfb78e74f5206283fc16a6d85267b606b5c22cb2a3338373586786fed595b2009825d6a9115afba36560a0
+  languageName: node
+  linkType: hard
+
+"@types/yargs@npm:^17.0.35":
+  version: 17.0.35
+  resolution: "@types/yargs@npm:17.0.35"
+  dependencies:
+    "@types/yargs-parser": "npm:*"
+  checksum: 10c0/609557826a6b85e73ccf587923f6429850d6dc70e420b455bab4601b670bfadf684b09ae288bccedab042c48ba65f1666133cf375814204b544009f57d6eef63
   languageName: node
   linkType: hard
 

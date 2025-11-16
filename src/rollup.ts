@@ -7,6 +7,7 @@ import type { Plugin } from 'rollup/dist/rollup.d.ts';
 
 interface Config {
   buildTypesDir?: string;
+  globals?: Record<string, string>;
   input?: string;
   outputDir?: string;
   outputFormat?: 'cjs' | 'es' | 'umd';
@@ -15,6 +16,7 @@ interface Config {
 
 export function createRollupConfig({
   buildTypesDir = join('build', 'types'),
+  globals,
   input = join('src', 'index.ts'),
   outputFormat = 'es',
   plugins = [],
@@ -26,19 +28,6 @@ export function createRollupConfig({
     ...Object.keys(pkgJson.peerDependencies || {}),
     /node:/,
   ];
-  const globals = external.reduce<Record<string, string> | undefined>(
-    (map, name) => {
-      if (typeof name === 'string') {
-        if (!map) {
-          map = {};
-        }
-
-        map[name] = name;
-      }
-      return map;
-    },
-    undefined,
-  );
 
   const fileSource =
     outputFormat === 'es'
@@ -76,7 +65,7 @@ export function createRollupConfig({
   };
 }
 
-export function getPathFromRoot(...paths: string[]) {
+function getPathFromRoot(...paths: string[]) {
   const root = gitRoot();
 
   return join(root, ...paths);

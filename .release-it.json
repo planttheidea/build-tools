@@ -4,6 +4,6 @@
     "tagName": "v${version}"
   },
   "hooks": {
-    "before:init": ["npm run typecheck", "npm run dist"]
+    "before:init": ["npm run typecheck", "npm run build"]
   }
 }

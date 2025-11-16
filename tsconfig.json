@@ -1,9 +1,8 @@
 {
   "compilerOptions": {
     "allowJs": true,
-    "allowImportingTsExtensions": true,
-    "baseUrl": "src",
-    "declaration": false,
+    "baseUrl": "./src",
+    "declaration": true,
     "esModuleInterop": true,
     "isolatedModules": true,
     "lib": ["ESNext"],
@@ -15,6 +14,7 @@
     "noImplicitAny": true,
     "noImplicitOverride": true,
     "noUncheckedIndexedAccess": true,
+    "outDir": "./dist",
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "sourceMap": true,
@@ -25,5 +25,6 @@
     "verbatimModuleSyntax": true,
     "types": ["node"]
   },
-  "exclude": ["**/node_modules/**"]
+  "exclude": ["node_modules"],
+  "include": ["./src/**/*.ts", "./globalTypes.d.ts"]
 }
