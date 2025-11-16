@@ -7,7 +7,7 @@ import tsc from 'typescript';
 import type { Plugin } from 'rollup/dist/rollup.d.ts';
 
 interface Config {
-  buildTypesDir?: string;
+  configTypesDir?: string;
   globals?: Record<string, string>;
   input?: string;
   outputDir?: string;
@@ -16,7 +16,7 @@ interface Config {
 }
 
 export function createRollupConfig({
-  buildTypesDir = join('build', 'types'),
+  configTypesDir = join('config', 'types'),
   input = join('src', 'index.ts'),
   outputFormat = 'es',
   plugins = [],
@@ -72,7 +72,7 @@ export function createRollupConfig({
     plugins: [
       // @ts-expect-error - the plugin is still a CJS format in types, so it is not registering as callable.
       typescript({
-        tsconfig: resolve(gitRoot(), buildTypesDir, `${outputFormat}.json`),
+        tsconfig: resolve(gitRoot(), configTypesDir, `${outputFormat}.json`),
         typescript: tsc,
       }),
       ...plugins,
