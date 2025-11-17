@@ -9,6 +9,8 @@ import type { EslintArgs } from './eslint.js';
 import { createEslintConfig } from './eslint.js';
 import type { FixTypesArgs } from './fixTypes.js';
 import { fixTypes } from './fixTypes.js';
+import type { InitArgs } from './init.js';
+import { init } from './init.js';
 import type { PackageJsonArgs } from './packageJson.js';
 import { createPackageJson } from './packageJson.js';
 import type { ReleaseItArgs } from './releaseIt.js';
@@ -83,6 +85,19 @@ export function runPtiCommand(argv: string[]) {
           .option('library', LIBRARY_SETUP)
           .help(),
       fixTypes,
+    )
+    .command<InitArgs>(
+      'init',
+      'Initialize the package with the necessary build infrastructure',
+      (yargs) =>
+        yargs
+          .option('config', CONFIG_SETUP)
+          .option('development', DEVELOPMENT_SETUP)
+          .option('library', LIBRARY_SETUP)
+          .option('react', REACT_SETUP)
+          .option('source', SOURCE_SETUP)
+          .help(),
+      init,
     )
     .command<PackageJsonArgs>(
       'package-json',
