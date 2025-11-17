@@ -160,30 +160,30 @@ export function createTsConfigs(argv: string[]) {
     })
     .parseSync();
 
-  if (!existsSync(source)) {
-    mkdirSync(source);
-  }
-
-  if (!existsSync(join(source, 'index.ts'))) {
-    writeFileSync(
-      join(source, 'index.ts'),
-      'export const REPLACE_ME = {};',
-      'utf8',
-    );
-  }
-
-  if (!existsSync(config)) {
-    mkdirSync(config);
-  }
-
-  const configTypes = join(config, 'types');
-
-  if (!existsSync(configTypes)) {
-    mkdirSync(configTypes);
-  }
-
   if (!dry) {
     /** WRITE FILES **/
+
+    if (!existsSync(source)) {
+      mkdirSync(source);
+    }
+
+    if (!existsSync(join(source, 'index.ts'))) {
+      writeFileSync(
+        join(source, 'index.ts'),
+        'export const REPLACE_ME = {};',
+        'utf8',
+      );
+    }
+
+    if (!existsSync(config)) {
+      mkdirSync(config);
+    }
+
+    const configTypes = join(config, 'types');
+
+    if (!existsSync(configTypes)) {
+      mkdirSync(configTypes);
+    }
 
     const root = gitRoot();
 

@@ -1,6 +1,7 @@
 {
   "author": "tony.quetano@planttheidea.com",
   "bin": {
+    "pti-eslint": "./bin/createEslintConfig.js",
     "pti-module-types": "./bin/renameTypeDefinitions.js",
     "pti-package-json": "./bin/cleanPackageJson.js",
     "pti-release-it": "./bin/createReleaseItConfigs.js",
