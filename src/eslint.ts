@@ -5,12 +5,13 @@ import eslintImport from 'eslint-plugin-import';
 import eslintReact from 'eslint-plugin-react';
 import eslintReactHooks from 'eslint-plugin-react-hooks';
 import gitRoot from 'git-root';
+import type { ConfigWithExtends } from 'typescript-eslint';
 import typescriptEslint from 'typescript-eslint';
 
 interface Options {
   config?: string;
   development?: string;
-  configs?: Config[];
+  configs?: Config[] | ConfigWithExtends[];
   react?: boolean;
   source?: string;
 }
@@ -24,23 +25,25 @@ export function createEslintConfig(
     source = 'src',
   }: Options = {} as Options,
 ) {
-  const optionalConfigs = [];
+  const optionalConfigs: ConfigWithExtends[] = [];
 
   if (react) {
-    optionalConfigs.push(
-      eslintReact.configs.flat.recommended,
-      eslintReact.configs.flat['jsx-runtime'],
-      eslintReactHooks.configs.flat['recommended-latest'],
-      {
-        settings: {
-          react: {
-            version: 'detect',
-          },
+    optionalConfigs.push({
+      files: ['**/*.ts', '**/*.tsx'],
+      extends: [
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        eslintReact.configs.flat.recommended!,
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        eslintReact.configs.flat['jsx-runtime']!,
+        eslintReactHooks.configs.flat['recommended-latest'],
+      ],
+      settings: {
+        react: {
+          version: 'detect',
         },
       },
-    );
+    });
   }
-
   return defineConfig([
     globalIgnores([
       `**/!(${source}|${development}|${config})/**/*`, // Ignore everything in all directories except those we want to lint
@@ -50,18 +53,9 @@ export function createEslintConfig(
       `!${config}/**/*`, // Don't ignore anything in config directory
     ]),
     eslint.configs.recommended,
-    typescriptEslint.configs.strictTypeChecked,
-    typescriptEslint.configs.stylisticTypeChecked,
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     eslintImport.flatConfigs.recommended,
-    ...optionalConfigs,
     {
-      languageOptions: {
-        parserOptions: {
-          projectService: true,
-          tsconfigRootDir: gitRoot(),
-        },
-      },
       rules: {
         'import/consistent-type-specifier-style': ['error', 'prefer-top-level'],
         'import/enforce-node-protocol-usage': ['error', 'always'],
@@ -84,14 +78,46 @@ export function createEslintConfig(
             'newlines-between': 'never',
           },
         ],
-
+      },
+    },
+    {
+      files: ['config/**/*.js', 'templates/**/*.js'],
+      rules: {
+        'import/no-default-export': 'off',
+      },
+    },
+    {
+      files: ['templates/**/*.js'],
+      rules: {
+        'import/no-unresolved': 'off',
+      },
+    },
+    {
+      files: ['**/*.ts', '**/*.tsx'],
+      extends: [
+        typescriptEslint.configs.strictTypeChecked,
+        typescriptEslint.configs.stylisticTypeChecked,
+      ],
+      languageOptions: {
+        parser: typescriptEslint.parser,
+        parserOptions: {
+          projectService: true,
+          tsconfigRootDir: gitRoot(),
+        },
+      },
+      rules: {
         '@typescript-eslint/array-type': ['error', { default: 'array-simple' }],
         '@typescript-eslint/no-unused-vars': [
           'error',
           { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
         ],
+
+        'import/no-unresolved': 'off',
+
+        '@typescript-eslint/no-explicit-any': 'off',
       },
     },
+    ...optionalConfigs,
     ...configs,
   ]);
 }
