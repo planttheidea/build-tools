@@ -71,7 +71,7 @@ function cleanPackageJson(library: string, config: string) {
       'release:rc': `release-it --config=${config}/release-it/rc.json`,
       'release:scripts':
         'npm run typecheck && npm run lint && npm run test && npm run build',
-      test: 'vitest run --config=config/vitest/vitest.config.ts',
+      test: 'vitest run --config=config/vitest.config.ts',
       typecheck: 'tsc --noEmit',
     },
     types: 'index.d.ts',
