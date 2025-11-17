@@ -18,9 +18,9 @@ const external = [
   ...Object.keys(packageJson.dependencies || {}),
   ...Object.keys(packageJson.peerDependencies || {}),
   /node:/,
-  '@eslint/js',
-  'eslint/config',
-  'yargs/helpers',
+  /eslint\//,
+  /vitest\//,
+  /yargs\//,
 ];
 const input = Object.fromEntries(
   globSync('src/**/*.ts').map((file) => [

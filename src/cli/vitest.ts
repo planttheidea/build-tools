@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import gitRoot from 'git-root';
 import yargs from 'yargs';
 
-export function createViteConfig(argv: string[]) {
+export function createVitestConfig(argv: string[]) {
   const { config, react, source } = yargs(argv)
     .option('config', {
       alias: 'b',
@@ -47,5 +47,5 @@ export default createVitestConfig({
 });
 `.trim();
 
-  writeFileSync(join(configDir, 'eslint.config.js'), content, 'utf8');
+  writeFileSync(join(configDir, 'vitest.config.ts'), content, 'utf8');
 }

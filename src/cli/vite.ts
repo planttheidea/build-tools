@@ -39,5 +39,5 @@ export default createViteConfig({
 });
 `.trim();
 
-  writeFileSync(join(configDir, 'eslint.config.js'), content, 'utf8');
+  writeFileSync(join(configDir, 'vite.config.ts'), content, 'utf8');
 }
