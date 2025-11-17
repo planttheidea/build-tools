@@ -2,31 +2,15 @@ import { readFileSync, renameSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import fastGlob from 'fast-glob';
 import gitRoot from 'git-root';
-import yargs from 'yargs';
 
 const { globSync } = fastGlob;
 
-export function createRenamedModuleExtensions(argv: string[]) {
-  const { library, type } = yargs(argv)
-    .option('type', {
-      alias: 't',
-      choices: ['cjs', 'es'] as const,
-      description: 'Module types to rename',
-      required: true,
-      type: 'string',
-    })
-    .option('library', {
-      alias: 'l',
-      default: 'dist',
-      description: 'Location of library files',
-      type: 'string',
-    })
-    .parseSync();
-
-  renameModuleExtensions(type, library);
+export interface FixTypesArgs {
+  library: string;
+  type: 'cjs' | 'es';
 }
 
-function renameModuleExtensions(type: 'cjs' | 'es', library = 'dist') {
+export function fixTypes({ library, type }: FixTypesArgs) {
   const extension =
     type === 'cjs'
       ? '.d.cts'

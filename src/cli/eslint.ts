@@ -7,42 +7,20 @@ import {
 } from 'node:fs';
 import { join, resolve } from 'node:path';
 import gitRoot from 'git-root';
-import yargs from 'yargs';
 
-export function createEslintConfig(argv: string[]) {
-  const { config, development, react, source } = yargs(argv)
-    .option('config', {
-      alias: 'b',
-      default: 'config',
-      description: 'Location of configuration files',
-      type: 'string',
-    })
-    .option('development', {
-      alias: 'd',
-      default: 'dev',
-      description: 'Location of development files',
-      type: 'string',
-    })
-    .option('help', {
-      alias: 'h',
-      description: 'Help documentation',
-      type: 'boolean',
-    })
-    .option('react', {
-      alias: 'r',
-      default: false,
-      description:
-        'Whether React is used, either for development or the library itself',
-      type: 'boolean',
-    })
-    .option('source', {
-      alias: 's',
-      default: 'src',
-      description: 'Location of source files',
-      type: 'string',
-    })
-    .parseSync();
+export interface EslintArgs {
+  config: string;
+  development: string;
+  react: boolean;
+  source: string;
+}
 
+export function createEslintConfig({
+  config,
+  development,
+  react,
+  source,
+}: EslintArgs) {
   const root = gitRoot();
   const configDir = join(root, config);
 

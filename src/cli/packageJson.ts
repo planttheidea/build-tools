@@ -1,29 +1,14 @@
 import { writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import gitRoot from 'git-root';
-import yargs from 'yargs';
 import { getPackageJson } from '../utils/packageJson.js';
 
-export function createCleanPackageJson(argv: string[]) {
-  const { config, library } = yargs(argv)
-    .option('config', {
-      alias: 'b',
-      default: 'config',
-      description: 'Location of configuration files',
-      type: 'string',
-    })
-    .option('library', {
-      alias: 'l',
-      default: 'dist',
-      description: 'Location of library files',
-      type: 'string',
-    })
-    .parseSync();
-
-  cleanPackageJson(library, config);
+export interface PackageJsonArgs {
+  config: string;
+  library: string;
 }
 
-function cleanPackageJson(library: string, config: string) {
+export function createPackageJson({ config, library }: PackageJsonArgs) {
   const root = gitRoot();
   const targetPackageJson = getPackageJson(root);
 

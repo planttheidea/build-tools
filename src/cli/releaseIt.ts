@@ -1,24 +1,12 @@
 import { constants, copyFileSync, existsSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import gitRoot from 'git-root';
-import yargs from 'yargs';
 
-const folderName = 'release-it';
-
-export function createReleaseItConfigs(argv: string[]) {
-  const { config } = yargs(argv)
-    .option('config', {
-      alias: 'b',
-      default: 'config',
-      description: 'Location of configuration files',
-      type: 'string',
-    })
-    .parseSync();
-
-  writeConfigs(config);
+export interface ReleaseItArgs {
+  config: string;
 }
 
-function writeConfigs(config: string) {
+export function createReleaseItConfigs({ config }: ReleaseItArgs) {
   const root = gitRoot();
   const configDir = join(root, config);
 
@@ -26,32 +14,38 @@ function writeConfigs(config: string) {
     mkdirSync(configDir);
   }
 
-  const releaseItConfigDir = join(configDir, folderName);
+  const releaseItConfigDir = join(configDir, 'release-it');
 
   if (!existsSync(releaseItConfigDir)) {
     mkdirSync(releaseItConfigDir);
   }
 
   const scriptDirectory = import.meta.dirname;
-  const templateDirectory = join(scriptDirectory, '..', '..', 'templates');
+  const templateDirectory = join(
+    scriptDirectory,
+    '..',
+    '..',
+    'templates',
+    'release-it',
+  );
 
   copyFileSync(
-    join(templateDirectory, folderName, 'alpha.json'),
+    join(templateDirectory, 'alpha.json'),
     join(releaseItConfigDir, 'alpha.json'),
     constants.COPYFILE_FICLONE,
   );
   copyFileSync(
-    join(templateDirectory, folderName, 'beta.json'),
+    join(templateDirectory, 'beta.json'),
     join(releaseItConfigDir, 'beta.json'),
     constants.COPYFILE_FICLONE,
   );
   copyFileSync(
-    join(templateDirectory, folderName, 'rc.json'),
+    join(templateDirectory, 'rc.json'),
     join(releaseItConfigDir, 'rc.json'),
     constants.COPYFILE_FICLONE,
   );
   copyFileSync(
-    join(templateDirectory, folderName, 'stable.json'),
+    join(templateDirectory, 'stable.json'),
     join(releaseItConfigDir, 'stable.json'),
     constants.COPYFILE_FICLONE,
   );

@@ -1,36 +1,14 @@
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import gitRoot from 'git-root';
-import yargs from 'yargs';
 
-export function createVitestConfig(argv: string[]) {
-  const { config, react, source } = yargs(argv)
-    .option('config', {
-      alias: 'b',
-      default: 'config',
-      description: 'Location of configuration files',
-      type: 'string',
-    })
-    .option('help', {
-      alias: 'h',
-      description: 'Help documentation',
-      type: 'boolean',
-    })
-    .option('react', {
-      alias: 'r',
-      default: false,
-      description:
-        'Whether React is used, either for development or the library itself',
-      type: 'boolean',
-    })
-    .option('source', {
-      alias: 's',
-      default: 'src',
-      description: 'Location of source files',
-      type: 'string',
-    })
-    .parseSync();
+export interface VitestArgs {
+  config: string;
+  react: boolean;
+  source: string;
+}
 
+export function createVitestConfig({ config, react, source }: VitestArgs) {
   const root = gitRoot();
   const configDir = join(root, config);
 

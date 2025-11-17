@@ -10,7 +10,96 @@ import {
   ModuleResolutionKind,
   ScriptTarget,
 } from 'typescript';
-import yargs from 'yargs';
+
+export interface TsConfigArgs {
+  config: string;
+  development: string;
+  library: string;
+  react: boolean;
+  source: string;
+}
+
+export function createTsConfigs({
+  config,
+  development,
+  library,
+  react,
+  source,
+}: TsConfigArgs) {
+  const root = gitRoot();
+  const sourceDir = join(root, source);
+
+  if (!existsSync(sourceDir)) {
+    mkdirSync(sourceDir);
+  }
+
+  if (!existsSync(join(sourceDir, 'index.ts'))) {
+    writeFileSync(
+      join(sourceDir, 'index.ts'),
+      'export const REPLACE_ME = {};',
+      'utf8',
+    );
+  }
+
+  const configDir = join(root, config);
+
+  if (!existsSync(configDir)) {
+    mkdirSync(configDir);
+  }
+
+  const configTypes = join(configDir, 'types');
+
+  if (!existsSync(configTypes)) {
+    mkdirSync(configTypes);
+  }
+
+  const baseConfig = getStandardConfig({
+    compilerOptions: {
+      baseUrl: source,
+      jsx: react ? 'react-jsx' : undefined,
+      outDir: library,
+      types: react ? ['node', 'react'] : ['node'],
+    },
+    exclude: ['**/node_modules/**', `${library}/**/*`],
+    include: getInclude({ config, development, react, source }),
+  });
+
+  writeFileSync(
+    join(root, 'tsconfig.json'),
+    JSON.stringify(baseConfig, null, 2),
+    'utf8',
+  );
+
+  const prefix = join('..', '..');
+  const include = getInclude({ source, prefix });
+
+  writeConfigs(resolve(configTypes), {
+    cjs: {
+      compilerOptions: {
+        module: ModuleKind.Node16,
+        moduleResolution: ModuleResolutionKind.Node16,
+        outDir: join(prefix, library, 'cjs'),
+      },
+      include,
+    },
+    es: {
+      compilerOptions: {
+        module: ModuleKind.NodeNext,
+        moduleResolution: ModuleResolutionKind.NodeNext,
+        outDir: join(prefix, library, 'es'),
+      },
+      include,
+    },
+    umd: {
+      compilerOptions: {
+        module: ModuleKind.ESNext,
+        moduleResolution: ModuleResolutionKind.Bundler,
+        outDir: join(prefix, library, 'umd'),
+      },
+      include,
+    },
+  });
+}
 
 interface ConfigOptions {
   compilerOptions: Omit<CompilerOptions, 'outDir'> & {
@@ -77,17 +166,11 @@ const BASE_CONFIG = {
   exclude: ['**/node_modules/**'],
 } as const;
 
-interface Args {
-  config?: string;
-  development?: string;
-  dry?: boolean;
-  library?: string;
-  react?: boolean;
-  source?: string;
-}
-
 interface IncludeArgs
-  extends Pick<Args, 'config' | 'development' | 'react' | 'source'> {
+  extends Pick<
+    Partial<TsConfigArgs>,
+    'config' | 'development' | 'react' | 'source'
+  > {
   prefix?: string;
 }
 
@@ -111,131 +194,6 @@ function getInclude({
 
     return react ? [standard, `${standard}x`] : [standard];
   });
-}
-
-export function createTsConfigs(argv: string[]) {
-  const { config, development, dry, library, react, source } = yargs(argv)
-    .option('config', {
-      alias: 'b',
-      default: 'config',
-      description: 'Location of configuration files',
-      type: 'string',
-    })
-    .option('development', {
-      alias: 'd',
-      default: 'dev',
-      description: 'Location of development files',
-      type: 'string',
-    })
-    .option('dry', {
-      default: false,
-      description:
-        'Whether the output of the script is a dry run or should write the files',
-      type: 'boolean',
-    })
-    .option('help', {
-      alias: 'h',
-      description: 'Help documentation',
-      type: 'boolean',
-    })
-    .option('library', {
-      alias: 'l',
-      default: 'dist',
-      description: 'Location of library files',
-      type: 'string',
-    })
-    .option('react', {
-      alias: 'r',
-      default: false,
-      description:
-        'Whether React is used, either for development or the library itself',
-      type: 'boolean',
-    })
-    .option('source', {
-      alias: 's',
-      default: 'src',
-      description: 'Location of source files',
-      type: 'string',
-    })
-    .parseSync();
-
-  if (!dry) {
-    /** WRITE FILES **/
-
-    const root = gitRoot();
-    const sourceDir = join(root, source);
-
-    if (!existsSync(sourceDir)) {
-      mkdirSync(sourceDir);
-    }
-
-    if (!existsSync(join(sourceDir, 'index.ts'))) {
-      writeFileSync(
-        join(sourceDir, 'index.ts'),
-        'export const REPLACE_ME = {};',
-        'utf8',
-      );
-    }
-
-    const configDir = join(root, config);
-
-    if (!existsSync(configDir)) {
-      mkdirSync(configDir);
-    }
-
-    const configTypes = join(configDir, 'types');
-
-    if (!existsSync(configTypes)) {
-      mkdirSync(configTypes);
-    }
-
-    const baseConfig = getStandardConfig({
-      compilerOptions: {
-        baseUrl: source,
-        jsx: react ? 'react-jsx' : undefined,
-        outDir: library,
-        types: react ? ['node', 'react'] : ['node'],
-      },
-      exclude: ['**/node_modules/**', `${library}/**/*`],
-      include: getInclude({ config, development, source }),
-    });
-
-    writeFileSync(
-      join(root, 'tsconfig.json'),
-      JSON.stringify(baseConfig, null, 2),
-      'utf8',
-    );
-
-    const prefix = join('..', '..');
-    const include = getInclude({ source, prefix });
-
-    writeConfigs(resolve(configTypes), {
-      cjs: {
-        compilerOptions: {
-          module: ModuleKind.Node16,
-          moduleResolution: ModuleResolutionKind.Node16,
-          outDir: join(prefix, library, 'cjs'),
-        },
-        include,
-      },
-      es: {
-        compilerOptions: {
-          module: ModuleKind.NodeNext,
-          moduleResolution: ModuleResolutionKind.NodeNext,
-          outDir: join(prefix, library, 'es'),
-        },
-        include,
-      },
-      umd: {
-        compilerOptions: {
-          module: ModuleKind.ESNext,
-          moduleResolution: ModuleResolutionKind.Bundler,
-          outDir: join(prefix, library, 'umd'),
-        },
-        include,
-      },
-    });
-  }
 }
 
 function getDeclarationConfig<const Options extends ConfigOptions>(

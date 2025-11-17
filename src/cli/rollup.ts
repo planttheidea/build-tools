@@ -1,22 +1,12 @@
 import { constants, copyFileSync, existsSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import gitRoot from 'git-root';
-import yargs from 'yargs';
 
-export function createRollupConfigs(argv: string[]) {
-  const { config } = yargs(argv)
-    .option('config', {
-      alias: 'b',
-      default: 'config',
-      description: 'Location of configuration files',
-      type: 'string',
-    })
-    .parseSync();
-
-  writeConfigs(config);
+export interface RollupArgs {
+  config: string;
 }
 
-function writeConfigs(config: string) {
+export function createRollupConfigs({ config }: RollupArgs) {
   const root = gitRoot();
   const configDir = join(root, config);
 
