@@ -118,9 +118,14 @@ function getDevDependencies() {
     ),
   );
 
-  return ['eslint', 'rollup', 'typescript', 'vite', 'vitest'].reduce<
-    Record<string, string>
-  >((devDependencies, name) => {
+  return [
+    '@vitest/coverage-v8',
+    'eslint',
+    'rollup',
+    'typescript',
+    'vite',
+    'vitest',
+  ].reduce<Record<string, string>>((devDependencies, name) => {
     const dependency = ownPackageJson.dependencies[name];
 
     if (!dependency) {
