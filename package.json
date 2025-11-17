@@ -68,6 +68,7 @@
   "homepage": "https://github.com/planttheidea/build-tools#readme",
   "license": "MIT",
   "main": "dist/index.js",
+  "module": "dist/index.js",
   "name": "@planttheidea/build-tools",
   "publishConfig": {
     "access": "public"
