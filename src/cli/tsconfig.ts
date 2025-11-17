@@ -163,29 +163,32 @@ export function createTsConfigs(argv: string[]) {
   if (!dry) {
     /** WRITE FILES **/
 
-    if (!existsSync(source)) {
-      mkdirSync(source);
+    const root = gitRoot();
+    const sourceDir = join(root, source);
+
+    if (!existsSync(sourceDir)) {
+      mkdirSync(sourceDir);
     }
 
-    if (!existsSync(join(source, 'index.ts'))) {
+    if (!existsSync(join(sourceDir, 'index.ts'))) {
       writeFileSync(
-        join(source, 'index.ts'),
+        join(sourceDir, 'index.ts'),
         'export const REPLACE_ME = {};',
         'utf8',
       );
     }
 
-    if (!existsSync(config)) {
-      mkdirSync(config);
+    const configDir = join(root, config);
+
+    if (!existsSync(configDir)) {
+      mkdirSync(configDir);
     }
 
-    const configTypes = join(config, 'types');
+    const configTypes = join(configDir, 'types');
 
     if (!existsSync(configTypes)) {
       mkdirSync(configTypes);
     }
-
-    const root = gitRoot();
 
     const baseConfig = getStandardConfig({
       compilerOptions: {

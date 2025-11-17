@@ -63,6 +63,7 @@ function cleanPackageJson(library: string, config: string) {
       build:
         'npm run clean && npm run build:es && npm run build:es:types && npm run build:cjs && npm run build:cjs:types && npm run build:umd && npm run build:umd:types',
       clean: `rm -rf ${library}`,
+      dev: 'vite --config=config/vite/vite.config.ts',
       lint: 'eslint',
       release: `release-it --config=${config}/release-it/stable.json`,
       'release:alpha': `release-it --config=${config}/release-it/alpha.json`,
@@ -70,7 +71,7 @@ function cleanPackageJson(library: string, config: string) {
       'release:rc': `release-it --config=${config}/release-it/rc.json`,
       'release:scripts':
         'npm run typecheck && npm run lint && npm run test && npm run build',
-      test: 'echo "TODO TEST"',
+      test: 'vitest run --config=config/vitest/vitest.config.ts',
       typecheck: 'tsc --noEmit',
     },
     types: 'index.d.ts',

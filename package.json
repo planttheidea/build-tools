@@ -6,7 +6,9 @@
     "pti-package-json": "./bin/cleanPackageJson.js",
     "pti-release-it": "./bin/createReleaseItConfigs.js",
     "pti-rollup": "./bin/createRollupConfigs.js",
-    "pti-tsconfig": "./bin/createTsConfigs.js"
+    "pti-tsconfig": "./bin/createTsConfigs.js",
+    "pti-vite": "./bin/createViteConfig.js",
+    "pti-vitest": "./bin/createVitestConfig.js"
   },
   "bugs": {
     "url": "https://github.com/planttheidea/build-tools/issues"
