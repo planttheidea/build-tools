@@ -59,6 +59,18 @@
         "types": "./dist/rollup.d.ts",
         "default": "./dist/rollup.js"
       }
+    },
+    "./vite": {
+      "default": {
+        "types": "./dist/vite.d.ts",
+        "default": "./dist/vite.js"
+      }
+    },
+    "./vitest": {
+      "default": {
+        "types": "./dist/vitest.d.ts",
+        "default": "./dist/vitest.js"
+      }
     }
   },
   "files": [
