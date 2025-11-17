@@ -55,6 +55,12 @@ export default createVitestConfig({
     mkdirSync(sourceDir);
   }
 
+  const testsDir = join(sourceDir, '__tests__');
+
+  if (!existsSync(testsDir)) {
+    mkdirSync(testsDir);
+  }
+
   const sourceContent = `
 import { expect, test } from 'vitest';
 
@@ -63,9 +69,5 @@ test('placeholder', () => {
 });
 `.trim();
 
-  writeFileSync(
-    join(sourceDir, '__tests__', 'index.test.ts'),
-    sourceContent,
-    'utf8',
-  );
+  writeFileSync(join(testsDir, 'index.test.ts'), sourceContent, 'utf8');
 }
