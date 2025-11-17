@@ -1,11 +1,11 @@
-import { readFileSync, writeFileSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 import gitRoot from 'git-root';
 import yargs from 'yargs';
-import { hideBin } from 'yargs/helpers';
+import { getPackageJson } from '../utils/packageJson.js';
 
 export function createCleanPackageJson(argv: string[]) {
-  const { config, library } = yargs(hideBin(argv))
+  const { config, library } = yargs(argv)
     .option('config', {
       alias: 'b',
       default: 'config',
@@ -25,15 +25,7 @@ export function createCleanPackageJson(argv: string[]) {
 
 function cleanPackageJson(library: string, config: string) {
   const root = gitRoot();
-  const targetPackageJson = JSON.parse(
-    readFileSync(join(root, 'package.json'), 'utf8'),
-  );
-  const ownPackageJson = JSON.parse(
-    readFileSync(
-      resolve(import.meta.dirname, '..', '..', 'package.json'),
-      'utf8',
-    ),
-  );
+  const targetPackageJson = getPackageJson(root);
 
   const updatedTargetPackageJson = sortObject({
     ...targetPackageJson,
@@ -111,12 +103,7 @@ function getCleanCommands(type: 'cjs' | 'es' | 'umd', library: string) {
 }
 
 function getDevDependencies() {
-  const ownPackageJson = JSON.parse(
-    readFileSync(
-      resolve(import.meta.dirname, '..', '..', 'package.json'),
-      'utf8',
-    ),
-  );
+  const ownPackageJson = getPackageJson(import.meta.dirname);
 
   return [
     '@vitest/coverage-v8',
@@ -126,7 +113,7 @@ function getDevDependencies() {
     'vite',
     'vitest',
   ].reduce<Record<string, string>>((devDependencies, name) => {
-    const dependency = ownPackageJson.dependencies[name];
+    const dependency = ownPackageJson.dependencies?.[name];
 
     if (!dependency) {
       throw new Error(
@@ -149,9 +136,10 @@ function sortObject<Value extends Record<string, any>>(object: Value): Value {
   const sorted: Record<string, any> = {};
 
   keys.forEach((key) => {
-    sorted[key] = shouldSortNestedKey(key)
-      ? sortObject(object[key])
-      : object[key];
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const value = object[key];
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    sorted[key] = shouldSortNestedKey(key) ? sortObject(value) : value;
   });
 
   return sorted as Value;

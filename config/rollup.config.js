@@ -1,18 +1,25 @@
+/*eslint-disable import/default, import/namespace, import/no-named-as-default, import/no-named-as-default-member */
+
+import { readFileSync } from 'node:fs';
 import { extname, relative, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import typescript from '@rollup/plugin-typescript';
 import fastGlob from 'fast-glob';
+import gitRoot from 'git-root';
 import tsc from 'typescript';
-import pkgJson from '../package.json' with { type: 'json' };
 
-export const ROOT = fileURLToPath(new URL('..', import.meta.url));
+export const ROOT = gitRoot();
 
 const { globSync } = fastGlob;
+const packageJson = JSON.parse(
+  readFileSync(resolve(ROOT, 'package.json'), 'utf8'),
+);
 
 const external = [
-  ...Object.keys(pkgJson.dependencies || {}),
-  ...Object.keys(pkgJson.peerDependencies || {}),
+  ...Object.keys(packageJson.dependencies || {}),
+  ...Object.keys(packageJson.peerDependencies || {}),
   /node:/,
+  '@eslint/js',
+  'eslint/config',
   'yargs/helpers',
 ];
 const input = Object.fromEntries(

@@ -2,10 +2,9 @@ import { constants, copyFileSync, existsSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import gitRoot from 'git-root';
 import yargs from 'yargs';
-import { hideBin } from 'yargs/helpers';
 
 export function createRollupConfigs(argv: string[]) {
-  const { config } = yargs(hideBin(argv))
+  const { config } = yargs(argv)
     .option('config', {
       alias: 'b',
       default: 'config',

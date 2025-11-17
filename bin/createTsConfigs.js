@@ -2,4 +2,4 @@
 
 import { createTsConfigs } from '../dist/cli/tsconfig.js';
 
-createTsConfigs(process.argv);
+createTsConfigs(process.argv.slice(2));

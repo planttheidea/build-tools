@@ -3,8 +3,6 @@
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import gitRoot from 'git-root';
-import yargs from 'yargs';
-import { hideBin } from 'yargs/helpers';
 import type { CompilerOptions } from 'typescript';
 import {
   ModuleDetectionKind,
@@ -12,6 +10,7 @@ import {
   ModuleResolutionKind,
   ScriptTarget,
 } from 'typescript';
+import yargs from 'yargs';
 
 interface ConfigOptions {
   compilerOptions: Omit<CompilerOptions, 'outDir'> & {
@@ -116,9 +115,7 @@ function getInclude({
 }
 
 export function createTsConfigs(argv: string[]) {
-  const { config, development, dry, library, react, source } = yargs(
-    hideBin(argv),
-  )
+  const { config, development, dry, library, react, source } = yargs(argv)
     .option('config', {
       alias: 'b',
       default: 'config',
@@ -268,7 +265,7 @@ function getNormalizedCompilerOptions<Options extends Record<string, any>>(
       continue;
     }
 
-    const value = options[name] as any;
+    const value = options[name];
 
     if (typeof value !== 'number') {
       normalizedOptions[name] = value;
@@ -348,6 +345,7 @@ function writeConfigs<const OptionsMap extends Record<string, ConfigOptions>>(
 ): {
   [Key in keyof OptionsMap]: Configs<OptionsMap[Key]>;
 } {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   return Object.fromEntries(
     Object.entries(optionsMap).map(([file, options]) => [
       file,

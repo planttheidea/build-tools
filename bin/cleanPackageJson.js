@@ -2,4 +2,4 @@
 
 import { createCleanPackageJson } from '../dist/cli/packageJson.js';
 
-createCleanPackageJson(process.argv);
+createCleanPackageJson(process.argv.slice(2));

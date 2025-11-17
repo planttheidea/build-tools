@@ -3,12 +3,11 @@ import { join } from 'node:path';
 import fastGlob from 'fast-glob';
 import gitRoot from 'git-root';
 import yargs from 'yargs';
-import { hideBin } from 'yargs/helpers';
 
 const { globSync } = fastGlob;
 
 export function createRenamedModuleExtensions(argv: string[]) {
-  const { library, type } = yargs(hideBin(argv))
+  const { library, type } = yargs(argv)
     .option('type', {
       alias: 't',
       choices: ['cjs', 'es'] as const,
@@ -29,7 +28,12 @@ export function createRenamedModuleExtensions(argv: string[]) {
 
 function renameModuleExtensions(type: 'cjs' | 'es', library = 'dist') {
   const extension =
-    type === 'cjs' ? '.d.cts' : type === 'es' ? '.d.mts' : undefined;
+    type === 'cjs'
+      ? '.d.cts'
+      : // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+        type === 'es'
+        ? '.d.mts'
+        : undefined;
 
   if (!extension) {
     throw new ReferenceError(

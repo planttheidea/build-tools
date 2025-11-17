@@ -2,4 +2,4 @@
 
 import { createRollupConfigs } from '../dist/cli/rollup.js';
 
-createRollupConfigs(process.argv);
+createRollupConfigs(process.argv.slice(2));

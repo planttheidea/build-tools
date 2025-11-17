@@ -2,4 +2,4 @@
 
 import { createRenamedModuleExtensions } from '../dist/cli/types.js';
 
-createRenamedModuleExtensions(process.argv);
+createRenamedModuleExtensions(process.argv.slice(2));

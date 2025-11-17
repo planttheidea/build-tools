@@ -1,10 +1,10 @@
-import { readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import typescript from '@rollup/plugin-typescript';
 import camelCase from 'camelcase';
 import gitRoot from 'git-root';
-import tsc from 'typescript';
 import type { Plugin } from 'rollup/dist/rollup.d.ts';
+import tsc from 'typescript';
+import { getPackageJson } from './utils/packageJson.js';
 
 interface Config {
   configTypesDir?: string;
@@ -21,8 +21,7 @@ export function createRollupConfig({
   outputFormat = 'es',
   plugins = [],
 }: Config = {}) {
-  const pkgJsonPath = getPathFromRoot('package.json');
-  const pkgJson = JSON.parse(readFileSync(pkgJsonPath, 'utf8'));
+  const packageJson = getPackageJson();
 
   const fileSource =
     outputFormat === 'es'
@@ -30,7 +29,7 @@ export function createRollupConfig({
       : outputFormat === 'umd'
         ? 'browser'
         : 'main';
-  const file = pkgJson[fileSource];
+  const file = packageJson[fileSource];
 
   if (!file) {
     throw new ReferenceError(
@@ -39,18 +38,15 @@ export function createRollupConfig({
   }
 
   const external = [
-    ...Object.keys(pkgJson.dependencies || {}),
-    ...Object.keys(pkgJson.peerDependencies || {}),
+    ...Object.keys(packageJson.dependencies ?? {}),
+    ...Object.keys(packageJson.peerDependencies ?? {}),
     /node:/,
   ];
   const globals =
     outputFormat === 'umd'
       ? external.reduce<Record<string, string> | undefined>((globals, name) => {
           if (typeof name === 'string') {
-            if (!globals) {
-              globals = {};
-            }
-
+            globals ??= {};
             globals[name] = camelCase(name);
           }
 
@@ -66,7 +62,7 @@ export function createRollupConfig({
       file,
       format: outputFormat,
       globals,
-      name: pkgJson.name,
+      name: packageJson.name,
       sourcemap: true,
     },
     plugins: [
@@ -78,10 +74,4 @@ export function createRollupConfig({
       ...plugins,
     ],
   };
-}
-
-function getPathFromRoot(...paths: string[]) {
-  const root = gitRoot();
-
-  return join(root, ...paths);
 }
