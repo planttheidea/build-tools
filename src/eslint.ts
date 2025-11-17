@@ -59,7 +59,6 @@ export function createEslintConfig(
       `!${config}/**/*`, // Don't ignore anything in config directory
     ]),
     eslint.configs.recommended,
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     eslintImport.flatConfigs.recommended,
     {
       rules: {
