@@ -886,7 +886,10 @@ __metadata:
     yargs: "npm:^18.0.0"
   bin:
     pti-module-types: ./bin/renameTypeDefinitions.js
-    pti-tsconfig: ./bin/createProjectTsConfig.js
+    pti-package-json: ./bin/cleanPackageJson.js
+    pti-release-it: ./bin/createReleaseItConfigs.js
+    pti-rollup: ./bin/createRollupConfigs.js
+    pti-tsconfig: ./bin/createTsConfigs.js
   languageName: unknown
   linkType: soft
 
