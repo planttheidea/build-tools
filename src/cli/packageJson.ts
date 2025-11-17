@@ -49,7 +49,7 @@ export function createPackageJson({ config, library }: PackageJsonArgs) {
         'npm run clean && npm run build:es && npm run build:es:types && npm run build:cjs && npm run build:cjs:types && npm run build:umd && npm run build:umd:types',
       clean: `rm -rf ${library}`,
       dev: 'vite --config=config/vite/vite.config.ts',
-      lint: 'eslint',
+      lint: 'eslint --max-warnings=0',
       release: `release-it --config=${config}/release-it/stable.json`,
       'release:alpha': `release-it --config=${config}/release-it/alpha.json`,
       'release:beta': `release-it --config=${config}/release-it/beta.json`,

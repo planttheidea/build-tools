@@ -89,7 +89,7 @@
     "build": "npm run clean && npm run build:dist",
     "build:dist": "rollup -c config/rollup.config.js",
     "clean": "rm -rf dist",
-    "lint": "eslint",
+    "lint": "eslint --max-warnings=0",
     "release": "release-it --config=config/release-it/stable.json",
     "release:alpha": "release-it --config=config/release-it/alpha.json",
     "release:beta": "release-it --config=config/release-it/beta.json",
