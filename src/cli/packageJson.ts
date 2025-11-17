@@ -1,5 +1,5 @@
 import { writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 import gitRoot from 'git-root';
 import yargs from 'yargs';
 import { getPackageJson } from '../utils/packageJson.js';
@@ -103,7 +103,9 @@ function getCleanCommands(type: 'cjs' | 'es' | 'umd', library: string) {
 }
 
 function getDevDependencies() {
-  const ownPackageJson = getPackageJson(import.meta.dirname);
+  const ownPackageJson = getPackageJson(
+    resolve(import.meta.dirname, '..', '..'),
+  );
 
   return [
     '@vitest/coverage-v8',

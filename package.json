@@ -45,6 +45,12 @@
         "default": "./dist/index.js"
       }
     },
+    "./eslint": {
+      "default": {
+        "types": "./dist/eslint.d.ts",
+        "default": "./dist/eslint.js"
+      }
+    },
     "./rollup": {
       "default": {
         "types": "./dist/rollup.d.ts",
