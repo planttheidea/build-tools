@@ -52,7 +52,6 @@ interface Configs<Options extends ConfigOptions> {
 const BASE_CONFIG = {
   compilerOptions: {
     allowJs: true,
-    baseUrl: 'src',
     declaration: false,
     emitDeclarationOnly: false,
     esModuleInterop: true,

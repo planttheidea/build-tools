@@ -1,3 +1,4 @@
+import type { ConfigWithExtends } from '@eslint/config-helpers';
 import eslint from '@eslint/js';
 import type { Config } from 'eslint/config';
 import { defineConfig, globalIgnores } from 'eslint/config';
@@ -5,7 +6,6 @@ import eslintImport from 'eslint-plugin-import';
 import eslintReact from 'eslint-plugin-react';
 import eslintReactHooks from 'eslint-plugin-react-hooks';
 import gitRoot from 'git-root';
-import type { ConfigWithExtends } from 'typescript-eslint';
 import typescriptEslint from 'typescript-eslint';
 
 interface Options {
@@ -44,6 +44,7 @@ export function createEslintConfig(
       },
     });
   }
+
   return defineConfig([
     globalIgnores([
       `**/!(${source}|${development}|${config})/**/*`, // Ignore everything in all directories except those we want to lint
