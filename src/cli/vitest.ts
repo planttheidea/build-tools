@@ -38,7 +38,7 @@ export function createVitestConfig(argv: string[]) {
     mkdirSync(configDir);
   }
 
-  const content = `
+  const configContent = `
 import { createVitestConfig } from '@planttheidea/build-tools';
 
 export default createVitestConfig({
@@ -47,5 +47,25 @@ export default createVitestConfig({
 });
 `.trim();
 
-  writeFileSync(join(configDir, 'vitest.config.ts'), content, 'utf8');
+  writeFileSync(join(configDir, 'vitest.config.ts'), configContent, 'utf8');
+
+  const sourceDir = join(root, source);
+
+  if (!existsSync(sourceDir)) {
+    mkdirSync(sourceDir);
+  }
+
+  const sourceContent = `
+import { expect, test } from 'vitest';
+
+test('placeholder', () => {
+  expect(true).toBe(true);
+});
+`.trim();
+
+  writeFileSync(
+    join(sourceDir, '__tests__', 'index.test.ts'),
+    sourceContent,
+    'utf8',
+  );
 }

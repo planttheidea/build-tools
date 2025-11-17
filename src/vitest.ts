@@ -21,8 +21,8 @@ export function createVitestConfig(
     ? [`${relativeSourcePath}/**/*.ts`]
     : [`${relativeSourcePath}/**/*.ts`];
   const testFiles = react
-    ? ['**/__tests__/**/*.ts', '**/__tests__/**/*.tsx']
-    : ['**/__tests__/**/*.ts'];
+    ? ['**/__tests__/**/*.test.ts', '**/__tests__/**/*.test.tsx']
+    : ['**/__tests__/**/*.test.ts'];
 
   return defineConfig({
     ...overrides,
