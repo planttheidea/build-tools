@@ -1,4 +1,10 @@
 import yargs from 'yargs';
+import {
+  DEFAULT_CONFIG,
+  DEFAULT_DEVELOPMENT,
+  DEFAULT_LIBRARY,
+  DEFAULT_SOURCE,
+} from '../utils/defaultParams.js';
 import type { EslintArgs } from './eslint.js';
 import { createEslintConfig } from './eslint.js';
 import type { FixTypesArgs } from './fixTypes.js';
@@ -18,19 +24,19 @@ import { createVitestConfig } from './vitest.js';
 
 const CONFIG_SETUP = {
   alias: 'c',
-  default: 'config',
+  default: DEFAULT_CONFIG,
   description: 'Location of configuration files',
   type: 'string',
 } as const;
 const DEVELOPMENT_SETUP = {
   alias: 'd',
-  default: 'dev',
+  default: DEFAULT_DEVELOPMENT,
   description: 'Location of development files',
   type: 'string',
 } as const;
 const LIBRARY_SETUP = {
   alias: 'l',
-  default: 'dist',
+  default: DEFAULT_LIBRARY,
   description: 'Location of library files',
   type: 'string',
 } as const;
@@ -43,7 +49,7 @@ const REACT_SETUP = {
 } as const;
 const SOURCE_SETUP = {
   alias: 's',
-  default: 'src',
+  default: DEFAULT_SOURCE,
   description: 'Location of source files',
   type: 'string',
 } as const;

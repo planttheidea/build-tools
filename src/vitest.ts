@@ -2,6 +2,7 @@ import { join, relative } from 'node:path';
 import gitRoot from 'git-root';
 import type { ViteUserConfig } from 'vitest/config';
 import { defineConfig } from 'vitest/config';
+import { DEFAULT_SOURCE } from './utils/defaultParams.js';
 
 interface Options {
   overrides?: ViteUserConfig;
@@ -10,7 +11,7 @@ interface Options {
 }
 
 export function createVitestConfig(
-  { overrides, react, source = 'src' }: Options = {} as Options,
+  { overrides, react, source = DEFAULT_SOURCE }: Options = {} as Options,
 ) {
   const relativeSourcePath = relative(
     import.meta.filename,

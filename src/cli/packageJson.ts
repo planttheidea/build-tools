@@ -73,7 +73,7 @@ function getBuildCommands(type: 'cjs' | 'es' | 'umd', config: string) {
   let buildTypes = `tsc -p ${config}/types/${type}.declaration.json`;
 
   if (type !== 'umd') {
-    buildTypes += ` && pti-module-types -t ${type}`;
+    buildTypes += ` && pti fix-types -t ${type}`;
   }
 
   return {

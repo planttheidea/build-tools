@@ -7,6 +7,11 @@ import eslintReact from 'eslint-plugin-react';
 import eslintReactHooks from 'eslint-plugin-react-hooks';
 import gitRoot from 'git-root';
 import typescriptEslint from 'typescript-eslint';
+import {
+  DEFAULT_CONFIG,
+  DEFAULT_DEVELOPMENT,
+  DEFAULT_SOURCE,
+} from './utils/defaultParams.js';
 
 interface Options {
   config?: string;
@@ -18,11 +23,11 @@ interface Options {
 
 export function createEslintConfig(
   {
-    config = 'config',
+    config = DEFAULT_CONFIG,
     configs = [],
-    development = 'dev',
+    development = DEFAULT_DEVELOPMENT,
     react,
-    source = 'src',
+    source = DEFAULT_SOURCE,
   }: Options = {} as Options,
 ) {
   const optionalConfigs: ConfigWithExtends[] = [];
