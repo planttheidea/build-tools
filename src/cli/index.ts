@@ -58,6 +58,7 @@ const SOURCE_SETUP = {
 
 export function runPtiCommand(argv: string[]) {
   return yargs()
+    .strictCommands()
     .command<EslintArgs>(
       'eslint',
       'Create ESLint configuration',
