@@ -64,6 +64,7 @@ export async function createPackageJson({ config, library, react }: PackageJsonA
       test: 'vitest run --config=config/vitest.config.ts',
       typecheck: 'tsc --noEmit',
     },
+    type: 'module',
     types: 'index.d.ts',
   });
 
@@ -97,7 +98,7 @@ function getDevDependencies({ react }: Pick<PackageJsonArgs, 'react'>) {
   const dependencies = ['@vitest/coverage-v8', 'eslint', 'prettier', 'rollup', 'typescript', 'vite', 'vitest'];
 
   if (react) {
-    dependencies.push('react', 'react-dom');
+    dependencies.push('@types/react', 'react', 'react-dom');
   }
 
   return dependencies.reduce<Record<string, string>>((devDependencies, name) => {

@@ -36,10 +36,12 @@ export async function createTsConfigs({ config, development, library, react, sou
     await mkdir(configTypes);
   }
 
+  const lib = react ? [...BASE_CONFIG.compilerOptions.lib, 'DOM'] : [...BASE_CONFIG.compilerOptions.lib];
   const baseConfig = getStandardConfig({
     compilerOptions: {
       baseUrl: source,
       jsx: react ? 'react-jsx' : undefined,
+      lib,
       outDir: library,
       types: react ? ['node', 'react'] : ['node'],
     },
@@ -65,6 +67,7 @@ export async function createTsConfigs({ config, development, library, react, sou
   await writeConfigs(resolve(configTypes), {
     cjs: {
       compilerOptions: {
+        lib,
         module: ModuleKind.Node16,
         moduleResolution: ModuleResolutionKind.Node16,
         outDir: join(prefix, library, 'cjs'),
@@ -73,6 +76,7 @@ export async function createTsConfigs({ config, development, library, react, sou
     },
     es: {
       compilerOptions: {
+        lib,
         module: ModuleKind.NodeNext,
         moduleResolution: ModuleResolutionKind.NodeNext,
         outDir: join(prefix, library, 'es'),
@@ -81,6 +85,7 @@ export async function createTsConfigs({ config, development, library, react, sou
     },
     umd: {
       compilerOptions: {
+        lib,
         module: ModuleKind.ESNext,
         moduleResolution: ModuleResolutionKind.Bundler,
         outDir: join(prefix, library, 'umd'),
