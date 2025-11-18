@@ -3,6 +3,7 @@ import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import gitRoot from 'git-root';
 import { createEslintConfig } from './eslint.js';
+import { createGitFiles } from './git.js';
 import { createPackageJson } from './packageJson.js';
 import { createPrettierConfig } from './prettier.js';
 import { createReleaseItConfigs } from './releaseIt.js';
@@ -10,6 +11,7 @@ import { createRollupConfigs } from './rollup.js';
 import { createTsConfigs } from './tsconfig.js';
 import { createViteConfig } from './vite.js';
 import { createVitestConfig } from './vitest.js';
+import { createYarnFiles } from './yarn.js';
 
 export interface InitArgs {
   config: string;
@@ -20,7 +22,8 @@ export interface InitArgs {
 }
 
 export async function init(args: InitArgs) {
-  await createFileFolderStructure(args);
+  await Promise.all([createGitFiles(args), createYarnFiles(args), createFileFolderStructure(args)]);
+
   await createPrettierConfig(args);
   await createPackageJson(args);
   await createTsConfigs(args);

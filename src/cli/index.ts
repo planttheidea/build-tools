@@ -4,6 +4,8 @@ import type { EslintArgs } from './eslint.js';
 import { createEslintConfig } from './eslint.js';
 import type { FixTypesArgs } from './fixTypes.js';
 import { fixTypes } from './fixTypes.js';
+import type { GitArgs } from './git.js';
+import { createGitFiles } from './git.js';
 import type { InitArgs } from './init.js';
 import { init } from './init.js';
 import type { PackageJsonArgs } from './packageJson.js';
@@ -20,6 +22,8 @@ import type { ViteArgs } from './vite.js';
 import { createViteConfig } from './vite.js';
 import type { VitestArgs } from './vitest.js';
 import { createVitestConfig } from './vitest.js';
+import type { YarnArgs } from './yarn.js';
+import { createYarnFiles } from './yarn.js';
 
 const CONFIG_SETUP = {
   alias: 'c',
@@ -83,6 +87,12 @@ export function runPtiCommand(argv: string[]) {
           .help(),
       fixTypes,
     )
+    .command<GitArgs>(
+      'git',
+      'Initialize the files needed for `git` infrastructure',
+      (yargs) => yargs.help(),
+      createGitFiles,
+    )
     .command<InitArgs>(
       'init',
       'Initialize the package with the necessary build infrastructure',
@@ -145,6 +155,12 @@ export function runPtiCommand(argv: string[]) {
       (yargs) =>
         yargs.option('config', CONFIG_SETUP).option('react', REACT_SETUP).option('source', SOURCE_SETUP).help(),
       createVitestConfig,
+    )
+    .command<YarnArgs>(
+      'yarn',
+      'Initialize the files needed for `yarn` infrastructure',
+      (yargs) => yargs.help(),
+      createYarnFiles,
     )
     .help()
     .parse(argv);
