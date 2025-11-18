@@ -1,4 +1,4 @@
-import { writeFileSync } from 'node:fs';
+import { writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import gitRoot from 'git-root';
 import { getPackageJson } from '../utils/packageJson.js';
@@ -8,7 +8,7 @@ export interface PackageJsonArgs {
   library: string;
 }
 
-export function createPackageJson({ config, library }: PackageJsonArgs) {
+export async function createPackageJson({ config, library }: PackageJsonArgs) {
   const root = gitRoot();
   const targetPackageJson = getPackageJson(root);
 
@@ -62,7 +62,7 @@ export function createPackageJson({ config, library }: PackageJsonArgs) {
     types: 'index.d.ts',
   });
 
-  writeFileSync(
+  await writeFile(
     join(root, 'package.json'),
     JSON.stringify(updatedTargetPackageJson, null, 2),
     'utf8',

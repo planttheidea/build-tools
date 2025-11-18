@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync } from 'node:fs';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import gitRoot from 'git-root';
 import type { CompilerOptions } from 'typescript';
@@ -19,7 +20,7 @@ export interface TsConfigArgs {
   source: string;
 }
 
-export function createTsConfigs({
+export async function createTsConfigs({
   config,
   development,
   library,
@@ -30,27 +31,19 @@ export function createTsConfigs({
   const sourceDir = join(root, source);
 
   if (!existsSync(sourceDir)) {
-    mkdirSync(sourceDir);
-  }
-
-  if (!existsSync(join(sourceDir, 'index.ts'))) {
-    writeFileSync(
-      join(sourceDir, 'index.ts'),
-      'export const REPLACE_ME = {};',
-      'utf8',
-    );
+    await mkdir(sourceDir);
   }
 
   const configDir = join(root, config);
 
   if (!existsSync(configDir)) {
-    mkdirSync(configDir);
+    await mkdir(configDir);
   }
 
   const configTypes = join(configDir, 'types');
 
   if (!existsSync(configTypes)) {
-    mkdirSync(configTypes);
+    await mkdir(configTypes);
   }
 
   const baseConfig = getStandardConfig({
@@ -64,16 +57,30 @@ export function createTsConfigs({
     include: getInclude({ config, development, react, source }),
   });
 
-  writeFileSync(
-    join(root, 'tsconfig.json'),
-    JSON.stringify(baseConfig, null, 2),
-    'utf8',
+  const files: Array<Promise<void>> = [];
+
+  if (!existsSync(join(sourceDir, 'index.ts'))) {
+    files.push(
+      writeFile(
+        join(sourceDir, 'index.ts'),
+        'export const REPLACE_ME = {};',
+        'utf8',
+      ),
+    );
+  }
+
+  files.push(
+    writeFile(
+      join(root, 'tsconfig.json'),
+      JSON.stringify(baseConfig, null, 2),
+      'utf8',
+    ),
   );
 
   const prefix = join('..', '..');
   const include = getInclude({ source, prefix });
 
-  writeConfigs(resolve(configTypes), {
+  await writeConfigs(resolve(configTypes), {
     cjs: {
       compilerOptions: {
         module: ModuleKind.Node16,
@@ -271,7 +278,7 @@ function getStandardConfig<const Options extends ConfigOptions>(
   };
 }
 
-function writeConfig<const Options extends ConfigOptions>(
+async function writeConfig<const Options extends ConfigOptions>(
   folder: string,
   file: string,
   options: Options,
@@ -285,31 +292,38 @@ function writeConfig<const Options extends ConfigOptions>(
   const runtimeConfig = getStandardConfig(options);
   const declarationConfig = getDeclarationConfig(options);
 
-  writeFileSync(
-    join(folder, `${file}.json`),
-    JSON.stringify(runtimeConfig, null, 2),
-    'utf8',
-  );
-  writeFileSync(
-    join(folder, `${file}.declaration.json`),
-    JSON.stringify(declarationConfig, null, 2),
-    'utf8',
-  );
+  await Promise.all([
+    writeFile(
+      join(folder, `${file}.json`),
+      JSON.stringify(runtimeConfig, null, 2),
+      'utf8',
+    ),
+    writeFile(
+      join(folder, `${file}.declaration.json`),
+      JSON.stringify(declarationConfig, null, 2),
+      'utf8',
+    ),
+  ]);
 
   return { declaration: declarationConfig, runtime: runtimeConfig };
 }
 
-function writeConfigs<const OptionsMap extends Record<string, ConfigOptions>>(
+async function writeConfigs<
+  const OptionsMap extends Record<string, ConfigOptions>,
+>(
   folder: string,
   optionsMap: OptionsMap,
-): {
+): Promise<{
   [Key in keyof OptionsMap]: Configs<OptionsMap[Key]>;
-} {
+}> {
+  const entries = await Promise.all(
+    Object.entries(optionsMap).map(async ([file, options]) => {
+      const config = await writeConfig(folder, file, options);
+
+      return [file, config] as const;
+    }),
+  );
+
   // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-  return Object.fromEntries(
-    Object.entries(optionsMap).map(([file, options]) => [
-      file,
-      writeConfig(folder, file, options),
-    ]),
-  ) as any;
+  return Object.fromEntries(entries) as any;
 }

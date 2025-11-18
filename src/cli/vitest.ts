@@ -1,4 +1,5 @@
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync } from 'node:fs';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import gitRoot from 'git-root';
 
@@ -8,12 +9,28 @@ export interface VitestArgs {
   source: string;
 }
 
-export function createVitestConfig({ config, react, source }: VitestArgs) {
+export async function createVitestConfig({
+  config,
+  react,
+  source,
+}: VitestArgs) {
   const root = gitRoot();
   const configDir = join(root, config);
 
   if (!existsSync(configDir)) {
-    mkdirSync(configDir);
+    await mkdir(configDir);
+  }
+
+  const sourceDir = join(root, source);
+
+  if (!existsSync(sourceDir)) {
+    await mkdir(sourceDir);
+  }
+
+  const testsDir = join(sourceDir, '__tests__');
+
+  if (!existsSync(testsDir)) {
+    await mkdir(testsDir);
   }
 
   const configContent = `
@@ -24,21 +41,6 @@ export default createVitestConfig({
     source: '${source}'
 });
 `.trim();
-
-  writeFileSync(join(configDir, 'vitest.config.ts'), configContent, 'utf8');
-
-  const sourceDir = join(root, source);
-
-  if (!existsSync(sourceDir)) {
-    mkdirSync(sourceDir);
-  }
-
-  const testsDir = join(sourceDir, '__tests__');
-
-  if (!existsSync(testsDir)) {
-    mkdirSync(testsDir);
-  }
-
   const sourceContent = `
 import { expect, test } from 'vitest';
 
@@ -47,5 +49,8 @@ test('placeholder', () => {
 });
 `.trim();
 
-  writeFileSync(join(testsDir, 'index.test.ts'), sourceContent, 'utf8');
+  await Promise.all([
+    writeFile(join(configDir, 'vitest.config.ts'), configContent, 'utf8'),
+    writeFile(join(testsDir, 'index.test.ts'), sourceContent, 'utf8'),
+  ]);
 }

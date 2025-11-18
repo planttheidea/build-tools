@@ -1,4 +1,5 @@
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync } from 'node:fs';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import gitRoot from 'git-root';
 
@@ -7,12 +8,12 @@ export interface ViteArgs {
   development: string;
 }
 
-export function createViteConfig({ config, development }: ViteArgs) {
+export async function createViteConfig({ config, development }: ViteArgs) {
   const root = gitRoot();
   const configDir = join(root, config);
 
   if (!existsSync(configDir)) {
-    mkdirSync(configDir);
+    await mkdir(configDir);
   }
 
   const content = `
@@ -23,5 +24,5 @@ export default createViteConfig({
 });
 `.trim();
 
-  writeFileSync(join(configDir, 'vite.config.ts'), content, 'utf8');
+  await writeFile(join(configDir, 'vite.config.ts'), content, 'utf8');
 }
