@@ -46,7 +46,7 @@ export async function createTsConfigs({ config, development, library, react, sou
       types: react ? ['node', 'react'] : ['node'],
     },
     exclude: ['**/node_modules/**', `${library}/**/*`],
-    include: getInclude({ config, development, react, source }),
+    include: getInclude({ config, development, react, source, test: TEST_FOLDER }),
   });
 
   const files: Array<Promise<void>> = [];
@@ -157,6 +157,7 @@ const BASE_CONFIG = {
 
 interface IncludeArgs extends Pick<Partial<TsConfigArgs>, 'config' | 'development' | 'react' | 'source'> {
   prefix?: string;
+  test?: string;
 }
 
 function getInclude({ config, development, react, source, prefix = '.' }: IncludeArgs) {
