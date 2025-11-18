@@ -1,5 +1,6 @@
 import { writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
+import { execa } from 'execa';
 import gitRoot from 'git-root';
 import { format } from '../utils/format.js';
 import { getPackageJson } from '../utils/packageJson.js';
@@ -67,6 +68,7 @@ export async function createPackageJson({ config, library }: PackageJsonArgs) {
   const content = await format(JSON.stringify(updatedTargetPackageJson, null, 2), 'json');
 
   await writeFile(join(root, 'package.json'), content, 'utf8');
+  await execa`yarn install`;
 }
 
 function getBuildCommands(type: 'cjs' | 'es' | 'umd', config: string) {

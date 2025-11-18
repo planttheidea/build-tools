@@ -20,13 +20,13 @@ export interface InitArgs {
 }
 
 export async function init(args: InitArgs) {
-  await Promise.all([createFileFolderStructure(args), createPackageJson(args)]);
-
+  await createFileFolderStructure(args);
+  await createPrettierConfig(args);
+  await createPackageJson(args);
   await createTsConfigs(args);
 
   await Promise.all([
     createEslintConfig(args),
-    createPrettierConfig(args),
     createRollupConfigs(args),
     createViteConfig(args),
     createVitestConfig(args),
