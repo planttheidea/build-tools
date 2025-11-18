@@ -1,4 +1,4 @@
-import { join, relative } from 'node:path';
+import { join } from 'node:path';
 import gitRoot from 'git-root';
 import type { UserConfig } from 'vite';
 import { defineConfig } from 'vite';

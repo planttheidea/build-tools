@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 1.0.4
+
+- Fix `root` path derivation in `vite` setup
+
 ## 1.0.3
 
 - Forgot to ensure `__tests__` was included in the base TS config

@@ -1,4 +1,4 @@
-import { join, relative } from 'node:path';
+import { join } from 'node:path';
 import gitRoot from 'git-root';
 import type { ViteUserConfig } from 'vitest/config';
 import { defineConfig } from 'vitest/config';
@@ -11,12 +11,13 @@ interface Options {
 }
 
 export function createVitestConfig({ overrides, react, source = DEFAULT_SOURCE_FOLDER }: Options = {} as Options) {
-  const relativeSourcePath = relative(import.meta.filename, join(gitRoot(), source));
-  const sourceFiles = react ? [`${relativeSourcePath}/**/*.ts`] : [`${relativeSourcePath}/**/*.ts`];
+  const sourcePath = join(gitRoot(), source);
+  const sourceFiles = react ? [`${sourcePath}/**/*.ts`, `${sourcePath}/**/*.tsx`] : [`${sourcePath}/**/*.ts`];
 
   const testPattern = `**/${TEST_FOLDER}/**/*.test.ts`;
-  const testHelpersPattern = `**/${TEST_HELPERS_FOLDER}/**`;
   const testFiles = react ? [testPattern, `${testPattern}x`] : [testPattern];
+
+  const testHelpersPattern = `**/${TEST_HELPERS_FOLDER}/**`;
 
   return defineConfig({
     ...overrides,
