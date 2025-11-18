@@ -38,6 +38,7 @@ export async function createPackageJson({ config, library, react }: PackageJsonA
         },
       },
     },
+    license: 'MIT',
     main: `${library}/cjs/index.cjs`,
     module: `${library}/es/index.mjs`,
     scripts: {
@@ -54,7 +55,6 @@ export async function createPackageJson({ config, library, react }: PackageJsonA
       dev: 'vite --config=config/vite/vite.config.ts',
       format: 'prettier . --log-level=warn --write',
       'format:check': 'prettier . --log-level=warn --check',
-      license: 'MIT',
       lint: 'eslint --max-warnings=0',
       release: `release-it --config=${config}/release-it/stable.json`,
       'release:alpha': `release-it --config=${config}/release-it/alpha.json`,
