@@ -1,6 +1,7 @@
 import { writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import gitRoot from 'git-root';
+import { format } from '../utils/format.js';
 import { getPackageJson } from '../utils/packageJson.js';
 
 export interface PackageJsonArgs {
@@ -63,7 +64,9 @@ export async function createPackageJson({ config, library }: PackageJsonArgs) {
     types: 'index.d.ts',
   });
 
-  await writeFile(join(root, 'package.json'), JSON.stringify(updatedTargetPackageJson, null, 2), 'utf8');
+  const content = await format(JSON.stringify(updatedTargetPackageJson, null, 2), 'json');
+
+  await writeFile(join(root, 'package.json'), content, 'utf8');
 }
 
 function getBuildCommands(type: 'cjs' | 'es' | 'umd', config: string) {

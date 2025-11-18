@@ -6,6 +6,7 @@ import { join, resolve } from 'node:path';
 import gitRoot from 'git-root';
 import type { CompilerOptions } from 'typescript';
 import { ModuleDetectionKind, ModuleKind, ModuleResolutionKind, ScriptTarget } from 'typescript';
+import { format } from '../utils/format.js';
 
 export interface TsConfigArgs {
   config: string;
@@ -49,10 +50,14 @@ export async function createTsConfigs({ config, development, library, react, sou
   const files: Array<Promise<void>> = [];
 
   if (!existsSync(join(sourceDir, 'index.ts'))) {
-    files.push(writeFile(join(sourceDir, 'index.ts'), 'export const REPLACE_ME = {};', 'utf8'));
+    const srcContent = await format('export const REPLACE_ME = {};');
+
+    files.push(writeFile(join(sourceDir, 'index.ts'), srcContent, 'utf8'));
   }
 
-  files.push(writeFile(join(root, 'tsconfig.json'), JSON.stringify(baseConfig, null, 2), 'utf8'));
+  const configContent = await format(JSON.stringify(baseConfig, null, 2), 'json');
+
+  files.push(writeFile(join(root, 'tsconfig.json'), configContent, 'utf8'));
 
   const prefix = join('..', '..');
   const include = getInclude({ source, prefix });
@@ -241,9 +246,14 @@ async function writeConfig<const Options extends ConfigOptions>(folder: string, 
   const runtimeConfig = getStandardConfig(options);
   const declarationConfig = getDeclarationConfig(options);
 
+  const [runtimeContent, declarationContent] = await Promise.all([
+    format(JSON.stringify(runtimeConfig, null, 2), 'json'),
+    format(JSON.stringify(declarationConfig, null, 2), 'json'),
+  ]);
+
   await Promise.all([
-    writeFile(join(folder, `${file}.json`), JSON.stringify(runtimeConfig, null, 2), 'utf8'),
-    writeFile(join(folder, `${file}.declaration.json`), JSON.stringify(declarationConfig, null, 2), 'utf8'),
+    writeFile(join(folder, `${file}.json`), runtimeContent, 'utf8'),
+    writeFile(join(folder, `${file}.declaration.json`), declarationContent, 'utf8'),
   ]);
 
   return { declaration: declarationConfig, runtime: runtimeConfig };

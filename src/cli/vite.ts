@@ -2,6 +2,7 @@ import { existsSync } from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import gitRoot from 'git-root';
+import { format } from '../utils/format.js';
 
 export interface ViteArgs {
   config: string;
@@ -16,13 +17,13 @@ export async function createViteConfig({ config, development }: ViteArgs) {
     await mkdir(configDir);
   }
 
-  const content = `
-import { createViteConfig } from '@planttheidea/build-tools';
+  const content = await format(`
+    import { createViteConfig } from '@planttheidea/build-tools';
 
-export default createViteConfig({
-    development: '${development}',
-});
-`.trim();
+    export default createViteConfig({
+        development: '${development}',
+    });
+  `);
 
   await writeFile(join(configDir, 'vite.config.ts'), content, 'utf8');
 }

@@ -2,6 +2,7 @@ import { constants, existsSync } from 'node:fs';
 import { copyFile, mkdir, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import gitRoot from 'git-root';
+import { format } from '../utils/format.js';
 
 export interface EslintArgs {
   config: string;
@@ -20,16 +21,16 @@ export async function createEslintConfig({ config, development, react, source }:
 
   const templateDir = resolve(import.meta.dirname, '..', '..', 'templates', 'eslint');
 
-  const content = `
-import { createEslintConfig } from '@planttheidea/build-tools';
+  const content = await format(`
+    import { createEslintConfig } from '@planttheidea/build-tools';
 
-export default createEslintConfig({
-    config: '${config}',
-    development: '${development}',
-    react: ${react.toString()},
-    source: '${source}'
-});
-`.trim();
+    export default createEslintConfig({
+        config: '${config}',
+        development: '${development}',
+        react: ${react.toString()},
+        source: '${source}'
+    });
+  `);
 
   await Promise.all([
     writeFile(join(configDir, 'eslint.config.js'), content, 'utf8'),

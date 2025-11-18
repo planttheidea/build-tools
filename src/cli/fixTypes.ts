@@ -2,6 +2,7 @@ import { readFile, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import fastGlob from 'fast-glob';
 import gitRoot from 'git-root';
+import { format } from '../utils/format.js';
 
 const { glob } = fastGlob;
 
@@ -30,13 +31,13 @@ export async function fixTypes({ library, type }: FixTypesArgs) {
   await Promise.all(
     files.map(async (file) => {
       const content = await readFile(file, 'utf8');
-
       const updatedContent = content
         .replaceAll(".ts';", `${extension}';`)
         .replaceAll(".js';", `${extension}';`)
         .replaceAll('import {', 'import type {');
+      const formattedContent = await format(updatedContent);
 
-      await Promise.all([rm(file), writeFile(file.replace('.d.ts', extension), updatedContent, 'utf8')]);
+      await Promise.all([rm(file), writeFile(file.replace('.d.ts', extension), formattedContent, 'utf8')]);
     }),
   );
 }
