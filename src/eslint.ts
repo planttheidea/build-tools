@@ -96,13 +96,14 @@ export function createEslintConfig(
     },
     {
       files: [
+        `${TEST_FOLDER}/**/*.ts`,
+        `${TEST_FOLDER}/**/*.tsx`,
         `${config}/**/*.ts`,
+        `${config}/**/*.tsx`,
         `${development}/**/*.ts`,
         `${development}/**/*.tsx`,
         `${source}/**/*.ts`,
         `${source}/**/*.tsx`,
-        `${TEST_FOLDER}/**/*.ts`,
-        `${TEST_FOLDER}/**/*.tsx`,
       ],
       extends: [typescriptEslint.configs.strictTypeChecked, typescriptEslint.configs.stylisticTypeChecked],
       languageOptions: {

@@ -8,11 +8,12 @@ import typescriptEslint from 'typescript-eslint';
 
 export default defineConfig([
   globalIgnores([
-    '**/!(src|config|templates)/**/*', // Ignore everything in all directories except those we want to lint
-    '**/!(src|config|templates)', // Ignore all directories except those we want to lint
+    '**/!(src|__tests__|config|templates)/**/*', // Ignore everything in all directories except those we want to lint
+    '**/!(src|__tests__|config|templates)', // Ignore all directories except those we want to lint
     '!src/**/*', // Don't ignore anything in source directory
     '!config/**/*', // Don't ignore anything in config directory
-    '!templates/**/*', // Don't ignore anything in config directory
+    '!templates/**/*', // Don't ignore anything in templates directory
+    '!__tests__/**/*', // Don't ignore anything in __tests__ directory
   ]),
   eslint.configs.recommended,
   eslintImport.flatConfigs.recommended,
@@ -57,7 +58,16 @@ export default defineConfig([
     },
   },
   {
-    files: ['config/**/*.ts', 'src/**/*.ts', 'templates/**/*.ts'],
+    files: [
+      '__tests__/**/*.ts',
+      '__tests__/**/*.tsx',
+      'config/**/*.ts',
+      'config/**/*.tsx',
+      'src/**/*.ts',
+      'src/**/*.tsx',
+      'templates/**/*.ts',
+      'templates/**/*.tsx',
+    ],
     extends: [typescriptEslint.configs.strictTypeChecked, typescriptEslint.configs.stylisticTypeChecked],
     languageOptions: {
       parser: typescriptEslint.parser,
