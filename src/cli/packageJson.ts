@@ -38,6 +38,7 @@ export async function createPackageJson({ config, library, react }: PackageJsonA
         },
       },
     },
+    license: 'MIT',
     main: `${library}/cjs/index.cjs`,
     module: `${library}/es/index.mjs`,
     scripts: {
@@ -54,18 +55,17 @@ export async function createPackageJson({ config, library, react }: PackageJsonA
       dev: 'vite --config=config/vite/vite.config.ts',
       format: 'prettier . --log-level=warn --write',
       'format:check': 'prettier . --log-level=warn --check',
-      license: 'MIT',
       lint: 'eslint --max-warnings=0',
-      release: `release-it --config=${config}/release-it/stable.json`,
       'release:alpha': `release-it --config=${config}/release-it/alpha.json`,
       'release:beta': `release-it --config=${config}/release-it/beta.json`,
       'release:rc': `release-it --config=${config}/release-it/rc.json`,
       'release:scripts': 'npm run format:check && npm run typecheck && npm run lint && npm run test && npm run build',
+      'release:stable': `release-it --config=${config}/release-it/stable.json`,
       test: 'vitest run --config=config/vitest.config.ts',
       typecheck: 'tsc --noEmit',
     },
     type: 'module',
-    types: 'index.d.ts',
+    types: './index.d.ts',
   });
 
   const content = await format(JSON.stringify(updatedTargetPackageJson, null, 2), 'json');

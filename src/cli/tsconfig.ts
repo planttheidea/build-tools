@@ -20,8 +20,9 @@ export interface TsConfigArgs {
 export async function createTsConfigs({ config, development, library, react, source }: TsConfigArgs) {
   const root = gitRoot();
   const sourceDir = join(root, source);
+  const sourceExists = existsSync(sourceDir);
 
-  if (!existsSync(sourceDir)) {
+  if (!sourceExists) {
     await mkdir(sourceDir);
   }
 
@@ -50,7 +51,7 @@ export async function createTsConfigs({ config, development, library, react, sou
 
   const files: Array<Promise<void>> = [];
 
-  if (!existsSync(join(sourceDir, 'index.ts'))) {
+  if (!sourceExists) {
     const srcContent = await format('export const REPLACE_ME = {};');
 
     files.push(writeFile(join(sourceDir, 'index.ts'), srcContent, 'utf8'));
