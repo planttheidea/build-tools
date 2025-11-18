@@ -7,7 +7,12 @@ import eslintReact from 'eslint-plugin-react';
 import eslintReactHooks from 'eslint-plugin-react-hooks';
 import gitRoot from 'git-root';
 import typescriptEslint from 'typescript-eslint';
-import { DEFAULT_CONFIG_FOLDER, DEFAULT_DEVELOPMENT_FOLDER, DEFAULT_SOURCE_FOLDER } from './utils/constants.js';
+import {
+  DEFAULT_CONFIG_FOLDER,
+  DEFAULT_DEVELOPMENT_FOLDER,
+  DEFAULT_SOURCE_FOLDER,
+  TEST_FOLDER,
+} from './utils/constants.js';
 
 interface Options {
   config?: string;
@@ -48,17 +53,20 @@ export function createEslintConfig(
 
   return defineConfig([
     globalIgnores([
-      `**/!(${source}|${development}|${config})/**/*`, // Ignore everything in all directories except those we want to lint
-      `**/!(${source}|${development}|${config})`, // Ignore all directories except those we want to lint
-      `!${source}/**/*`, // Don't ignore anything in source directory
-      `!${development}/**/*`, // Don't ignore anything in development directory
-      `!${config}/**/*`, // Don't ignore anything in config directory
+      // Ignore everything in all directories except those we want to lint
+      `**/!(${source}|${TEST_FOLDER}|${development}|${config})/**/*`,
+      // Ignore all directories except those we want to lint
+      `**/!(${source}|${TEST_FOLDER}|${development}|${config})`,
+      // Don't ignore anything in these directories
+      `!${source}/**/*`,
+      `!${TEST_FOLDER}/**/*`,
+      `!${development}/**/*`,
+      `!${config}/**/*`,
     ]),
     eslint.configs.recommended,
     eslintImport.flatConfigs.recommended,
     {
       rules: {
-        'import/consistent-type-specifier-style': ['error', 'prefer-top-level'],
         'import/enforce-node-protocol-usage': ['error', 'always'],
         'import/export': 'error',
         'import/first': 'error',
@@ -88,11 +96,14 @@ export function createEslintConfig(
     },
     {
       files: [
+        `${TEST_FOLDER}/**/*.ts`,
+        `${TEST_FOLDER}/**/*.tsx`,
         `${config}/**/*.ts`,
+        `${config}/**/*.tsx`,
         `${development}/**/*.ts`,
         `${development}/**/*.tsx`,
         `${source}/**/*.ts`,
-        `${source}/**/*.ts`,
+        `${source}/**/*.tsx`,
       ],
       extends: [typescriptEslint.configs.strictTypeChecked, typescriptEslint.configs.stylisticTypeChecked],
       languageOptions: {
@@ -105,6 +116,7 @@ export function createEslintConfig(
       rules: {
         '@typescript-eslint/array-type': ['error', { default: 'array-simple' }],
         '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+        'import/consistent-type-specifier-style': ['error', 'prefer-top-level'],
 
         // Disabling since TS handles them
         'import/default': 'off',

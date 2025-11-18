@@ -3,5 +3,5 @@
   "compilerOptions": {
     "rootDir": "./"
   },
-  "include": ["./src/**/*.ts", "./globalTypes.d.ts", "./templates/**/*"]
+  "include": ["./__tests__/**/*.ts", "./src/**/*.ts", "./globalTypes.d.ts", "./templates/**/*"]
 }
