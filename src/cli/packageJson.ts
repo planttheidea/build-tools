@@ -65,7 +65,7 @@ export async function createPackageJson({ config, library, react }: PackageJsonA
       typecheck: 'tsc --noEmit',
     },
     type: 'module',
-    types: 'index.d.ts',
+    types: './index.d.ts',
   });
 
   const content = await format(JSON.stringify(updatedTargetPackageJson, null, 2), 'json');
