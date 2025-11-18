@@ -1,4 +1,4 @@
-import { join, relative } from 'node:path';
+import { join } from 'node:path';
 import gitRoot from 'git-root';
 import type { UserConfig } from 'vite';
 import { defineConfig } from 'vite';
@@ -9,11 +9,11 @@ interface Options {
 }
 
 export function createViteConfig({ development = 'dev', overrides }: Options = {} as Options) {
-  const relativeRootPath = relative(import.meta.filename, join(gitRoot(), development));
+  const developmentDir = join(gitRoot(), development);
 
   return defineConfig({
     ...overrides,
-    root: relativeRootPath,
+    root: developmentDir,
     server: {
       port: 3000,
       ...overrides?.server,
