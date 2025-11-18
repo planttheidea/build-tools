@@ -19,15 +19,10 @@ export async function createVitestConfig({ config, react, source }: VitestArgs) 
     await mkdir(configDir);
   }
 
-  const sourceDir = join(root, source);
-
-  if (!existsSync(sourceDir)) {
-    await mkdir(sourceDir);
-  }
-
   const testsDir = join(root, TEST_FOLDER);
+  const testsExist = existsSync(testsDir);
 
-  if (!existsSync(testsDir)) {
+  if (!testsExist) {
     await mkdir(testsDir);
   }
 
@@ -49,8 +44,11 @@ export async function createVitestConfig({ config, react, source }: VitestArgs) 
     `),
   ]);
 
-  await Promise.all([
-    writeFile(join(configDir, 'vitest.config.ts'), configContent, 'utf8'),
-    writeFile(join(testsDir, 'index.test.ts'), testContent, 'utf8'),
-  ]);
+  const files = [writeFile(join(configDir, 'vitest.config.ts'), configContent, 'utf8')];
+
+  if (!testsExist) {
+    files.push(writeFile(join(testsDir, 'index.test.ts'), testContent, 'utf8'));
+  }
+
+  await Promise.all(files);
 }
