@@ -157,5 +157,5 @@ export function runPtiCommand(argv: string[]) {
       createVitestConfig,
     )
     .help()
-    .parseSync(argv);
+    .parse(argv);
 }
