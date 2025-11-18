@@ -160,8 +160,8 @@ interface IncludeArgs extends Pick<Partial<TsConfigArgs>, 'config' | 'developmen
   test?: string;
 }
 
-function getInclude({ config, development, react, source, prefix = '.' }: IncludeArgs) {
-  const files = [config, development, source].filter((file) => typeof file === 'string');
+function getInclude({ config, development, react, source, prefix = '.', test }: IncludeArgs) {
+  const files = [config, development, source, test].filter((file) => typeof file === 'string');
 
   if (!files.length) {
     return;

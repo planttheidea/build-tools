@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 1.0.3
+
+- Forgot to ensure `__tests__` was included in the base TS config
+
 ## 1.0.2
 
 - Fix `__tests__` being ignored by ESLint and TS
