@@ -3,6 +3,7 @@
 ## 1.0.4
 
 - Fix `root` path derivation in `vite` setup
+- Fix `include` derivation for source files in `vitest` setup
 
 ## 1.0.3
 
