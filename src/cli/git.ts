@@ -9,7 +9,7 @@ export async function createGitFiles(_args: GitArgs) {
   const templateDir = resolve(import.meta.dirname, '..', '..', 'templates', 'git');
 
   await Promise.all([
-    copyFile(join(templateDir, '.gitignore'), join(root, '.gitignore')),
+    copyFile(join(templateDir, 'gitignore'), join(root, '.gitignore')),
     copyFile(join(templateDir, 'LICENSE'), join(root, 'LICENSE')),
   ]);
 }
