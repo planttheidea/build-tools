@@ -1,5 +1,10 @@
 import yargs from 'yargs';
-import { DEFAULT_CONFIG, DEFAULT_DEVELOPMENT, DEFAULT_LIBRARY, DEFAULT_SOURCE } from '../utils/defaultParams.js';
+import {
+  DEFAULT_CONFIG_FOLDER,
+  DEFAULT_DEVELOPMENT_FOLDER,
+  DEFAULT_LIBRARY_FOLDER,
+  DEFAULT_SOURCE_FOLDER,
+} from '../utils/constants.js';
 import type { EslintArgs } from './eslint.js';
 import { createEslintConfig } from './eslint.js';
 import type { FixTypesArgs } from './fixTypes.js';
@@ -27,19 +32,19 @@ import { createYarnFiles } from './yarn.js';
 
 const CONFIG_SETUP = {
   alias: 'c',
-  default: DEFAULT_CONFIG,
+  default: DEFAULT_CONFIG_FOLDER,
   description: 'Location of configuration files',
   type: 'string',
 } as const;
 const DEVELOPMENT_SETUP = {
   alias: 'd',
-  default: DEFAULT_DEVELOPMENT,
+  default: DEFAULT_DEVELOPMENT_FOLDER,
   description: 'Location of development files',
   type: 'string',
 } as const;
 const LIBRARY_SETUP = {
   alias: 'l',
-  default: DEFAULT_LIBRARY,
+  default: DEFAULT_LIBRARY_FOLDER,
   description: 'Location of library files',
   type: 'string',
 } as const;
@@ -51,7 +56,7 @@ const REACT_SETUP = {
 } as const;
 const SOURCE_SETUP = {
   alias: 's',
-  default: DEFAULT_SOURCE,
+  default: DEFAULT_SOURCE_FOLDER,
   description: 'Location of source files',
   type: 'string',
 } as const;

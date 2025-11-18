@@ -6,6 +6,7 @@ import { join, resolve } from 'node:path';
 import gitRoot from 'git-root';
 import type { CompilerOptions } from 'typescript';
 import { ModuleDetectionKind, ModuleKind, ModuleResolutionKind, ScriptTarget } from 'typescript';
+import { TEST_FOLDER } from '../utils/constants.js';
 import { format } from '../utils/format.js';
 
 export interface TsConfigArgs {
@@ -36,12 +37,10 @@ export async function createTsConfigs({ config, development, library, react, sou
     await mkdir(configTypes);
   }
 
-  const lib = react ? [...BASE_CONFIG.compilerOptions.lib, 'DOM'] : [...BASE_CONFIG.compilerOptions.lib];
   const baseConfig = getStandardConfig({
     compilerOptions: {
       baseUrl: source,
       jsx: react ? 'react-jsx' : undefined,
-      lib,
       outDir: library,
       types: react ? ['node', 'react'] : ['node'],
     },
@@ -63,34 +62,35 @@ export async function createTsConfigs({ config, development, library, react, sou
 
   const prefix = join('..', '..');
   const include = getInclude({ source, prefix });
+  const exclude = [...BASE_CONFIG.exclude, `**/${TEST_FOLDER}/**`];
 
   await writeConfigs(resolve(configTypes), {
     cjs: {
       compilerOptions: {
-        lib,
         module: ModuleKind.Node16,
         moduleResolution: ModuleResolutionKind.Node16,
         outDir: join(prefix, library, 'cjs'),
       },
       include,
+      exclude,
     },
     es: {
       compilerOptions: {
-        lib,
         module: ModuleKind.NodeNext,
         moduleResolution: ModuleResolutionKind.NodeNext,
         outDir: join(prefix, library, 'es'),
       },
       include,
+      exclude,
     },
     umd: {
       compilerOptions: {
-        lib,
         module: ModuleKind.ESNext,
         moduleResolution: ModuleResolutionKind.Bundler,
         outDir: join(prefix, library, 'umd'),
       },
       include,
+      exclude,
     },
   });
 }
@@ -133,7 +133,7 @@ const BASE_CONFIG = {
     emitDeclarationOnly: false,
     esModuleInterop: true,
     isolatedModules: true,
-    lib: ['ESNext'],
+    lib: ['ESNext', 'DOM'],
     module: ModuleKind.NodeNext,
     moduleDetection: ModuleDetectionKind.Force,
     moduleResolution: ModuleResolutionKind.NodeNext,

@@ -1,7 +1,9 @@
 import { existsSync } from 'node:fs';
 import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
+import { execa } from 'execa';
 import gitRoot from 'git-root';
+import { TEST_FOLDER } from '../utils/constants.js';
 import { createEslintConfig } from './eslint.js';
 import { createGitFiles } from './git.js';
 import { createPackageJson } from './packageJson.js';
@@ -35,6 +37,8 @@ export async function init(args: InitArgs) {
     createVitestConfig(args),
     createReleaseItConfigs(args),
   ]);
+
+  await execa`npm run format`;
 }
 
 async function createFileFolderStructure({ config, development, source }: InitArgs) {
@@ -80,9 +84,9 @@ async function createSourceDirs(root: string, source: string) {
     await mkdir(sourceDir);
   }
 
-  const sourceTestsDir = join(sourceDir, '__tests__');
+  const testsDir = join(root, TEST_FOLDER);
 
-  if (!existsSync(sourceTestsDir)) {
-    await mkdir(sourceTestsDir);
+  if (!existsSync(testsDir)) {
+    await mkdir(testsDir);
   }
 }

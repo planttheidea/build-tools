@@ -2,6 +2,7 @@ import { existsSync } from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import gitRoot from 'git-root';
+import { TEST_FOLDER } from '../utils/constants.js';
 import { format } from '../utils/format.js';
 
 export interface VitestArgs {
@@ -24,13 +25,13 @@ export async function createVitestConfig({ config, react, source }: VitestArgs) 
     await mkdir(sourceDir);
   }
 
-  const testsDir = join(sourceDir, '__tests__');
+  const testsDir = join(root, TEST_FOLDER);
 
   if (!existsSync(testsDir)) {
     await mkdir(testsDir);
   }
 
-  const [configContent, sourceContent] = await Promise.all([
+  const [configContent, testContent] = await Promise.all([
     format(`
       import { createVitestConfig } from '@planttheidea/build-tools';
 
@@ -50,6 +51,6 @@ export async function createVitestConfig({ config, react, source }: VitestArgs) 
 
   await Promise.all([
     writeFile(join(configDir, 'vitest.config.ts'), configContent, 'utf8'),
-    writeFile(join(testsDir, 'index.test.ts'), sourceContent, 'utf8'),
+    writeFile(join(testsDir, 'index.test.ts'), testContent, 'utf8'),
   ]);
 }
