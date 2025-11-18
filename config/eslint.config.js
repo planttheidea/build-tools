@@ -17,6 +17,10 @@ export default defineConfig([
   eslint.configs.recommended,
   eslintImport.flatConfigs.recommended,
   {
+    languageOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'module',
+    },
     rules: {
       'import/consistent-type-specifier-style': ['error', 'prefer-top-level'],
       'import/enforce-node-protocol-usage': ['error', 'always'],

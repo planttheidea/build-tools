@@ -1,5 +1,3 @@
-/*eslint-disable import/default, import/namespace, import/no-named-as-default, import/no-named-as-default-member */
-
 import { readFileSync } from 'node:fs';
 import { extname, relative, resolve } from 'node:path';
 import typescript from '@rollup/plugin-typescript';
@@ -35,7 +33,7 @@ export default {
   },
   plugins: [
     typescript({
-      tsconfig: resolve(ROOT, 'tsconfig.json'),
+      tsconfig: resolve(import.meta.dirname, 'types', 'tsconfig.json'),
       typescript: tsc,
     }),
   ],

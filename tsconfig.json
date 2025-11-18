@@ -1,31 +1,7 @@
 {
+  "extends": "./config/types/tsconfig.json",
   "compilerOptions": {
-    "allowJs": true,
-    "declaration": true,
-    "esModuleInterop": true,
-    "isolatedModules": true,
-    "jsx": "react-jsx",
-    "lib": ["ESNext", "DOM"],
-    "module": "NodeNext",
-    "moduleDetection": "force",
-    "moduleResolution": "NodeNext",
-    "noEmit": true,
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitAny": true,
-    "noImplicitOverride": true,
-    "noUncheckedIndexedAccess": true,
-    "outDir": "./dist",
-    "resolveJsonModule": true,
-    "rootDir": "./",
-    "skipLibCheck": true,
-    "sourceMap": true,
-    "strict": true,
-    "strictNullChecks": true,
-    "inlineSources": true,
-    "target": "ES2015",
-    "verbatimModuleSyntax": true,
-    "types": ["node"]
+    "rootDir": "./"
   },
-  "exclude": ["node_modules"],
   "include": ["./src/**/*.ts", "./globalTypes.d.ts", "./templates/**/*"]
 }
