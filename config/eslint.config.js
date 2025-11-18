@@ -25,7 +25,6 @@ export default defineConfig([
       'import/newline-after-import': 'error',
       'import/no-absolute-path': 'error',
       'import/no-commonjs': 'error',
-      'import/no-cycle': 'error',
       'import/no-default-export': 'error',
       'import/no-empty-named-blocks': 'error',
       'import/no-self-import': 'error',
@@ -54,7 +53,7 @@ export default defineConfig([
     },
   },
   {
-    files: ['**/*.ts', '**/*.tsx'],
+    files: ['config/**/*.ts', 'src/**/*.ts', 'templates/**/*.ts'],
     extends: [
       typescriptEslint.configs.strictTypeChecked,
       typescriptEslint.configs.stylisticTypeChecked,
@@ -73,8 +72,19 @@ export default defineConfig([
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
       ],
 
+      // Disabling since TS handles them
+      'import/default': 'off',
+      'import/extensions': 'off',
+      'import/named': 'off',
+      'import/namespace': 'off',
+      'import/no-named-as-default-member': 'off',
       'import/no-unresolved': 'off',
 
+      // Disabling for performance
+      'import/no-cycle': 'off',
+      'import/no-named-as-default': 'off',
+
+      // Disabling for common use-cases
       '@typescript-eslint/no-explicit-any': 'off',
     },
   },

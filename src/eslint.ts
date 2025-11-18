@@ -69,7 +69,6 @@ export function createEslintConfig(
         'import/newline-after-import': 'error',
         'import/no-absolute-path': 'error',
         'import/no-commonjs': 'error',
-        'import/no-cycle': 'error',
         'import/no-default-export': 'error',
         'import/no-empty-named-blocks': 'error',
         'import/no-self-import': 'error',
@@ -86,19 +85,19 @@ export function createEslintConfig(
       },
     },
     {
-      files: ['config/**/*.js', 'templates/**/*.js'],
+      files: [`${config}/**/*.js`],
       rules: {
         'import/no-default-export': 'off',
       },
     },
     {
-      files: ['templates/**/*.js'],
-      rules: {
-        'import/no-unresolved': 'off',
-      },
-    },
-    {
-      files: ['**/*.ts', '**/*.tsx'],
+      files: [
+        `${config}/**/*.ts`,
+        `${development}/**/*.ts`,
+        `${development}/**/*.tsx`,
+        `${source}/**/*.ts`,
+        `${source}/**/*.ts`,
+      ],
       extends: [
         typescriptEslint.configs.strictTypeChecked,
         typescriptEslint.configs.stylisticTypeChecked,
@@ -117,13 +116,24 @@ export function createEslintConfig(
           { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
         ],
 
+        // Disabling since TS handles them
+        'import/default': 'off',
+        'import/extensions': 'off',
+        'import/named': 'off',
+        'import/namespace': 'off',
+        'import/no-named-as-default-member': 'off',
         'import/no-unresolved': 'off',
 
+        // Disabling for performance
+        'import/no-cycle': 'off',
+        'import/no-named-as-default': 'off',
+
+        // Disabling for common use-cases
         '@typescript-eslint/no-explicit-any': 'off',
       },
     },
     {
-      files: ['config/**/*.ts'],
+      files: [`${config}/**/*.ts`],
       rules: {
         'import/no-default-export': 'off',
       },
