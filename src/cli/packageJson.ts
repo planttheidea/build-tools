@@ -8,9 +8,10 @@ import { getPackageJson } from '../utils/packageJson.js';
 export interface PackageJsonArgs {
   config: string;
   library: string;
+  react: boolean;
 }
 
-export async function createPackageJson({ config, library }: PackageJsonArgs) {
+export async function createPackageJson({ config, library, react }: PackageJsonArgs) {
   const root = gitRoot();
   const targetPackageJson = getPackageJson(root);
 
@@ -19,7 +20,7 @@ export async function createPackageJson({ config, library }: PackageJsonArgs) {
     browser: `${library}/umd/index.js`,
     devDependencies: {
       ...targetPackageJson.devDependencies,
-      ...getDevDependencies(),
+      ...getDevDependencies({ react }),
     },
     exports: {
       '.': {
@@ -91,12 +92,15 @@ function getCleanCommands(type: 'cjs' | 'es' | 'umd', library: string) {
   };
 }
 
-function getDevDependencies() {
+function getDevDependencies({ react }: Pick<PackageJsonArgs, 'react'>) {
   const ownPackageJson = getPackageJson(resolve(import.meta.dirname, '..', '..'));
+  const dependencies = ['@vitest/coverage-v8', 'eslint', 'prettier', 'rollup', 'typescript', 'vite', 'vitest'];
 
-  return ['@vitest/coverage-v8', 'eslint', 'prettier', 'rollup', 'typescript', 'vite', 'vitest'].reduce<
-    Record<string, string>
-  >((devDependencies, name) => {
+  if (react) {
+    dependencies.push('react', 'react-dom');
+  }
+
+  return dependencies.reduce<Record<string, string>>((devDependencies, name) => {
     const dependency = ownPackageJson.dependencies?.[name];
 
     if (!dependency) {
