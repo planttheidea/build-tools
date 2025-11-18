@@ -52,7 +52,7 @@ export async function createPackageJson({ config, library, react }: PackageJsonA
       build:
         'npm run clean && npm run build:es && npm run build:es:types && npm run build:cjs && npm run build:cjs:types && npm run build:umd && npm run build:umd:types',
       clean: `rm -rf ${library}`,
-      dev: 'vite --config=config/vite/vite.config.ts',
+      dev: 'vite --config=config/vite.config.ts',
       format: 'prettier . --log-level=warn --write',
       'format:check': 'prettier . --log-level=warn --check',
       lint: 'eslint --max-warnings=0',

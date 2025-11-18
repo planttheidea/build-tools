@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 1.0.5
+
+- Fix `dev` script reference to vite config
+
 ## 1.0.4
 
 - Fix `root` path derivation in `vite` setup
