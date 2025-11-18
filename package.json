@@ -1,0 +1,109 @@
+{
+  "author": "tony.quetano@planttheidea.com",
+  "bin": {
+    "pti": "./bin/index.js"
+  },
+  "bugs": {
+    "url": "https://github.com/planttheidea/build-tools/issues"
+  },
+  "dependencies": {
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^12.3.0",
+    "@types/node": "^24.10.1",
+    "@vitest/coverage-v8": "^4.0.10",
+    "camelcase": "^9.0.0",
+    "eslint": "^9.39.1",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "execa": "^9.6.0",
+    "fast-glob": "^3.3.3",
+    "git-root": "^1.0.0",
+    "prettier": "^3.6.2",
+    "release-it": "^19.0.6",
+    "rollup": "^4.53.2",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.47.0",
+    "vite": "^7.2.2",
+    "vitest": "^4.0.10",
+    "yargs": "^18.0.0"
+  },
+  "description": "Build tools for the suite of PTI packages",
+  "devDependencies": {
+    "@types/react": "^19.2.5",
+    "@types/react-dom": "^19",
+    "@types/typescript": "^2.0.0",
+    "@types/yargs": "^17.0.35",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "ts-node": "^10.9.2"
+  },
+  "exports": {
+    ".": {
+      "default": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    },
+    "./eslint": {
+      "default": {
+        "types": "./dist/eslint.d.ts",
+        "default": "./dist/eslint.js"
+      }
+    },
+    "./rollup": {
+      "default": {
+        "types": "./dist/rollup.d.ts",
+        "default": "./dist/rollup.js"
+      }
+    },
+    "./vite": {
+      "default": {
+        "types": "./dist/vite.d.ts",
+        "default": "./dist/vite.js"
+      }
+    },
+    "./vitest": {
+      "default": {
+        "types": "./dist/vitest.d.ts",
+        "default": "./dist/vitest.js"
+      }
+    }
+  },
+  "files": [
+    "bin",
+    "dist",
+    "templates",
+    "LICENSE",
+    "package.json"
+  ],
+  "homepage": "https://github.com/planttheidea/build-tools#readme",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "name": "@planttheidea/build-tools",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/planttheidea/build-tools.git"
+  },
+  "scripts": {
+    "build": "npm run clean && npm run build:dist",
+    "build:dist": "rollup -c config/rollup.config.js",
+    "clean": "rm -rf dist",
+    "format": "prettier . --log-level=warn --write",
+    "format:check": "prettier . --log-level=warn --check",
+    "lint": "eslint --max-warnings=0",
+    "release": "release-it --config=config/release-it/stable.json",
+    "release:alpha": "release-it --config=config/release-it/alpha.json",
+    "release:beta": "release-it --config=config/release-it/beta.json",
+    "release:rc": "release-it --config=config/release-it/rc.json",
+    "release:scripts": "npm run format:check && npm run typecheck && npm run lint && npm run test && npm run build",
+    "test": "echo 'TODO TEST'",
+    "typecheck": "tsc --noEmit"
+  },
+  "type": "module",
+  "version": "1.0.0-rc.3"
+}

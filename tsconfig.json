@@ -1,0 +1,7 @@
+{
+  "extends": "./config/types/tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "./"
+  },
+  "include": ["./src/**/*.ts", "./globalTypes.d.ts", "./templates/**/*"]
+}
