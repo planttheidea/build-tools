@@ -10,12 +10,7 @@ export interface EslintArgs {
   source: string;
 }
 
-export async function createEslintConfig({
-  config,
-  development,
-  react,
-  source,
-}: EslintArgs) {
+export async function createEslintConfig({ config, development, react, source }: EslintArgs) {
   const root = gitRoot();
   const configDir = join(root, config);
 
@@ -23,13 +18,7 @@ export async function createEslintConfig({
     await mkdir(configDir);
   }
 
-  const templateDir = resolve(
-    import.meta.dirname,
-    '..',
-    '..',
-    'templates',
-    'eslint',
-  );
+  const templateDir = resolve(import.meta.dirname, '..', '..', 'templates', 'eslint');
 
   const content = `
 import { createEslintConfig } from '@planttheidea/build-tools';
@@ -44,10 +33,6 @@ export default createEslintConfig({
 
   await Promise.all([
     writeFile(join(configDir, 'eslint.config.js'), content, 'utf8'),
-    copyFile(
-      join(templateDir, 'eslint.config.js'),
-      join(root, 'eslint.config.js'),
-      constants.COPYFILE_FICLONE,
-    ),
+    copyFile(join(templateDir, 'eslint.config.js'), join(root, 'eslint.config.js'), constants.COPYFILE_FICLONE),
   ]);
 }

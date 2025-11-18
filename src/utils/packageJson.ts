@@ -3,12 +3,7 @@ import { resolve } from 'node:path';
 import gitRoot from 'git-root';
 
 export interface PackageJson {
-  [key: string]:
-    | undefined
-    | string
-    | Record<string, string>
-    | Record<string, Record<string, string>>
-    | string[];
+  [key: string]: undefined | string | Record<string, string> | Record<string, Record<string, string>> | string[];
 
   author?: string;
   browser?: string;

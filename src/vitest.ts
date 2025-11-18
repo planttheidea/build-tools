@@ -10,20 +10,11 @@ interface Options {
   source?: string;
 }
 
-export function createVitestConfig(
-  { overrides, react, source = DEFAULT_SOURCE }: Options = {} as Options,
-) {
-  const relativeSourcePath = relative(
-    import.meta.filename,
-    join(gitRoot(), source),
-  );
+export function createVitestConfig({ overrides, react, source = DEFAULT_SOURCE }: Options = {} as Options) {
+  const relativeSourcePath = relative(import.meta.filename, join(gitRoot(), source));
 
-  const sourceFiles = react
-    ? [`${relativeSourcePath}/**/*.ts`]
-    : [`${relativeSourcePath}/**/*.ts`];
-  const testFiles = react
-    ? ['**/__tests__/**/*.test.ts', '**/__tests__/**/*.test.tsx']
-    : ['**/__tests__/**/*.test.ts'];
+  const sourceFiles = react ? [`${relativeSourcePath}/**/*.ts`] : [`${relativeSourcePath}/**/*.ts`];
+  const testFiles = react ? ['**/__tests__/**/*.test.ts', '**/__tests__/**/*.test.tsx'] : ['**/__tests__/**/*.test.ts'];
 
   return defineConfig({
     ...overrides,

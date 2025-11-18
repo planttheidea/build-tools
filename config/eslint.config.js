@@ -54,10 +54,7 @@ export default defineConfig([
   },
   {
     files: ['config/**/*.ts', 'src/**/*.ts', 'templates/**/*.ts'],
-    extends: [
-      typescriptEslint.configs.strictTypeChecked,
-      typescriptEslint.configs.stylisticTypeChecked,
-    ],
+    extends: [typescriptEslint.configs.strictTypeChecked, typescriptEslint.configs.stylisticTypeChecked],
     languageOptions: {
       parser: typescriptEslint.parser,
       parserOptions: {
@@ -67,10 +64,7 @@ export default defineConfig([
     },
     rules: {
       '@typescript-eslint/array-type': ['error', { default: 'array-simple' }],
-      '@typescript-eslint/no-unused-vars': [
-        'error',
-        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
-      ],
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
 
       // Disabling since TS handles them
       'import/default': 'off',
@@ -85,6 +79,7 @@ export default defineConfig([
       'import/no-named-as-default': 'off',
 
       // Disabling for common use-cases
+      '@typescript-eslint/no-empty-object-type': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
     },
   },

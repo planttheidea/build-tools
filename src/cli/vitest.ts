@@ -9,11 +9,7 @@ export interface VitestArgs {
   source: string;
 }
 
-export async function createVitestConfig({
-  config,
-  react,
-  source,
-}: VitestArgs) {
+export async function createVitestConfig({ config, react, source }: VitestArgs) {
   const root = gitRoot();
   const configDir = join(root, config);
 

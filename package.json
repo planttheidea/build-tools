@@ -89,6 +89,7 @@
     "build": "npm run clean && npm run build:dist",
     "build:dist": "rollup -c config/rollup.config.js",
     "clean": "rm -rf dist",
+    "format": "prettier . --log-level=warn --write",
     "lint": "eslint --max-warnings=0",
     "release": "release-it --config=config/release-it/stable.json",
     "release:alpha": "release-it --config=config/release-it/alpha.json",

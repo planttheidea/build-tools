@@ -8,13 +8,8 @@ interface Options {
   overrides?: UserConfig;
 }
 
-export function createViteConfig(
-  { development = 'dev', overrides }: Options = {} as Options,
-) {
-  const relativeRootPath = relative(
-    import.meta.filename,
-    join(gitRoot(), development),
-  );
+export function createViteConfig({ development = 'dev', overrides }: Options = {} as Options) {
+  const relativeRootPath = relative(import.meta.filename, join(gitRoot(), development));
 
   return defineConfig({
     ...overrides,

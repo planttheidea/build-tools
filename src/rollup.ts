@@ -23,12 +23,7 @@ export function createRollupConfig({
 }: Config = {}) {
   const packageJson = getPackageJson();
 
-  const fileSource =
-    outputFormat === 'es'
-      ? 'module'
-      : outputFormat === 'umd'
-        ? 'browser'
-        : 'main';
+  const fileSource = outputFormat === 'es' ? 'module' : outputFormat === 'umd' ? 'browser' : 'main';
   const file = packageJson[fileSource];
 
   if (!file) {

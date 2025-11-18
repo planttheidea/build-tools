@@ -54,19 +54,14 @@ export async function createPackageJson({ config, library }: PackageJsonArgs) {
       'release:alpha': `release-it --config=${config}/release-it/alpha.json`,
       'release:beta': `release-it --config=${config}/release-it/beta.json`,
       'release:rc': `release-it --config=${config}/release-it/rc.json`,
-      'release:scripts':
-        'npm run typecheck && npm run lint && npm run test && npm run build',
+      'release:scripts': 'npm run typecheck && npm run lint && npm run test && npm run build',
       test: 'vitest run --config=config/vitest.config.ts',
       typecheck: 'tsc --noEmit',
     },
     types: 'index.d.ts',
   });
 
-  await writeFile(
-    join(root, 'package.json'),
-    JSON.stringify(updatedTargetPackageJson, null, 2),
-    'utf8',
-  );
+  await writeFile(join(root, 'package.json'), JSON.stringify(updatedTargetPackageJson, null, 2), 'utf8');
 }
 
 function getBuildCommands(type: 'cjs' | 'es' | 'umd', config: string) {
@@ -89,24 +84,15 @@ function getCleanCommands(type: 'cjs' | 'es' | 'umd', library: string) {
 }
 
 function getDevDependencies() {
-  const ownPackageJson = getPackageJson(
-    resolve(import.meta.dirname, '..', '..'),
-  );
+  const ownPackageJson = getPackageJson(resolve(import.meta.dirname, '..', '..'));
 
-  return [
-    '@vitest/coverage-v8',
-    'eslint',
-    'rollup',
-    'typescript',
-    'vite',
-    'vitest',
-  ].reduce<Record<string, string>>((devDependencies, name) => {
+  return ['@vitest/coverage-v8', 'eslint', 'prettier', 'rollup', 'typescript', 'vite', 'vitest'].reduce<
+    Record<string, string>
+  >((devDependencies, name) => {
     const dependency = ownPackageJson.dependencies?.[name];
 
     if (!dependency) {
-      throw new Error(
-        `Dependency "${name}" is not available in build tools dependencies.`,
-      );
+      throw new Error(`Dependency "${name}" is not available in build tools dependencies.`);
     }
 
     devDependencies[name] = dependency;

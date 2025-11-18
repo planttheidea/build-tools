@@ -10,9 +10,7 @@ import tsc from 'typescript';
 export const ROOT = gitRoot();
 
 const { globSync } = fastGlob;
-const packageJson = JSON.parse(
-  readFileSync(resolve(ROOT, 'package.json'), 'utf8'),
-);
+const packageJson = JSON.parse(readFileSync(resolve(ROOT, 'package.json'), 'utf8'));
 
 const external = [
   ...Object.keys(packageJson.dependencies || {}),
@@ -23,10 +21,7 @@ const external = [
   /yargs\//,
 ];
 const input = Object.fromEntries(
-  globSync('src/**/*.ts').map((file) => [
-    relative('src', file.slice(0, file.length - extname(file).length)),
-    file,
-  ]),
+  globSync('src/**/*.ts').map((file) => [relative('src', file.slice(0, file.length - extname(file).length)), file]),
 );
 
 export default {

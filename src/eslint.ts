@@ -7,11 +7,7 @@ import eslintReact from 'eslint-plugin-react';
 import eslintReactHooks from 'eslint-plugin-react-hooks';
 import gitRoot from 'git-root';
 import typescriptEslint from 'typescript-eslint';
-import {
-  DEFAULT_CONFIG,
-  DEFAULT_DEVELOPMENT,
-  DEFAULT_SOURCE,
-} from './utils/defaultParams.js';
+import { DEFAULT_CONFIG, DEFAULT_DEVELOPMENT, DEFAULT_SOURCE } from './utils/defaultParams.js';
 
 interface Options {
   config?: string;
@@ -98,10 +94,7 @@ export function createEslintConfig(
         `${source}/**/*.ts`,
         `${source}/**/*.ts`,
       ],
-      extends: [
-        typescriptEslint.configs.strictTypeChecked,
-        typescriptEslint.configs.stylisticTypeChecked,
-      ],
+      extends: [typescriptEslint.configs.strictTypeChecked, typescriptEslint.configs.stylisticTypeChecked],
       languageOptions: {
         parser: typescriptEslint.parser,
         parserOptions: {
@@ -111,10 +104,7 @@ export function createEslintConfig(
       },
       rules: {
         '@typescript-eslint/array-type': ['error', { default: 'array-simple' }],
-        '@typescript-eslint/no-unused-vars': [
-          'error',
-          { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
-        ],
+        '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
 
         // Disabling since TS handles them
         'import/default': 'off',
@@ -129,6 +119,7 @@ export function createEslintConfig(
         'import/no-named-as-default': 'off',
 
         // Disabling for common use-cases
+        '@typescript-eslint/no-empty-object-type': 'off',
         '@typescript-eslint/no-explicit-any': 'off',
       },
     },

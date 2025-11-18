@@ -5,12 +5,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import gitRoot from 'git-root';
 import type { CompilerOptions } from 'typescript';
-import {
-  ModuleDetectionKind,
-  ModuleKind,
-  ModuleResolutionKind,
-  ScriptTarget,
-} from 'typescript';
+import { ModuleDetectionKind, ModuleKind, ModuleResolutionKind, ScriptTarget } from 'typescript';
 
 export interface TsConfigArgs {
   config: string;
@@ -20,13 +15,7 @@ export interface TsConfigArgs {
   source: string;
 }
 
-export async function createTsConfigs({
-  config,
-  development,
-  library,
-  react,
-  source,
-}: TsConfigArgs) {
+export async function createTsConfigs({ config, development, library, react, source }: TsConfigArgs) {
   const root = gitRoot();
   const sourceDir = join(root, source);
 
@@ -60,22 +49,10 @@ export async function createTsConfigs({
   const files: Array<Promise<void>> = [];
 
   if (!existsSync(join(sourceDir, 'index.ts'))) {
-    files.push(
-      writeFile(
-        join(sourceDir, 'index.ts'),
-        'export const REPLACE_ME = {};',
-        'utf8',
-      ),
-    );
+    files.push(writeFile(join(sourceDir, 'index.ts'), 'export const REPLACE_ME = {};', 'utf8'));
   }
 
-  files.push(
-    writeFile(
-      join(root, 'tsconfig.json'),
-      JSON.stringify(baseConfig, null, 2),
-      'utf8',
-    ),
-  );
+  files.push(writeFile(join(root, 'tsconfig.json'), JSON.stringify(baseConfig, null, 2), 'utf8'));
 
   const prefix = join('..', '..');
   const include = getInclude({ source, prefix });
@@ -119,16 +96,10 @@ interface ConfigOptions {
   references?: string[];
 }
 
-type MergeOptions<Options extends ConfigOptions> = Omit<
-  typeof BASE_CONFIG,
-  keyof Options
-> &
-  Omit<Options, 'compilerOptions'> & {
-    compilerOptions: Omit<
-      ConfigOptions['compilerOptions'],
-      keyof Options['compilerOptions']
-    > &
-      Options['compilerOptions'];
+type MergeOptions<Options extends ConfigOptions> = Omit<typeof BASE_CONFIG, keyof Options>
+  & Omit<Options, 'compilerOptions'> & {
+    compilerOptions: Omit<ConfigOptions['compilerOptions'], keyof Options['compilerOptions']>
+      & Options['compilerOptions'];
   };
 
 type MergeDeclarationOptions<Options extends ConfigOptions> = MergeOptions<
@@ -173,24 +144,12 @@ const BASE_CONFIG = {
   exclude: ['**/node_modules/**'],
 } as const;
 
-interface IncludeArgs
-  extends Pick<
-    Partial<TsConfigArgs>,
-    'config' | 'development' | 'react' | 'source'
-  > {
+interface IncludeArgs extends Pick<Partial<TsConfigArgs>, 'config' | 'development' | 'react' | 'source'> {
   prefix?: string;
 }
 
-function getInclude({
-  config,
-  development,
-  react,
-  source,
-  prefix = '.',
-}: IncludeArgs) {
-  const files = [config, development, source].filter(
-    (file) => typeof file === 'string',
-  );
+function getInclude({ config, development, react, source, prefix = '.' }: IncludeArgs) {
+  const files = [config, development, source].filter((file) => typeof file === 'string');
 
   if (!files.length) {
     return;
@@ -213,18 +172,14 @@ function getDeclarationConfig<const Options extends ConfigOptions>(
       ...BASE_CONFIG.compilerOptions,
       ...options.compilerOptions,
       declaration: true,
-      declarationDir:
-        options.compilerOptions.declarationDir ??
-        options.compilerOptions.outDir,
+      declarationDir: options.compilerOptions.declarationDir ?? options.compilerOptions.outDir,
       emitDeclarationOnly: true,
       outDir: undefined,
     }),
   };
 }
 
-function getNormalizedCompilerOptions<Options extends Record<string, any>>(
-  options: Options,
-): Options {
+function getNormalizedCompilerOptions<Options extends Record<string, any>>(options: Options): Options {
   const normalizedOptions: Record<string, any> = {};
 
   for (const name in options) {
@@ -278,39 +233,23 @@ function getStandardConfig<const Options extends ConfigOptions>(
   };
 }
 
-async function writeConfig<const Options extends ConfigOptions>(
-  folder: string,
-  file: string,
-  options: Options,
-) {
+async function writeConfig<const Options extends ConfigOptions>(folder: string, file: string, options: Options) {
   if (file.endsWith('.json')) {
-    throw new ReferenceError(
-      'Found extra `.json` suffix; please provoide only the base name.',
-    );
+    throw new ReferenceError('Found extra `.json` suffix; please provoide only the base name.');
   }
 
   const runtimeConfig = getStandardConfig(options);
   const declarationConfig = getDeclarationConfig(options);
 
   await Promise.all([
-    writeFile(
-      join(folder, `${file}.json`),
-      JSON.stringify(runtimeConfig, null, 2),
-      'utf8',
-    ),
-    writeFile(
-      join(folder, `${file}.declaration.json`),
-      JSON.stringify(declarationConfig, null, 2),
-      'utf8',
-    ),
+    writeFile(join(folder, `${file}.json`), JSON.stringify(runtimeConfig, null, 2), 'utf8'),
+    writeFile(join(folder, `${file}.declaration.json`), JSON.stringify(declarationConfig, null, 2), 'utf8'),
   ]);
 
   return { declaration: declarationConfig, runtime: runtimeConfig };
 }
 
-async function writeConfigs<
-  const OptionsMap extends Record<string, ConfigOptions>,
->(
+async function writeConfigs<const OptionsMap extends Record<string, ConfigOptions>>(
   folder: string,
   optionsMap: OptionsMap,
 ): Promise<{

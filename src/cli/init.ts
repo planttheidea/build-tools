@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import gitRoot from 'git-root';
 import { createEslintConfig } from './eslint.js';
 import { createPackageJson } from './packageJson.js';
+import { createPrettierConfig } from './prettier.js';
 import { createReleaseItConfigs } from './releaseIt.js';
 import { createRollupConfigs } from './rollup.js';
 import { createTsConfigs } from './tsconfig.js';
@@ -25,6 +26,7 @@ export async function init(args: InitArgs) {
 
   await Promise.all([
     createEslintConfig(args),
+    createPrettierConfig(args),
     createRollupConfigs(args),
     createViteConfig(args),
     createVitestConfig(args),
@@ -32,11 +34,7 @@ export async function init(args: InitArgs) {
   ]);
 }
 
-async function createFileFolderStructure({
-  config,
-  development,
-  source,
-}: InitArgs) {
+async function createFileFolderStructure({ config, development, source }: InitArgs) {
   const root = gitRoot();
 
   await Promise.all([
@@ -53,15 +51,13 @@ async function createConfigDirs(root: string, config: string) {
     await mkdir(configDir);
   }
 
-  const pendingConfigSubDirs = ['release-it', 'rollup', 'types'].map(
-    async (dirName) => {
-      const dir = join(configDir, dirName);
+  const pendingConfigSubDirs = ['release-it', 'rollup', 'types'].map(async (dirName) => {
+    const dir = join(configDir, dirName);
 
-      if (!existsSync(dir)) {
-        await mkdir(dir);
-      }
-    },
-  );
+    if (!existsSync(dir)) {
+      await mkdir(dir);
+    }
+  });
 
   await Promise.all(pendingConfigSubDirs);
 }

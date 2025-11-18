@@ -22,30 +22,12 @@ export async function createReleaseItConfigs({ config }: ReleaseItArgs) {
   }
 
   const scriptDirectory = import.meta.dirname;
-  const templateDirectory = join(
-    scriptDirectory,
-    '..',
-    '..',
-    'templates',
-    'release-it',
-  );
+  const templateDirectory = join(scriptDirectory, '..', '..', 'templates', 'release-it');
 
   await Promise.all([
-    copyFile(
-      join(templateDirectory, 'alpha.json'),
-      join(releaseItConfigDir, 'alpha.json'),
-      constants.COPYFILE_FICLONE,
-    ),
-    copyFile(
-      join(templateDirectory, 'beta.json'),
-      join(releaseItConfigDir, 'beta.json'),
-      constants.COPYFILE_FICLONE,
-    ),
-    copyFile(
-      join(templateDirectory, 'rc.json'),
-      join(releaseItConfigDir, 'rc.json'),
-      constants.COPYFILE_FICLONE,
-    ),
+    copyFile(join(templateDirectory, 'alpha.json'), join(releaseItConfigDir, 'alpha.json'), constants.COPYFILE_FICLONE),
+    copyFile(join(templateDirectory, 'beta.json'), join(releaseItConfigDir, 'beta.json'), constants.COPYFILE_FICLONE),
+    copyFile(join(templateDirectory, 'rc.json'), join(releaseItConfigDir, 'rc.json'), constants.COPYFILE_FICLONE),
     copyFile(
       join(templateDirectory, 'stable.json'),
       join(releaseItConfigDir, 'stable.json'),

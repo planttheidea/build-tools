@@ -1,10 +1,5 @@
 import yargs from 'yargs';
-import {
-  DEFAULT_CONFIG,
-  DEFAULT_DEVELOPMENT,
-  DEFAULT_LIBRARY,
-  DEFAULT_SOURCE,
-} from '../utils/defaultParams.js';
+import { DEFAULT_CONFIG, DEFAULT_DEVELOPMENT, DEFAULT_LIBRARY, DEFAULT_SOURCE } from '../utils/defaultParams.js';
 import type { EslintArgs } from './eslint.js';
 import { createEslintConfig } from './eslint.js';
 import type { FixTypesArgs } from './fixTypes.js';
@@ -13,6 +8,8 @@ import type { InitArgs } from './init.js';
 import { init } from './init.js';
 import type { PackageJsonArgs } from './packageJson.js';
 import { createPackageJson } from './packageJson.js';
+import type { PrettierArgs } from './prettier.js';
+import { createPrettierConfig } from './prettier.js';
 import type { ReleaseItArgs } from './releaseIt.js';
 import { createReleaseItConfigs } from './releaseIt.js';
 import type { RollupArgs } from './rollup.js';
@@ -45,8 +42,7 @@ const LIBRARY_SETUP = {
 const REACT_SETUP = {
   alias: 'r',
   default: false,
-  description:
-    'Whether React is used, either for development or the library itself',
+  description: 'Whether React is used, either for development or the library itself',
   type: 'boolean',
 } as const;
 const SOURCE_SETUP = {
@@ -103,12 +99,14 @@ export function runPtiCommand(argv: string[]) {
     .command<PackageJsonArgs>(
       'package-json',
       'Create the `package.json` file with the appropriate script references',
-      (yargs) =>
-        yargs
-          .option('config', CONFIG_SETUP)
-          .option('library', LIBRARY_SETUP)
-          .help(),
+      (yargs) => yargs.option('config', CONFIG_SETUP).option('library', LIBRARY_SETUP).help(),
       createPackageJson,
+    )
+    .command<PrettierArgs>(
+      'prettier',
+      'Create the configuration for formatting with `prettier`',
+      (yargs) => yargs.help(),
+      createPrettierConfig,
     )
     .command<ReleaseItArgs>(
       'release-it',
@@ -138,22 +136,14 @@ export function runPtiCommand(argv: string[]) {
     .command<ViteArgs>(
       'vite',
       'Create the configuration for development with `vite`',
-      (yargs) =>
-        yargs
-          .option('config', CONFIG_SETUP)
-          .option('development', DEVELOPMENT_SETUP)
-          .help(),
+      (yargs) => yargs.option('config', CONFIG_SETUP).option('development', DEVELOPMENT_SETUP).help(),
       createViteConfig,
     )
     .command<VitestArgs>(
       'vitest',
       'Create the configuration for unit testing with `vitest`',
       (yargs) =>
-        yargs
-          .option('config', CONFIG_SETUP)
-          .option('react', REACT_SETUP)
-          .option('source', SOURCE_SETUP)
-          .help(),
+        yargs.option('config', CONFIG_SETUP).option('react', REACT_SETUP).option('source', SOURCE_SETUP).help(),
       createVitestConfig,
     )
     .help()

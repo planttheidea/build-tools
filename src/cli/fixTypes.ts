@@ -20,9 +20,7 @@ export async function fixTypes({ library, type }: FixTypesArgs) {
         : undefined;
 
   if (!extension) {
-    throw new ReferenceError(
-      `Type "${type}" is invalid; please pass either "cjs" or "es".`,
-    );
+    throw new ReferenceError(`Type "${type}" is invalid; please pass either "cjs" or "es".`);
   }
 
   const root = gitRoot();
@@ -38,10 +36,7 @@ export async function fixTypes({ library, type }: FixTypesArgs) {
         .replaceAll(".js';", `${extension}';`)
         .replaceAll('import {', 'import type {');
 
-      await Promise.all([
-        rm(file),
-        writeFile(file.replace('.d.ts', extension), updatedContent, 'utf8'),
-      ]);
+      await Promise.all([rm(file), writeFile(file.replace('.d.ts', extension), updatedContent, 'utf8')]);
     }),
   );
 }
