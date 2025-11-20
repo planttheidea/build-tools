@@ -38,12 +38,14 @@ export async function createTsConfigs({ config, development, library, react, sou
     await mkdir(configTypes);
   }
 
+  const jsx = react ? 'react-jsx' : undefined;
+  const types = react ? [...BASE_CONFIG.compilerOptions.types, 'react'] : [...BASE_CONFIG.compilerOptions.types];
   const baseConfig = getStandardConfig({
     compilerOptions: {
       baseUrl: source,
-      jsx: react ? 'react-jsx' : undefined,
+      jsx,
       outDir: library,
-      types: react ? ['node', 'react'] : ['node'],
+      types,
     },
     exclude: ['**/node_modules/**', `${library}/**/*`],
     include: getInclude({ config, development, react, source, test: TEST_FOLDER }),
@@ -68,27 +70,33 @@ export async function createTsConfigs({ config, development, library, react, sou
   await writeConfigs(resolve(configTypes), {
     cjs: {
       compilerOptions: {
+        jsx,
         module: ModuleKind.Node16,
         moduleResolution: ModuleResolutionKind.Node16,
         outDir: join(prefix, library, 'cjs'),
+        types,
       },
       include,
       exclude,
     },
     es: {
       compilerOptions: {
+        jsx,
         module: ModuleKind.NodeNext,
         moduleResolution: ModuleResolutionKind.NodeNext,
         outDir: join(prefix, library, 'es'),
+        types,
       },
       include,
       exclude,
     },
     umd: {
       compilerOptions: {
+        jsx,
         module: ModuleKind.ESNext,
         moduleResolution: ModuleResolutionKind.Bundler,
         outDir: join(prefix, library, 'umd'),
+        types,
       },
       include,
       exclude,
