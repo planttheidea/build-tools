@@ -10,6 +10,8 @@
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^12.3.0",
     "@types/node": "^24.10.1",
+    "@types/react": "^19.2.5",
+    "@types/react-dom": "^19.2.3",
     "@vitest/coverage-v8": "^4.0.10",
     "camelcase": "^9.0.0",
     "eslint": "^9.39.1",
@@ -20,6 +22,8 @@
     "fast-glob": "^3.3.3",
     "git-root": "^1.0.0",
     "prettier": "^3.6.2",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
     "release-it": "^19.0.6",
     "rollup": "^4.53.2",
     "typescript": "^5.9.3",
@@ -30,12 +34,8 @@
   },
   "description": "Build tools for the suite of PTI packages",
   "devDependencies": {
-    "@types/react": "^19.2.5",
-    "@types/react-dom": "^19",
     "@types/typescript": "^2.0.0",
     "@types/yargs": "^17.0.35",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0",
     "ts-node": "^10.9.2"
   },
   "exports": {
