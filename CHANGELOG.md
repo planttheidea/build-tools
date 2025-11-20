@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 1.0.6
+
+- Fix `--react` script option throwing an error when applying necessary dependencies
+
 ## 1.0.5
 
 - Fix `dev` script reference to vite config
