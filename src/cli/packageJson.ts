@@ -67,23 +67,18 @@ export async function createPackageJson({ config, library, react }: PackageJsonA
 }
 
 function getBuildCommands(config: string) {
-  const build = BUILD_FORMATS.reduce<string>(
-    (command, type) => (command += ` && npm run build:${type}`),
-    'npm run clean',
-  );
+  const build = ['npm run clean', 'npm run build:dist', 'npm run build:types'].join(' && ');
+  const buildDist = `NODE_ENV=production rollup -c ${config}/rollup.config.js`;
+  const buildTypes = BUILD_FORMATS.reduce<string[]>(
+    (command, format) => (format === 'umd' ? command : [...command, `pti fix-types -t ${format}`]),
+    [],
+  ).join(' && ');
 
-  return BUILD_FORMATS.reduce<Record<string, string>>(
-    (commands, type) => {
-      let build = `NODE_ENV=production rollup -c ${config}/rollup/${type}.config.js`;
-
-      if (type !== 'umd') {
-        build += ` && pti fix-types -t ${type}`;
-      }
-
-      return { ...commands, [`build:${type}`]: build };
-    },
-    { build },
-  );
+  return {
+    build,
+    'build:dist': buildDist,
+    'build:types': buildTypes,
+  };
 }
 
 function getCleanCommands(library: string) {
