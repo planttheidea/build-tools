@@ -1,17 +1,18 @@
-import { join, resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import typescript from '@rollup/plugin-typescript';
 import camelCase from 'camelcase';
 import gitRoot from 'git-root';
 import type { Plugin } from 'rollup/dist/rollup.d.ts';
+import { dts } from 'rollup-plugin-dts';
 import tsc from 'typescript';
+import { DEFAULT_CONFIG_FOLDER } from './utils/constants.js';
 import { getPackageJson } from './utils/packageJson.js';
 
 interface Config {
-  configTypesDir?: string;
+  config?: string;
   globals?: Record<string, string>;
   input?: string;
   outputDir?: string;
-  outputFormat?: 'cjs' | 'es' | 'umd';
   plugins?: Plugin[];
 }
 
@@ -22,10 +23,11 @@ const OUTPUT_FILE_FORMATS = [
 ] as const;
 
 export function createRollupConfig({
-  configTypesDir = join('config', 'types'),
+  config = DEFAULT_CONFIG_FOLDER,
   input = join('src', 'index.ts'),
   plugins = [],
 }: Config = {}) {
+  const configTypesDir = join(config, 'types');
   const packageJson = getPackageJson();
 
   const external = [
@@ -34,7 +36,7 @@ export function createRollupConfig({
     /node:/,
   ];
 
-  return OUTPUT_FILE_FORMATS.map(({ attribute, format }) => {
+  const output = OUTPUT_FILE_FORMATS.map(({ attribute, format }) => {
     const file = packageJson[attribute];
 
     if (!file) {
@@ -77,4 +79,20 @@ export function createRollupConfig({
       ],
     };
   });
+
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const esLibraryDir = dirname(packageJson.module!);
+
+  return [
+    ...output,
+    {
+      input: resolve(gitRoot(), esLibraryDir, 'index.d.ts'),
+      output: [{ file: resolve(gitRoot(), 'index.d.ts'), format: 'es' }],
+      plugins: [
+        dts({
+          tsconfig: resolve(gitRoot(), configTypesDir, `es.json`),
+        }),
+      ],
+    },
+  ];
 }
