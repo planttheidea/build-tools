@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 1.1.0
+
+- [#6](https://github.com/planttheidea/build-tools/pull/6) - simplify `rollup` configuration
+
 ## 1.0.6
 
 - Fix `--react` script option throwing an error when applying necessary dependencies
