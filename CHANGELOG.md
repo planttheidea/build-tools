@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 1.2.0
+
+- [#9](https://github.com/planttheidea/build-tools/pull/9) - Add `"files"` support in `package.json` script
+
 ## 1.1.1
 
 - [#8](https://github.com/planttheidea/build-tools/pull/8) - Fix `"types"` declaration file not being formatted on
