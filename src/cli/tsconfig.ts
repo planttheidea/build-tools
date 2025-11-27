@@ -43,8 +43,10 @@ export async function createTsConfigs({ config, development, library, react, sou
   const baseConfig = getStandardConfig({
     compilerOptions: {
       baseUrl: source,
+      declaration: false,
       jsx,
       outDir: library,
+      rootDir: './',
       types,
     },
     exclude: ['**/node_modules/**', `${library}/**/*`],
