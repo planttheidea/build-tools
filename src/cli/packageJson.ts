@@ -25,6 +25,7 @@ export async function createPackageJson(args: PackageJsonArgs) {
       ...getDevDependencies(args),
     },
     ...getExports(args),
+    files: ['dist', 'CHANGELOG.md', 'LICENSE', 'README.md', 'index.d.ts', 'package.json'],
     license: 'MIT',
     scripts: {
       ...targetPackageJson.scripts,
