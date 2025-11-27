@@ -43,8 +43,10 @@ export async function createTsConfigs({ config, development, library, react, sou
   const baseConfig = getStandardConfig({
     compilerOptions: {
       baseUrl: source,
+      declaration: false,
       jsx,
       outDir: library,
+      rootDir: './',
       types,
     },
     exclude: ['**/node_modules/**', `${library}/**/*`],
@@ -117,28 +119,15 @@ interface ConfigOptions {
 
 type MergeOptions<Options extends ConfigOptions> = Omit<typeof BASE_CONFIG, keyof Options>
   & Omit<Options, 'compilerOptions'> & {
+    // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
     compilerOptions: Omit<ConfigOptions['compilerOptions'], keyof Options['compilerOptions']>
       & Options['compilerOptions'];
   };
 
-type MergeDeclarationOptions<Options extends ConfigOptions> = MergeOptions<
-  Omit<Options, 'compilerOptions'> & {
-    compilerOptions: Options['compilerOptions'] & {
-      declaration: true;
-      emitDeclarationOnly: true;
-    };
-  }
->;
-
-interface Configs<Options extends ConfigOptions> {
-  declaration: MergeDeclarationOptions<Options>;
-  runtime: MergeOptions<Options>;
-}
-
 const BASE_CONFIG = {
   compilerOptions: {
     allowJs: true,
-    declaration: false,
+    declaration: true,
     emitDeclarationOnly: false,
     esModuleInterop: true,
     isolatedModules: true,
@@ -180,23 +169,6 @@ function getInclude({ config, development, react, source, prefix = '.', test }: 
 
     return react ? [standard, `${standard}x`] : [standard];
   });
-}
-
-function getDeclarationConfig<const Options extends ConfigOptions>(
-  options: Options = {} as Options,
-): MergeDeclarationOptions<Options> {
-  return {
-    ...BASE_CONFIG,
-    ...options,
-    compilerOptions: getNormalizedCompilerOptions({
-      ...BASE_CONFIG.compilerOptions,
-      ...options.compilerOptions,
-      declaration: true,
-      declarationDir: options.compilerOptions.declarationDir ?? options.compilerOptions.outDir,
-      emitDeclarationOnly: true,
-      outDir: undefined,
-    }),
-  };
 }
 
 function getNormalizedCompilerOptions<Options extends Record<string, any>>(options: Options): Options {
@@ -258,27 +230,19 @@ async function writeConfig<const Options extends ConfigOptions>(folder: string, 
     throw new ReferenceError('Found extra `.json` suffix; please provoide only the base name.');
   }
 
-  const runtimeConfig = getStandardConfig(options);
-  const declarationConfig = getDeclarationConfig(options);
+  const config = getStandardConfig(options);
+  const content = await format(JSON.stringify(config, null, 2), 'json');
 
-  const [runtimeContent, declarationContent] = await Promise.all([
-    format(JSON.stringify(runtimeConfig, null, 2), 'json'),
-    format(JSON.stringify(declarationConfig, null, 2), 'json'),
-  ]);
+  await writeFile(join(folder, `${file}.json`), content, 'utf8');
 
-  await Promise.all([
-    writeFile(join(folder, `${file}.json`), runtimeContent, 'utf8'),
-    writeFile(join(folder, `${file}.declaration.json`), declarationContent, 'utf8'),
-  ]);
-
-  return { declaration: declarationConfig, runtime: runtimeConfig };
+  return config;
 }
 
 async function writeConfigs<const OptionsMap extends Record<string, ConfigOptions>>(
   folder: string,
   optionsMap: OptionsMap,
 ): Promise<{
-  [Key in keyof OptionsMap]: Configs<OptionsMap[Key]>;
+  [Key in keyof OptionsMap]: MergeOptions<OptionsMap[Key]>;
 }> {
   const entries = await Promise.all(
     Object.entries(optionsMap).map(async ([file, options]) => {

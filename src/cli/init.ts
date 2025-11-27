@@ -58,7 +58,7 @@ async function createConfigDirs(root: string, config: string) {
     await mkdir(configDir);
   }
 
-  const pendingConfigSubDirs = ['release-it', 'rollup', 'types'].map(async (dirName) => {
+  const pendingConfigSubDirs = ['release-it', 'types'].map(async (dirName) => {
     const dir = join(configDir, dirName);
 
     if (!existsSync(dir)) {

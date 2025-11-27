@@ -11,6 +11,9 @@ export interface PackageJsonArgs {
   react: boolean;
 }
 
+const BUILD_FORMATS = ['cjs', 'es', 'umd'] as const;
+const RELEASE_FORMATS = ['alpha', 'beta', 'rc', 'stable'] as const;
+
 export async function createPackageJson({ config, library, react }: PackageJsonArgs) {
   const root = gitRoot();
   const targetPackageJson = getPackageJson(root);
@@ -43,24 +46,13 @@ export async function createPackageJson({ config, library, react }: PackageJsonA
     module: `${library}/es/index.mjs`,
     scripts: {
       ...targetPackageJson.scripts,
-      ...getBuildCommands('cjs', config),
-      ...getCleanCommands('cjs', library),
-      ...getBuildCommands('es', config),
-      ...getCleanCommands('es', library),
-      ...getBuildCommands('umd', config),
-      ...getCleanCommands('umd', library),
-      build:
-        'npm run clean && npm run build:es && npm run build:es:types && npm run build:cjs && npm run build:cjs:types && npm run build:umd && npm run build:umd:types',
-      clean: `rm -rf ${library}`,
+      ...getBuildCommands(config),
+      ...getCleanCommands(library),
       dev: 'vite --config=config/vite.config.ts',
       format: 'prettier . --log-level=warn --write',
       'format:check': 'prettier . --log-level=warn --check',
       lint: 'eslint --max-warnings=0',
-      'release:alpha': `release-it --config=${config}/release-it/alpha.json`,
-      'release:beta': `release-it --config=${config}/release-it/beta.json`,
-      'release:rc': `release-it --config=${config}/release-it/rc.json`,
-      'release:scripts': 'npm run format:check && npm run typecheck && npm run lint && npm run test && npm run build',
-      'release:stable': `release-it --config=${config}/release-it/stable.json`,
+      ...getReleaseCommands(config),
       test: 'vitest run --config=config/vitest.config.ts',
       typecheck: 'tsc --noEmit',
     },
@@ -74,23 +66,28 @@ export async function createPackageJson({ config, library, react }: PackageJsonA
   await execa`yarn install`;
 }
 
-function getBuildCommands(type: 'cjs' | 'es' | 'umd', config: string) {
-  let buildTypes = `tsc -p ${config}/types/${type}.declaration.json`;
-
-  if (type !== 'umd') {
-    buildTypes += ` && pti fix-types -t ${type}`;
-  }
+function getBuildCommands(config: string) {
+  const build = ['npm run clean', 'npm run build:dist', 'npm run build:types'].join(' && ');
+  const buildDist = `NODE_ENV=production rollup -c ${config}/rollup.config.js`;
+  const buildTypes = BUILD_FORMATS.reduce<string[]>(
+    (command, format) => (format === 'umd' ? command : [...command, `pti fix-types -t ${format}`]),
+    [],
+  ).join(' && ');
 
   return {
-    [`build:${type}`]: `NODE_ENV=production rollup -c ${config}/rollup/${type}.config.js`,
-    [`build:${type}:types`]: buildTypes,
+    build,
+    'build:dist': buildDist,
+    'build:types': buildTypes,
   };
 }
 
-function getCleanCommands(type: 'cjs' | 'es' | 'umd', library: string) {
-  return {
-    [`clean:${type}`]: `rm -rf ${library}/${type}`,
-  };
+function getCleanCommands(library: string) {
+  const clean = `rm -rf ${library}`;
+
+  return BUILD_FORMATS.reduce<Record<string, string>>(
+    (commands, type) => ({ ...commands, [`clean:${type}`]: `rm -rf ${library}/${type}` }),
+    { clean },
+  );
 }
 
 function getDevDependencies({ react }: Pick<PackageJsonArgs, 'react'>) {
@@ -112,6 +109,18 @@ function getDevDependencies({ react }: Pick<PackageJsonArgs, 'react'>) {
 
     return devDependencies;
   }, {});
+}
+
+function getReleaseCommands(config: string) {
+  const releaseScripts = 'npm run format:check && npm run typecheck && npm run lint && npm run test && npm run build';
+
+  return RELEASE_FORMATS.reduce<Record<string, string>>(
+    (commands, format) => ({
+      ...commands,
+      [`release:${format}`]: `release-it --config=${config}/release-it/${format}.json`,
+    }),
+    { 'release:scripts': releaseScripts },
+  );
 }
 
 function shouldSortNestedKey(key: string): boolean {
