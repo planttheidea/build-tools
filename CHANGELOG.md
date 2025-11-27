@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 1.1.1
+
+- [#8](https://github.com/planttheidea/build-tools/pull/8) - Fix `"types"` declaration file not being formatted on
+  generation
+
 ## 1.1.0
 
 - [#6](https://github.com/planttheidea/build-tools/pull/6) - simplify `rollup` configuration
