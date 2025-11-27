@@ -15,30 +15,16 @@ export async function createRollupConfigs({ config }: RollupArgs) {
     await mkdir(configDir);
   }
 
-  const rollupConfigDir = join(configDir, 'rollup');
-
-  if (!existsSync(rollupConfigDir)) {
-    await mkdir(rollupConfigDir);
+  if (!existsSync(configDir)) {
+    await mkdir(configDir);
   }
 
   const scriptDirectory = import.meta.dirname;
   const templateDirectory = join(scriptDirectory, '..', '..', 'templates');
 
-  await Promise.all([
-    copyFile(
-      join(templateDirectory, 'rollup', 'cjs.config.js'),
-      join(rollupConfigDir, 'cjs.config.js'),
-      constants.COPYFILE_FICLONE,
-    ),
-    copyFile(
-      join(templateDirectory, 'rollup', 'es.config.js'),
-      join(rollupConfigDir, 'es.config.js'),
-      constants.COPYFILE_FICLONE,
-    ),
-    copyFile(
-      join(templateDirectory, 'rollup', 'umd.config.js'),
-      join(rollupConfigDir, 'umd.config.js'),
-      constants.COPYFILE_FICLONE,
-    ),
-  ]);
+  await copyFile(
+    join(templateDirectory, 'rollup', 'rollup.config.js'),
+    join(configDir, 'rollup.config.js'),
+    constants.COPYFILE_FICLONE,
+  );
 }
