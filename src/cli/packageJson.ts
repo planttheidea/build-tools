@@ -14,45 +14,27 @@ export interface PackageJsonArgs {
 const BUILD_FORMATS = ['cjs', 'es', 'umd'] as const;
 const RELEASE_FORMATS = ['alpha', 'beta', 'rc', 'stable'] as const;
 
-export async function createPackageJson({ config, library, react }: PackageJsonArgs) {
+export async function createPackageJson(args: PackageJsonArgs) {
   const root = gitRoot();
   const targetPackageJson = getPackageJson(root);
 
   const updatedTargetPackageJson = sortObject({
     ...targetPackageJson,
-    browser: `${library}/umd/index.js`,
     devDependencies: {
       ...targetPackageJson.devDependencies,
-      ...getDevDependencies({ react }),
+      ...getDevDependencies(args),
     },
-    exports: {
-      '.': {
-        import: {
-          types: `./${library}/es/index.d.mts`,
-          default: `./${library}/es/index.mjs`,
-        },
-        require: {
-          types: `./${library}/cjs/index.d.cts`,
-          default: `./${library}/cjs/index.cjs`,
-        },
-        default: {
-          types: `./${library}/umd/index.d.ts`,
-          default: `./${library}/umd/index.js`,
-        },
-      },
-    },
+    ...getExports(args),
     license: 'MIT',
-    main: `${library}/cjs/index.cjs`,
-    module: `${library}/es/index.mjs`,
     scripts: {
       ...targetPackageJson.scripts,
-      ...getBuildCommands(config),
-      ...getCleanCommands(library),
+      ...getBuildCommands(args),
+      ...getCleanCommands(args),
       dev: 'vite --config=config/vite.config.ts',
       format: 'prettier . --log-level=warn --write',
       'format:check': 'prettier . --log-level=warn --check',
       lint: 'eslint --max-warnings=0',
-      ...getReleaseCommands(config),
+      ...getReleaseCommands(args),
       test: 'vitest run --config=config/vitest.config.ts',
       typecheck: 'tsc --noEmit',
     },
@@ -66,22 +48,15 @@ export async function createPackageJson({ config, library, react }: PackageJsonA
   await execa`yarn install`;
 }
 
-function getBuildCommands(config: string) {
-  const build = ['npm run clean', 'npm run build:dist', 'npm run build:types'].join(' && ');
-  const buildDist = `NODE_ENV=production rollup -c ${config}/rollup.config.js`;
-  const buildTypes = BUILD_FORMATS.reduce<string[]>(
-    (command, format) => (format === 'umd' ? command : [...command, `pti fix-types -t ${format}`]),
-    [],
-  ).join(' && ');
-
+function getBuildCommands({ config, library }: PackageJsonArgs) {
   return {
-    build,
-    'build:dist': buildDist,
-    'build:types': buildTypes,
+    build: 'npm run clean && npm run build:dist && npm run build:types',
+    'build:dist': `NODE_ENV=production rollup -c ${config}/rollup.config.js`,
+    'build:types': `pti fix-types -l ${library}`,
   };
 }
 
-function getCleanCommands(library: string) {
+function getCleanCommands({ library }: PackageJsonArgs) {
   const clean = `rm -rf ${library}`;
 
   return BUILD_FORMATS.reduce<Record<string, string>>(
@@ -90,7 +65,7 @@ function getCleanCommands(library: string) {
   );
 }
 
-function getDevDependencies({ react }: Pick<PackageJsonArgs, 'react'>) {
+function getDevDependencies({ react }: PackageJsonArgs) {
   const ownPackageJson = getPackageJson(resolve(import.meta.dirname, '..', '..'));
   const dependencies = ['@vitest/coverage-v8', 'eslint', 'prettier', 'rollup', 'typescript', 'vite', 'vitest'];
 
@@ -111,7 +86,31 @@ function getDevDependencies({ react }: Pick<PackageJsonArgs, 'react'>) {
   }, {});
 }
 
-function getReleaseCommands(config: string) {
+function getExports({ library }: PackageJsonArgs) {
+  return {
+    browser: `${library}/umd/index.js`,
+    exports: {
+      '.': {
+        import: {
+          types: `./${library}/es/index.d.mts`,
+          default: `./${library}/es/index.mjs`,
+        },
+        require: {
+          types: `./${library}/cjs/index.d.cts`,
+          default: `./${library}/cjs/index.cjs`,
+        },
+        default: {
+          types: `./${library}/umd/index.d.ts`,
+          default: `./${library}/umd/index.js`,
+        },
+      },
+    },
+    main: `${library}/cjs/index.cjs`,
+    module: `${library}/es/index.mjs`,
+  };
+}
+
+function getReleaseCommands({ config }: PackageJsonArgs) {
   const releaseScripts = 'npm run format:check && npm run typecheck && npm run lint && npm run test && npm run build';
 
   return RELEASE_FORMATS.reduce<Record<string, string>>(
