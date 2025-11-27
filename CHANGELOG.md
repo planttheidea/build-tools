@@ -3,6 +3,8 @@
 ## 1.1.0
 
 - [#6](https://github.com/planttheidea/build-tools/pull/6) - simplify `rollup` configuration
+- [#7](https://github.com/planttheidea/build-tools/pull/7) - Add automatic generation of top-level `"types"` file for
+  legacy node support
 
 ## 1.0.6
 

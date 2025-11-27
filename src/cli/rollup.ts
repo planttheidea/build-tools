@@ -15,10 +15,6 @@ export async function createRollupConfigs({ config }: RollupArgs) {
     await mkdir(configDir);
   }
 
-  if (!existsSync(configDir)) {
-    await mkdir(configDir);
-  }
-
   const scriptDirectory = import.meta.dirname;
   const templateDirectory = join(scriptDirectory, '..', '..', 'templates');
 
