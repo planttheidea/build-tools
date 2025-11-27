@@ -79,17 +79,7 @@ export function runPtiCommand(argv: string[]) {
     .command<FixTypesArgs>(
       'fix-types',
       'Rename the types files to have correct extension for the module type',
-      (yargs) =>
-        yargs
-          .option('type', {
-            alias: 't',
-            choices: ['cjs', 'es'] as const,
-            description: 'Module types to rename',
-            required: true,
-            type: 'string',
-          })
-          .option('library', LIBRARY_SETUP)
-          .help(),
+      (yargs) => yargs.option('library', LIBRARY_SETUP).help(),
       fixTypes,
     )
     .command<GitArgs>(
