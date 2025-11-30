@@ -39,6 +39,7 @@ export async function createPackageJson(args: PackageJsonArgs) {
       test: 'vitest run --config=config/vitest.config.ts',
       typecheck: 'tsc --noEmit',
     },
+    sideEffects: false,
     type: 'module',
     types: './index.d.ts',
   });
