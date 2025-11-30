@@ -1,7 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import type { Config } from 'prettier';
-import { format as prettier } from 'prettier';
 
 export async function format(source: string, parser: 'json' | 'typescript' = 'typescript') {
   let optionsContent: string;
@@ -19,5 +18,8 @@ export async function format(source: string, parser: 'json' | 'typescript' = 'ty
 
   const options = JSON.parse(optionsContent) as Config;
 
-  return await prettier(source, { ...options, parser });
+  // Inline the import to allow this file to be safely imported statically in other CLI files prior to install.
+  const { format } = await import('prettier');
+
+  return await format(source, { ...options, parser });
 }

@@ -24,10 +24,11 @@ export interface InitArgs {
 }
 
 export async function init(args: InitArgs) {
+  await createPackageJson(args);
+
   await Promise.all([createGitFiles(args), createYarnFiles(args), createFileFolderStructure(args)]);
 
   await createPrettierConfig(args);
-  await createPackageJson(args);
   await createTsConfigs(args);
 
   await Promise.all([
