@@ -105,6 +105,7 @@
     "test": "echo 'TODO TEST'",
     "typecheck": "tsc --noEmit"
   },
+  "sideEffects": "false",
   "type": "module",
   "version": "1.2.0"
 }
