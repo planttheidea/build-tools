@@ -44,10 +44,15 @@ export async function createPackageJson(args: PackageJsonArgs) {
     types: './index.d.ts',
   });
 
-  const content = await format(JSON.stringify(updatedTargetPackageJson, null, 2), 'json');
+  const rawContent = JSON.stringify(updatedTargetPackageJson, null, 2);
 
-  await writeFile(join(root, 'package.json'), content, 'utf8');
+  // Write the raw content and run install to allow prettier to be installed prior to formatting.
+  await writeFile(join(root, 'package.json'), rawContent, 'utf8');
   await execa`yarn install`;
+
+  // After installation, format the package.json file.
+  const content = await format(rawContent, 'json');
+  await writeFile(join(root, 'package.json'), content, 'utf8');
 }
 
 function getBuildCommands({ config, library }: PackageJsonArgs) {
