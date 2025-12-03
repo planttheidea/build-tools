@@ -21,7 +21,7 @@ export async function fixTypes({ library }: FixTypesArgs) {
   await Promise.all(
     TYPES.flatMap(async ({ extension, type }) => {
       const typesDir = join(root, library, type);
-      const files = await glob(join(typesDir, '*.d.ts'), { absolute: true });
+      const files = await glob(join(typesDir, '**', '*.d.ts'), { absolute: true });
 
       return files.map(async (file) => {
         const content = await readFile(file, 'utf8');
