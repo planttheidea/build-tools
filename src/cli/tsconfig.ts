@@ -119,7 +119,6 @@ interface ConfigOptions {
 
 type MergeOptions<Options extends ConfigOptions> = Omit<typeof BASE_CONFIG, keyof Options>
   & Omit<Options, 'compilerOptions'> & {
-    // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
     compilerOptions: Omit<ConfigOptions['compilerOptions'], keyof Options['compilerOptions']>
       & Options['compilerOptions'];
   };
