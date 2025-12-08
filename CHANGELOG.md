@@ -1,8 +1,16 @@
 # CHANGELOG
 
-## 1.2.1
+## 1.2.3
 
 - [#11](https://github.com/planttheidea/build-tools/pull/11) - Add `release-it` to the list of transferred dependencies
+
+## 1.2.2
+
+- Ensure `fix-types` script updates nested folders
+
+## 1.2.1
+
+- [#10](https://github.com/planttheidea/build-tools/pull/10) - Ensure `prettier` is installed before formatting
 
 ## 1.2.0
 
