@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 1.2.1
+
+- [#11](https://github.com/planttheidea/build-tools/pull/11) - Add `release-it` to the list of transferred dependencies
+
 ## 1.2.0
 
 - [#9](https://github.com/planttheidea/build-tools/pull/9) - Add `"files"` support in `package.json` script
