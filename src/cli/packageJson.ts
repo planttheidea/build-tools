@@ -74,7 +74,16 @@ function getCleanCommands({ library }: PackageJsonArgs) {
 
 function getDevDependencies({ react }: PackageJsonArgs) {
   const ownPackageJson = getPackageJson(resolve(import.meta.dirname, '..', '..'));
-  const dependencies = ['@vitest/coverage-v8', 'eslint', 'prettier', 'rollup', 'typescript', 'vite', 'vitest'];
+  const dependencies = [
+    '@vitest/coverage-v8',
+    'eslint',
+    'prettier',
+    'release-it',
+    'rollup',
+    'typescript',
+    'vite',
+    'vitest',
+  ];
 
   if (react) {
     dependencies.push('@types/react', 'react', 'react-dom');
