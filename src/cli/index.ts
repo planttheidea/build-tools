@@ -110,6 +110,8 @@ export function runPtiCommand(argv: string[]) {
           .option('library', LIBRARY_SETUP)
           .option('react', REACT_SETUP)
           .option('source', SOURCE_SETUP)
+          .option('sourceMap', SOURCE_MAP_SETUP)
+          .option('umd', UMD_SETUP)
           .help(),
       init,
     )

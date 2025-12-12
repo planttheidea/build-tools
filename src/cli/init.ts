@@ -21,6 +21,8 @@ export interface InitArgs {
   library: string;
   react: boolean;
   source: string;
+  sourceMap: boolean;
+  umd: boolean;
 }
 
 export async function init(args: InitArgs) {
