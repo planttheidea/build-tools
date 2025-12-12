@@ -71,15 +71,16 @@ export async function createTsConfigs({ config, development, library, react, sou
   const prefix = join('..', '..');
   const include = getInclude({ source, prefix });
   const exclude = [...BASE_CONFIG.exclude, `**/${TEST_FOLDER}/**`];
+  const sourceMapConfig = sourceMap ? { inlineSources: true, sourceMap: true } : undefined;
 
   const configs: Record<string, ConfigOptions> = {
     cjs: {
       compilerOptions: {
+        ...sourceMapConfig,
         jsx,
         module: ModuleKind.Node16,
         moduleResolution: ModuleResolutionKind.Node16,
         outDir: join(prefix, library, 'cjs'),
-        sourceMap,
         types,
       },
       include,
@@ -87,11 +88,11 @@ export async function createTsConfigs({ config, development, library, react, sou
     },
     es: {
       compilerOptions: {
+        ...sourceMapConfig,
         jsx,
         module: ModuleKind.NodeNext,
         moduleResolution: ModuleResolutionKind.NodeNext,
         outDir: join(prefix, library, 'es'),
-        sourceMap,
         types,
       },
       include,
@@ -102,11 +103,11 @@ export async function createTsConfigs({ config, development, library, react, sou
   if (umd) {
     configs.umd = {
       compilerOptions: {
+        ...sourceMapConfig,
         jsx,
         module: ModuleKind.ESNext,
         moduleResolution: ModuleResolutionKind.Bundler,
         outDir: join(prefix, library, 'umd'),
-        sourceMap,
         types,
       },
       include,
@@ -154,7 +155,6 @@ const BASE_CONFIG = {
     sourceMap: false,
     strict: true,
     strictNullChecks: true,
-    inlineSources: true,
     target: ScriptTarget.ES2015,
     verbatimModuleSyntax: true,
     types: ['node'],
