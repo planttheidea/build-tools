@@ -60,6 +60,18 @@ const SOURCE_SETUP = {
   description: 'Location of source files',
   type: 'string',
 } as const;
+const SOURCE_MAP_SETUP = {
+  alias: 'm',
+  default: false,
+  description: 'Whether source maps are included with distributed files',
+  type: 'boolean',
+} as const;
+const UMD_SETUP = {
+  alias: 'u',
+  default: false,
+  description: 'Whether UMD builds are included with distributed files',
+  type: 'boolean',
+} as const;
 
 export function runPtiCommand(argv: string[]) {
   return yargs()
@@ -104,7 +116,7 @@ export function runPtiCommand(argv: string[]) {
     .command<PackageJsonArgs>(
       'package-json',
       'Create the `package.json` file with the appropriate script references',
-      (yargs) => yargs.option('config', CONFIG_SETUP).option('library', LIBRARY_SETUP).help(),
+      (yargs) => yargs.option('config', CONFIG_SETUP).option('library', LIBRARY_SETUP).option('umd', UMD_SETUP).help(),
       createPackageJson,
     )
     .command<PrettierArgs>(
@@ -122,7 +134,8 @@ export function runPtiCommand(argv: string[]) {
     .command<RollupArgs>(
       'rollup',
       'Create the rollup configuration',
-      (yargs) => yargs.option('config', CONFIG_SETUP).help(),
+      (yargs) =>
+        yargs.option('config', CONFIG_SETUP).option('sourceMap', SOURCE_MAP_SETUP).option('umd', UMD_SETUP).help(),
       createRollupConfigs,
     )
     .command<TsConfigArgs>(
@@ -135,6 +148,8 @@ export function runPtiCommand(argv: string[]) {
           .option('library', LIBRARY_SETUP)
           .option('react', REACT_SETUP)
           .option('source', SOURCE_SETUP)
+          .option('sourceMap', SOURCE_MAP_SETUP)
+          .option('umd', UMD_SETUP)
           .help(),
       createTsConfigs,
     )

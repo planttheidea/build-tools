@@ -12,6 +12,7 @@ export interface PackageJson {
   exports: Record<string, Record<string, string>>;
   main: string;
   module?: string;
+  name: string;
   scripts?: Record<string, string>;
   type?: string;
   types?: string;
