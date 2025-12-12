@@ -40,6 +40,10 @@ export function createRollupConfig({
   ];
 
   const output = OUTPUT_FILE_FORMATS.reduce<RollupOptions[]>((formats, { attribute, format }) => {
+    if (format === 'umd' && !umd) {
+      return formats;
+    }
+
     const file = packageJson[attribute];
 
     if (!file) {
@@ -51,10 +55,6 @@ export function createRollupConfig({
     let globals: Record<string, string> | undefined;
 
     if (format === 'umd') {
-      if (!umd) {
-        return formats;
-      }
-
       globals = external.reduce<Record<string, string> | undefined>((globals, name) => {
         if (typeof name === 'string') {
           globals ??= {};
