@@ -15,9 +15,11 @@ export interface TsConfigArgs {
   library: string;
   react: boolean;
   source: string;
+  sourceMap: boolean;
+  umd: boolean;
 }
 
-export async function createTsConfigs({ config, development, library, react, source }: TsConfigArgs) {
+export async function createTsConfigs({ config, development, library, react, source, sourceMap, umd }: TsConfigArgs) {
   const root = gitRoot();
   const sourceDir = join(root, source);
   const sourceExists = existsSync(sourceDir);
@@ -47,6 +49,7 @@ export async function createTsConfigs({ config, development, library, react, sou
       jsx,
       outDir: library,
       rootDir: './',
+      sourceMap: true,
       types,
     },
     exclude: ['**/node_modules/**', `${library}/**/*`],
@@ -69,13 +72,14 @@ export async function createTsConfigs({ config, development, library, react, sou
   const include = getInclude({ source, prefix });
   const exclude = [...BASE_CONFIG.exclude, `**/${TEST_FOLDER}/**`];
 
-  await writeConfigs(resolve(configTypes), {
+  const configs: Record<string, ConfigOptions> = {
     cjs: {
       compilerOptions: {
         jsx,
         module: ModuleKind.Node16,
         moduleResolution: ModuleResolutionKind.Node16,
         outDir: join(prefix, library, 'cjs'),
+        sourceMap,
         types,
       },
       include,
@@ -87,23 +91,30 @@ export async function createTsConfigs({ config, development, library, react, sou
         module: ModuleKind.NodeNext,
         moduleResolution: ModuleResolutionKind.NodeNext,
         outDir: join(prefix, library, 'es'),
+        sourceMap,
         types,
       },
       include,
       exclude,
     },
-    umd: {
+  };
+
+  if (umd) {
+    configs.umd = {
       compilerOptions: {
         jsx,
         module: ModuleKind.ESNext,
         moduleResolution: ModuleResolutionKind.Bundler,
         outDir: join(prefix, library, 'umd'),
+        sourceMap,
         types,
       },
       include,
       exclude,
-    },
-  });
+    };
+  }
+
+  await writeConfigs(resolve(configTypes), configs);
 }
 
 interface ConfigOptions {
@@ -140,7 +151,7 @@ const BASE_CONFIG = {
     noUncheckedIndexedAccess: true,
     resolveJsonModule: true,
     skipLibCheck: true,
-    sourceMap: true,
+    sourceMap: false,
     strict: true,
     strictNullChecks: true,
     inlineSources: true,

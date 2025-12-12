@@ -9,6 +9,7 @@ export interface PackageJsonArgs {
   config: string;
   library: string;
   react: boolean;
+  umd: boolean;
 }
 
 const BUILD_FORMATS = ['cjs', 'es', 'umd'] as const;
@@ -24,7 +25,7 @@ export async function createPackageJson(args: PackageJsonArgs) {
       ...targetPackageJson.devDependencies,
       ...getDevDependencies(args),
     },
-    ...getExports(args),
+    ...getExportsConfig(args),
     files: [args.library, 'CHANGELOG.md', 'LICENSE', 'README.md', 'index.d.ts', 'package.json'],
     license: 'MIT',
     scripts: {
@@ -102,9 +103,8 @@ function getDevDependencies({ react }: PackageJsonArgs) {
   }, {});
 }
 
-function getExports({ library }: PackageJsonArgs) {
-  return {
-    browser: `${library}/umd/index.js`,
+function getExportsConfig({ library, umd }: PackageJsonArgs) {
+  const exportsConfig = {
     exports: {
       '.': {
         import: {
@@ -116,14 +116,31 @@ function getExports({ library }: PackageJsonArgs) {
           default: `./${library}/cjs/index.cjs`,
         },
         default: {
-          types: `./${library}/umd/index.d.ts`,
-          default: `./${library}/umd/index.js`,
+          types: `./${library}/es/index.d.mts`,
+          default: `./${library}/es/index.mjs`,
         },
       },
     },
     main: `${library}/cjs/index.cjs`,
     module: `${library}/es/index.mjs`,
   };
+
+  return umd
+    ? {
+        ...exportsConfig,
+        browser: `${library}/umd/index.js`,
+        exports: {
+          ...exportsConfig.exports,
+          '.': {
+            ...exportsConfig.exports['.'],
+            default: {
+              types: `./${library}/umd/index.d.ts`,
+              default: `./${library}/umd/index.js`,
+            },
+          },
+        },
+      }
+    : exportsConfig;
 }
 
 function getReleaseCommands({ config }: PackageJsonArgs) {

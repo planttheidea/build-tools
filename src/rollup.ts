@@ -2,7 +2,7 @@ import { dirname, join, resolve } from 'node:path';
 import typescript from '@rollup/plugin-typescript';
 import camelCase from 'camelcase';
 import gitRoot from 'git-root';
-import type { Plugin } from 'rollup/dist/rollup.d.ts';
+import type { Plugin, RollupOptions } from 'rollup/dist/rollup.d.ts';
 import { dts } from 'rollup-plugin-dts';
 import tsc from 'typescript';
 import { DEFAULT_CONFIG_FOLDER } from './utils/constants.js';
@@ -10,10 +10,11 @@ import { getPackageJson } from './utils/packageJson.js';
 
 interface Config {
   config?: string;
-  globals?: Record<string, string>;
   input?: string;
   outputDir?: string;
   plugins?: Plugin[];
+  sourceMap?: boolean;
+  umd?: boolean;
 }
 
 const OUTPUT_FILE_FORMATS = [
@@ -26,6 +27,8 @@ export function createRollupConfig({
   config = DEFAULT_CONFIG_FOLDER,
   input = join('src', 'index.ts'),
   plugins = [],
+  sourceMap = false,
+  umd = false,
 }: Config = {}) {
   const configTypesDir = join(config, 'types');
   const packageJson = getPackageJson();
@@ -36,7 +39,7 @@ export function createRollupConfig({
     /node:/,
   ];
 
-  const output = OUTPUT_FILE_FORMATS.map(({ attribute, format }) => {
+  const output = OUTPUT_FILE_FORMATS.reduce<RollupOptions[]>((formats, { attribute, format }) => {
     const file = packageJson[attribute];
 
     if (!file) {
@@ -48,6 +51,10 @@ export function createRollupConfig({
     let globals: Record<string, string> | undefined;
 
     if (format === 'umd') {
+      if (!umd) {
+        return formats;
+      }
+
       globals = external.reduce<Record<string, string> | undefined>((globals, name) => {
         if (typeof name === 'string') {
           globals ??= {};
@@ -58,7 +65,7 @@ export function createRollupConfig({
       }, undefined);
     }
 
-    return {
+    formats.push({
       external,
       input,
       output: {
@@ -67,7 +74,7 @@ export function createRollupConfig({
         format,
         globals,
         name: packageJson.name,
-        sourcemap: true,
+        sourcemap: sourceMap,
       },
       plugins: [
         // @ts-expect-error - the plugin is still a CJS format in types, so it is not registering as callable.
@@ -77,8 +84,10 @@ export function createRollupConfig({
         }),
         ...plugins,
       ],
-    };
-  });
+    });
+
+    return formats;
+  }, []);
 
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const esLibraryDir = dirname(packageJson.module!);
