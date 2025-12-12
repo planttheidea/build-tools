@@ -46,6 +46,7 @@ export async function createTsConfigs({ config, development, library, react, sou
     compilerOptions: {
       baseUrl: source,
       declaration: false,
+      inlineSources: true,
       jsx,
       outDir: library,
       rootDir: './',
