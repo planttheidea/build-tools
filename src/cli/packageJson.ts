@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+import { readFileSync } from 'node:fs';
 import { writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { execa } from 'execa';
@@ -68,11 +70,13 @@ function getBuildCommands({ config, library }: PackageJsonArgs) {
   };
 }
 
-function getCleanCommands({ library }: PackageJsonArgs) {
+function getCleanCommands({ cjs, library, umd }: PackageJsonArgs) {
   const clean = `rm -rf ${library}`;
+  const supportedFormats = { cjs, es: true, umd };
 
   return BUILD_FORMATS.reduce<Record<string, string>>(
-    (commands, type) => ({ ...commands, [`clean:${type}`]: `rm -rf ${library}/${type}` }),
+    (commands, type) =>
+      supportedFormats[type] ? { ...commands, [`clean:${type}`]: `rm -rf ${library}/${type}` } : commands,
     { clean },
   );
 }
@@ -175,7 +179,11 @@ function getExportsConfig({ cjs, library, umd }: PackageJsonArgs) {
 }
 
 function getReleaseCommands({ config }: PackageJsonArgs) {
-  const releaseScripts = 'npm run format:check && npm run typecheck && npm run lint && npm run test && npm run build';
+  const releaseItConfig = JSON.parse(
+    readFileSync(resolve(import.meta.dirname, '..', '..', 'templates', 'release-it', 'stable.json'), 'utf8'),
+  ) as Record<string, any>;
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+  const releaseScripts = releaseItConfig.hooks['before:init'].join(' && ') as string;
 
   return RELEASE_FORMATS.reduce<Record<string, string>>(
     (commands, format) => ({
