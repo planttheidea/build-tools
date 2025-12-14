@@ -37,4 +37,8 @@ export default {
       typescript: tsc,
     }),
   ],
+  treeshake: {
+    experimentalLogSideEffects: true,
+    preset: 'smallest',
+  },
 };

@@ -2,7 +2,7 @@ import { dirname, join, resolve } from 'node:path';
 import typescript from '@rollup/plugin-typescript';
 import camelCase from 'camelcase';
 import gitRoot from 'git-root';
-import type { Plugin, RollupOptions } from 'rollup/dist/rollup.d.ts';
+import type { Plugin, RollupOptions, TreeshakingOptions } from 'rollup/dist/rollup.d.ts';
 import { dts } from 'rollup-plugin-dts';
 import tsc from 'typescript';
 import type { StandardConfigOptions } from './internalTypes.js';
@@ -14,6 +14,7 @@ interface RollupConfigOptions extends Partial<
 > {
   inputFile?: string;
   plugins?: Plugin[];
+  treeshake?: TreeshakingOptions;
 }
 
 const POSSIBLE_OUTPUT_FORMATS = [
@@ -29,6 +30,7 @@ export function createRollupConfig({
   plugins = [],
   source = DEFAULT_SOURCE_FOLDER,
   sourceMap = false,
+  treeshake = { preset: 'smallest' },
   umd = false,
 }: RollupConfigOptions = {}) {
   const configTypesDir = join(config, 'types');
@@ -88,6 +90,7 @@ export function createRollupConfig({
         }),
         ...plugins,
       ],
+      treeshake,
     });
 
     return formats;
