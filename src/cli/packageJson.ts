@@ -104,44 +104,65 @@ function getExportsConfig({ cjs, library, umd }: PackageJsonArgs) {
     types: `./${library}/es/index.d.mts`,
     default: `./${library}/es/index.mjs`,
   };
+  const moduleFile = `${library}/es/index.mjs`;
 
   let exportsConfig: Pick<PackageJson, 'browser' | 'exports' | 'main' | 'module'> = {
     exports: {
       '.': importConfig,
     },
-    main: `${library}/cjs/index.cjs`,
-    module: `${library}/es/index.mjs`,
+    // These only exist for legacy NodeJS versions, and setting `main` to the ESM entry is really just for
+    // legacy bundlers that do not support `module` (extreme edge-cases).
+    main: moduleFile,
+    module: moduleFile,
   };
 
   if (cjs || umd) {
-    let topLevelExports: ExportDefinitionTier = {
+    const topLevelExports: ExportDefinitionTier = {
       import: importConfig,
     };
 
-    if (cjs) {
-      topLevelExports = {
-        ...topLevelExports,
-        require: {
-          types: `./${library}/cjs/index.d.cts`,
-          default: `./${library}/cjs/index.cjs`,
-        },
-      };
-    }
-
     if (umd) {
-      topLevelExports = {
-        ...topLevelExports,
-        default: {
-          types: `./${library}/umd/index.d.ts`,
-          default: `./${library}/umd/index.js`,
+      const umdFile = `${library}/umd/index.js`;
+
+      // Override `main` to be the UMD file because it is assumed this will be used for legacy Node versions as well
+      // as bundlers. `browser` is also set in case `main` is overridden to be a CJS file, since browsers do not
+      // support CJS.
+      exportsConfig = {
+        ...exportsConfig,
+        browser: umdFile,
+        exports: {
+          ...exportsConfig.exports,
+          '.': {
+            ...topLevelExports,
+            default: {
+              types: `./${library}/umd/index.d.ts`,
+              default: umdFile,
+            },
+          },
         },
+        main: umdFile,
       };
     }
 
-    exportsConfig = {
-      ...exportsConfig,
-      exports: { ...exportsConfig.exports, '.': topLevelExports },
-    };
+    if (cjs) {
+      const cjsFile = `${library}/cjs/index.cjs`;
+
+      // Override `main` to be the CJS file because it is expected that legacy NodeJS is using this entry point.
+      exportsConfig = {
+        ...exportsConfig,
+        exports: {
+          ...exportsConfig.exports,
+          '.': {
+            ...topLevelExports,
+            require: {
+              types: `./${library}/cjs/index.d.cts`,
+              default: cjsFile,
+            },
+          },
+        },
+        main: cjsFile,
+      };
+    }
   }
 
   return exportsConfig;
