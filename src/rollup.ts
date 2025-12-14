@@ -96,8 +96,7 @@ export function createRollupConfig({
     return formats;
   }, []);
 
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const esLibraryDir = dirname(packageJson.module!);
+  const esLibraryDir = dirname(packageJson.module);
 
   return [
     ...output,

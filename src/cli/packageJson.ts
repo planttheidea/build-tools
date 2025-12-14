@@ -17,6 +17,11 @@ export async function createPackageJson(args: PackageJsonArgs) {
 
   const updatedTargetPackageJson = sortObject({
     ...targetPackageJson,
+    author: {
+      email: 'tony.quetano@planttheidea.com',
+      name: 'Tony Quetano',
+      url: 'https://www.planttheidea.com/',
+    },
     devDependencies: {
       ...targetPackageJson.devDependencies,
       ...getDevDependencies(args),
@@ -24,6 +29,9 @@ export async function createPackageJson(args: PackageJsonArgs) {
     ...getExportsConfig(args),
     files: [args.library, 'LICENSE', 'README.md', 'index.d.ts', 'package.json'],
     license: 'MIT',
+    publishConfig: {
+      access: 'public',
+    },
     scripts: {
       ...targetPackageJson.scripts,
       ...getBuildCommands(args),
