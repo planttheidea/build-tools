@@ -2,7 +2,7 @@ import { writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { execa } from 'execa';
 import gitRoot from 'git-root';
-import type { ExportDefinition, ExportDefinitionTier, PackageJson, StandardConfigOptions } from '../internalTypes.js';
+import type { StandardConfigOptions } from '../internalTypes.js';
 import { format } from '../utils/format.js';
 import { getPackageJson } from '../utils/packageJson.js';
 
@@ -100,72 +100,70 @@ function getDevDependencies({ react }: PackageJsonArgs) {
 }
 
 function getExportsConfig({ cjs, library, umd }: PackageJsonArgs) {
-  const importConfig: ExportDefinition = {
-    types: `./${library}/es/index.d.mts`,
-    default: `./${library}/es/index.mjs`,
-  };
-  const moduleFile = `${library}/es/index.mjs`;
+  const esDefinition = { types: `./${library}/es/index.d.mts`, default: `./${library}/es/index.mjs` };
+  const cjsDefinition = cjs ? { types: `./${library}/cjs/index.d.cts`, default: `./${library}/cjs/index.cjs` } : null;
+  const umdDefinition = umd ? { types: `./${library}/umd/index.d.ts`, default: `./${library}/umd/index.js` } : null;
 
-  let exportsConfig: Pick<PackageJson, 'browser' | 'exports' | 'main' | 'module'> = {
-    exports: {
-      '.': importConfig,
-    },
-    // These only exist for legacy NodeJS versions, and setting `main` to the ESM entry is really just for
-    // legacy bundlers that do not support `module` (extreme edge-cases).
-    main: moduleFile,
-    module: moduleFile,
-  };
-
-  if (cjs || umd) {
-    const topLevelExports: ExportDefinitionTier = {
-      import: importConfig,
+  if (cjsDefinition && umdDefinition) {
+    // - ES drives `import` and `module` (modern use-case)
+    // - CJS drives `require` (CJS-specific) and `main` (assume legacy Node version)
+    // - UMD drives `default` (ultimate fallback for legacy module systems) and `browser` (allow for globals)
+    return {
+      browser: umdDefinition.default,
+      exports: {
+        '.': {
+          import: esDefinition,
+          require: cjsDefinition,
+          default: umdDefinition,
+        },
+      },
+      main: cjsDefinition.default,
+      module: esDefinition.default,
     };
-
-    if (umd) {
-      const umdFile = `${library}/umd/index.js`;
-
-      // Override `main` to be the UMD file because it is assumed this will be used for legacy Node versions as well
-      // as bundlers. `browser` is also set in case `main` is overridden to be a CJS file, since browsers do not
-      // support CJS.
-      exportsConfig = {
-        ...exportsConfig,
-        browser: umdFile,
-        exports: {
-          ...exportsConfig.exports,
-          '.': {
-            ...topLevelExports,
-            default: {
-              types: `./${library}/umd/index.d.ts`,
-              default: umdFile,
-            },
-          },
-        },
-        main: umdFile,
-      };
-    }
-
-    if (cjs) {
-      const cjsFile = `${library}/cjs/index.cjs`;
-
-      // Override `main` to be the CJS file because it is expected that legacy NodeJS is using this entry point.
-      exportsConfig = {
-        ...exportsConfig,
-        exports: {
-          ...exportsConfig.exports,
-          '.': {
-            ...topLevelExports,
-            require: {
-              types: `./${library}/cjs/index.d.cts`,
-              default: cjsFile,
-            },
-          },
-        },
-        main: cjsFile,
-      };
-    }
   }
 
-  return exportsConfig;
+  if (cjsDefinition) {
+    // - ES drives `import` and `module` (modern use-case)
+    // - CJS drives `require` (CJS-specific) and `main` (assume legacy Node version)
+    // - Assumes no other module systems are used
+    return {
+      exports: {
+        '.': {
+          import: esDefinition,
+          require: cjsDefinition,
+        },
+      },
+      main: cjsDefinition.default,
+      module: esDefinition.default,
+    };
+  }
+
+  // - ES drives `import` and `module` (modern use-case)
+  // - UMD drives `default` (ultimate fallback for legacy module systems), `browser` (allow for globals), and `main` (allow for CJS usage)
+  if (umdDefinition) {
+    return {
+      browser: umdDefinition.default,
+      exports: {
+        '.': {
+          import: esDefinition,
+          default: umdDefinition,
+        },
+      },
+      main: umdDefinition.default,
+      module: esDefinition.default,
+    };
+  }
+
+  // - ES drives `import` and `module` (modern use-case)
+  // - Assumes no legacy module systems are used
+  return {
+    exports: {
+      '.': {
+        import: esDefinition,
+      },
+    },
+    main: esDefinition.default,
+  };
 }
 
 function getReleaseCommands({ config }: PackageJsonArgs) {
