@@ -2,15 +2,16 @@ import { join } from 'node:path';
 import gitRoot from 'git-root';
 import type { ViteUserConfig } from 'vitest/config';
 import { defineConfig } from 'vitest/config';
+import type { StandardConfigOptions } from './internalTypes.js';
 import { DEFAULT_SOURCE_FOLDER, TEST_FOLDER, TEST_HELPERS_FOLDER } from './utils/constants.js';
 
-interface Options {
+interface VitestConfigOptons extends Partial<Pick<StandardConfigOptions, 'react' | 'source'>> {
   overrides?: ViteUserConfig;
-  react?: boolean;
-  source?: string;
 }
 
-export function createVitestConfig({ overrides, react, source = DEFAULT_SOURCE_FOLDER }: Options = {} as Options) {
+export function createVitestConfig(
+  { overrides, react, source = DEFAULT_SOURCE_FOLDER }: VitestConfigOptons = {} as VitestConfigOptons,
+) {
   const sourcePath = join(gitRoot(), source);
   const sourceFiles = react ? [`${sourcePath}/**/*.ts`, `${sourcePath}/**/*.tsx`] : [`${sourcePath}/**/*.ts`];
 

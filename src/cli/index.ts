@@ -30,6 +30,11 @@ import { createVitestConfig } from './vitest.js';
 import type { YarnArgs } from './yarn.js';
 import { createYarnFiles } from './yarn.js';
 
+const CJS_SETUP = {
+  default: true,
+  description: 'Whether CJS builds are included with distributed files',
+  type: 'boolean',
+} as const;
 const CONFIG_SETUP = {
   alias: 'c',
   default: DEFAULT_CONFIG_FOLDER,
@@ -49,7 +54,6 @@ const LIBRARY_SETUP = {
   type: 'string',
 } as const;
 const REACT_SETUP = {
-  alias: 'r',
   default: false,
   description: 'Whether React is used, either for development or the library itself',
   type: 'boolean',
@@ -61,13 +65,11 @@ const SOURCE_SETUP = {
   type: 'string',
 } as const;
 const SOURCE_MAP_SETUP = {
-  alias: 'm',
   default: false,
   description: 'Whether source maps are included with distributed files',
   type: 'boolean',
 } as const;
 const UMD_SETUP = {
-  alias: 'u',
   default: false,
   description: 'Whether UMD builds are included with distributed files',
   type: 'boolean',
@@ -105,6 +107,7 @@ export function runPtiCommand(argv: string[]) {
       'Initialize the package with the necessary build infrastructure',
       (yargs) =>
         yargs
+          .option('cjs', CJS_SETUP)
           .option('config', CONFIG_SETUP)
           .option('development', DEVELOPMENT_SETUP)
           .option('library', LIBRARY_SETUP)
@@ -118,7 +121,13 @@ export function runPtiCommand(argv: string[]) {
     .command<PackageJsonArgs>(
       'package-json',
       'Create the `package.json` file with the appropriate script references',
-      (yargs) => yargs.option('config', CONFIG_SETUP).option('library', LIBRARY_SETUP).option('umd', UMD_SETUP).help(),
+      (yargs) =>
+        yargs
+          .option('cjs', CJS_SETUP)
+          .option('config', CONFIG_SETUP)
+          .option('library', LIBRARY_SETUP)
+          .option('umd', UMD_SETUP)
+          .help(),
       createPackageJson,
     )
     .command<PrettierArgs>(
@@ -137,7 +146,12 @@ export function runPtiCommand(argv: string[]) {
       'rollup',
       'Create the rollup configuration',
       (yargs) =>
-        yargs.option('config', CONFIG_SETUP).option('sourceMap', SOURCE_MAP_SETUP).option('umd', UMD_SETUP).help(),
+        yargs
+          .option('cjs', CJS_SETUP)
+          .option('config', CONFIG_SETUP)
+          .option('sourceMap', SOURCE_MAP_SETUP)
+          .option('umd', UMD_SETUP)
+          .help(),
       createRollupConfigs,
     )
     .command<TsConfigArgs>(
@@ -145,6 +159,7 @@ export function runPtiCommand(argv: string[]) {
       'Create the `tsconfig.json` files, both for the main application and for the building of the library',
       (yargs) =>
         yargs
+          .option('cjs', CJS_SETUP)
           .option('config', CONFIG_SETUP)
           .option('development', DEVELOPMENT_SETUP)
           .option('library', LIBRARY_SETUP)

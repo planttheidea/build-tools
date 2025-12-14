@@ -2,13 +2,12 @@ import { readFile, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import fastGlob from 'fast-glob';
 import gitRoot from 'git-root';
+import type { StandardConfigOptions } from '../internalTypes.js';
 import { format } from '../utils/format.js';
 
 const { glob } = fastGlob;
 
-export interface FixTypesArgs {
-  library: string;
-}
+export interface FixTypesArgs extends Pick<StandardConfigOptions, 'library'> {}
 
 const TYPES = [
   { extension: '.d.cts', type: 'cjs' },

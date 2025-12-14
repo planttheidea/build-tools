@@ -2,14 +2,10 @@ import { constants, existsSync } from 'node:fs';
 import { copyFile, mkdir, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import gitRoot from 'git-root';
+import type { StandardConfigOptions } from '../internalTypes.js';
 import { format } from '../utils/format.js';
 
-export interface EslintArgs {
-  config: string;
-  development: string;
-  react: boolean;
-  source: string;
-}
+export interface EslintArgs extends Pick<StandardConfigOptions, 'config' | 'development' | 'react' | 'source'> {}
 
 export async function createEslintConfig({ config, development, react, source }: EslintArgs) {
   const root = gitRoot();

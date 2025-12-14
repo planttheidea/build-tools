@@ -5,33 +5,35 @@ import gitRoot from 'git-root';
 import type { Plugin, RollupOptions } from 'rollup/dist/rollup.d.ts';
 import { dts } from 'rollup-plugin-dts';
 import tsc from 'typescript';
-import { DEFAULT_CONFIG_FOLDER } from './utils/constants.js';
+import type { StandardConfigOptions } from './internalTypes.js';
+import { DEFAULT_CONFIG_FOLDER, DEFAULT_SOURCE_FOLDER } from './utils/constants.js';
 import { getPackageJson } from './utils/packageJson.js';
 
-interface Config {
-  config?: string;
-  input?: string;
-  outputDir?: string;
+interface RollupConfigOptions extends Partial<
+  Pick<StandardConfigOptions, 'cjs' | 'config' | 'source' | 'sourceMap' | 'umd'>
+> {
+  inputFile?: string;
   plugins?: Plugin[];
-  sourceMap?: boolean;
-  umd?: boolean;
 }
 
-const OUTPUT_FILE_FORMATS = [
+const POSSIBLE_OUTPUT_FORMATS = [
   { attribute: 'module', format: 'es' },
   { attribute: 'main', format: 'cjs' },
   { attribute: 'browser', format: 'umd' },
 ] as const;
 
 export function createRollupConfig({
+  cjs = true,
   config = DEFAULT_CONFIG_FOLDER,
-  input = join('src', 'index.ts'),
+  inputFile = 'index.ts',
   plugins = [],
+  source = DEFAULT_SOURCE_FOLDER,
   sourceMap = false,
   umd = false,
-}: Config = {}) {
+}: RollupConfigOptions = {}) {
   const configTypesDir = join(config, 'types');
   const packageJson = getPackageJson();
+  const input = join(source, inputFile);
 
   const external = [
     ...Object.keys(packageJson.dependencies ?? {}),
@@ -39,8 +41,10 @@ export function createRollupConfig({
     /node:/,
   ];
 
-  const output = OUTPUT_FILE_FORMATS.reduce<RollupOptions[]>((formats, { attribute, format }) => {
-    if (format === 'umd' && !umd) {
+  const supportedFormats = { cjs, es: true, umd };
+
+  const output = POSSIBLE_OUTPUT_FORMATS.reduce<RollupOptions[]>((formats, { attribute, format }) => {
+    if (!supportedFormats[format]) {
       return formats;
     }
 

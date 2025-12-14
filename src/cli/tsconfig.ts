@@ -6,18 +6,14 @@ import { join, resolve } from 'node:path';
 import gitRoot from 'git-root';
 import type { CompilerOptions } from 'typescript';
 import { ModuleDetectionKind, ModuleKind, ModuleResolutionKind, ScriptTarget } from 'typescript';
+import type { StandardConfigOptions } from '../internalTypes.js';
 import { TEST_FOLDER } from '../utils/constants.js';
 import { format } from '../utils/format.js';
 
-export interface TsConfigArgs {
-  config: string;
-  development: string;
-  library: string;
-  react: boolean;
-  source: string;
-  sourceMap: boolean;
-  umd: boolean;
-}
+export interface TsConfigArgs extends Pick<
+  StandardConfigOptions,
+  'config' | 'development' | 'library' | 'react' | 'source' | 'sourceMap' | 'umd'
+> {}
 
 export async function createTsConfigs({ config, development, library, react, source, sourceMap, umd }: TsConfigArgs) {
   const root = gitRoot();

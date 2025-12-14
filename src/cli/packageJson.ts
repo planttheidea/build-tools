@@ -2,15 +2,11 @@ import { writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { execa } from 'execa';
 import gitRoot from 'git-root';
+import type { ExportDefinition, ExportDefinitionTier, PackageJson, StandardConfigOptions } from '../internalTypes.js';
 import { format } from '../utils/format.js';
 import { getPackageJson } from '../utils/packageJson.js';
 
-export interface PackageJsonArgs {
-  config: string;
-  library: string;
-  react: boolean;
-  umd: boolean;
-}
+export interface PackageJsonArgs extends Pick<StandardConfigOptions, 'cjs' | 'config' | 'library' | 'react' | 'umd'> {}
 
 const BUILD_FORMATS = ['cjs', 'es', 'umd'] as const;
 const RELEASE_FORMATS = ['alpha', 'beta', 'rc', 'stable'] as const;
@@ -103,44 +99,52 @@ function getDevDependencies({ react }: PackageJsonArgs) {
   }, {});
 }
 
-function getExportsConfig({ library, umd }: PackageJsonArgs) {
-  const exportsConfig = {
+function getExportsConfig({ cjs, library, umd }: PackageJsonArgs) {
+  const importConfig: ExportDefinition = {
+    types: `./${library}/es/index.d.mts`,
+    default: `./${library}/es/index.mjs`,
+  };
+
+  let exportsConfig: Pick<PackageJson, 'browser' | 'exports' | 'main' | 'module'> = {
     exports: {
-      '.': {
-        import: {
-          types: `./${library}/es/index.d.mts`,
-          default: `./${library}/es/index.mjs`,
-        },
-        require: {
-          types: `./${library}/cjs/index.d.cts`,
-          default: `./${library}/cjs/index.cjs`,
-        },
-        default: {
-          types: `./${library}/es/index.d.mts`,
-          default: `./${library}/es/index.mjs`,
-        },
-      },
+      '.': importConfig,
     },
     main: `${library}/cjs/index.cjs`,
     module: `${library}/es/index.mjs`,
   };
 
-  return umd
-    ? {
-        ...exportsConfig,
-        browser: `${library}/umd/index.js`,
-        exports: {
-          ...exportsConfig.exports,
-          '.': {
-            ...exportsConfig.exports['.'],
-            default: {
-              types: `./${library}/umd/index.d.ts`,
-              default: `./${library}/umd/index.js`,
-            },
-          },
+  if (cjs || umd) {
+    let topLevelExports: ExportDefinitionTier = {
+      import: importConfig,
+    };
+
+    if (cjs) {
+      topLevelExports = {
+        ...topLevelExports,
+        require: {
+          types: `./${library}/cjs/index.d.cts`,
+          default: `./${library}/cjs/index.cjs`,
         },
-      }
-    : exportsConfig;
+      };
+    }
+
+    if (umd) {
+      topLevelExports = {
+        ...topLevelExports,
+        default: {
+          types: `./${library}/umd/index.d.ts`,
+          default: `./${library}/umd/index.js`,
+        },
+      };
+    }
+
+    exportsConfig = {
+      ...exportsConfig,
+      exports: { ...exportsConfig.exports, '.': topLevelExports },
+    };
+  }
+
+  return exportsConfig;
 }
 
 function getReleaseCommands({ config }: PackageJsonArgs) {
