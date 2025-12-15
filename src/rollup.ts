@@ -3,6 +3,7 @@ import typescript from '@rollup/plugin-typescript';
 import camelCase from 'camelcase';
 import gitRoot from 'git-root';
 import type { Plugin, RollupOptions, TreeshakingOptions } from 'rollup/dist/rollup.d.ts';
+import del from 'rollup-plugin-delete';
 import { dts } from 'rollup-plugin-dts';
 import tsc from 'typescript';
 import type { StandardConfigOptions } from './internalTypes.js';
@@ -18,9 +19,9 @@ interface RollupConfigOptions extends Partial<
 }
 
 const POSSIBLE_OUTPUT_FORMATS = [
-  { attribute: 'module', format: 'es' },
-  { attribute: 'main', format: 'cjs' },
-  { attribute: 'browser', format: 'umd' },
+  { attribute: 'module', format: 'es', typesExtension: 'mts' },
+  { attribute: 'main', format: 'cjs', typesExtension: 'cts' },
+  { attribute: 'browser', format: 'umd', typesExtension: 'ts' },
 ] as const;
 
 export function createRollupConfig({
@@ -44,8 +45,9 @@ export function createRollupConfig({
   ];
 
   const supportedFormats = { cjs, es: true, umd };
+  const root = gitRoot();
 
-  const output = POSSIBLE_OUTPUT_FORMATS.reduce<RollupOptions[]>((formats, { attribute, format }) => {
+  const output = POSSIBLE_OUTPUT_FORMATS.reduce<RollupOptions[]>((formats, { attribute, format, typesExtension }) => {
     if (!supportedFormats[format]) {
       return formats;
     }
@@ -58,40 +60,52 @@ export function createRollupConfig({
       );
     }
 
-    let globals: Record<string, string> | undefined;
+    const globals =
+      format === 'umd'
+        ? external.reduce<Record<string, string> | undefined>((globals, name) => {
+            if (typeof name === 'string') {
+              globals ??= {};
+              globals[name] = camelCase(name);
+            }
 
-    if (format === 'umd') {
-      globals = external.reduce<Record<string, string> | undefined>((globals, name) => {
-        if (typeof name === 'string') {
-          globals ??= {};
-          globals[name] = camelCase(name);
-        }
+            return globals;
+          }, undefined)
+        : undefined;
 
-        return globals;
-      }, undefined);
-    }
+    const outputDir = dirname(file);
+    const typesDir = join(root, outputDir, 'types');
 
-    formats.push({
-      external,
-      input,
-      output: {
-        exports: 'named',
-        file,
-        format,
-        globals,
-        name: packageJson.name,
-        sourcemap: sourceMap,
+    formats.push(
+      {
+        external,
+        input,
+        output: {
+          exports: 'named',
+          file,
+          format,
+          globals,
+          name: packageJson.name,
+          sourcemap: sourceMap,
+        },
+        plugins: [
+          // @ts-expect-error - the plugin is still a CJS format in types, so it is not registering as callable.
+          typescript({
+            tsconfig: resolve(gitRoot(), configTypesDir, `${format}.json`),
+            typescript: tsc,
+          }),
+          ...plugins,
+        ],
+        treeshake,
       },
-      plugins: [
-        // @ts-expect-error - the plugin is still a CJS format in types, so it is not registering as callable.
-        typescript({
-          tsconfig: resolve(gitRoot(), configTypesDir, `${format}.json`),
-          typescript: tsc,
-        }),
-        ...plugins,
-      ],
-      treeshake,
-    });
+      {
+        input: resolve(typesDir, 'index.d.ts'),
+        output: [{ file: resolve(root, outputDir, `index.d.${typesExtension}`), format }],
+        plugins: [
+          dts({ tsconfig: resolve(root, configTypesDir, `${format}.json`) }),
+          del({ hook: 'buildEnd', targets: [typesDir] }),
+        ],
+      },
+    );
 
     return formats;
   }, []);
@@ -101,11 +115,11 @@ export function createRollupConfig({
   return [
     ...output,
     {
-      input: resolve(gitRoot(), esLibraryDir, 'index.d.ts'),
-      output: [{ file: resolve(gitRoot(), 'index.d.ts'), format: 'es' }],
+      input: resolve(root, esLibraryDir, 'index.d.mts'),
+      output: [{ file: resolve(root, 'index.d.ts'), format: 'es' }],
       plugins: [
         dts({
-          tsconfig: resolve(gitRoot(), configTypesDir, `es.json`),
+          tsconfig: resolve(root, configTypesDir, `es.json`),
         }),
       ],
     },

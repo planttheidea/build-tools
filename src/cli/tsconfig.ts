@@ -12,10 +12,19 @@ import { format } from '../utils/format.js';
 
 export interface TsConfigArgs extends Pick<
   StandardConfigOptions,
-  'config' | 'development' | 'library' | 'react' | 'source' | 'sourceMap' | 'umd'
+  'cjs' | 'config' | 'development' | 'library' | 'react' | 'source' | 'sourceMap' | 'umd'
 > {}
 
-export async function createTsConfigs({ config, development, library, react, source, sourceMap, umd }: TsConfigArgs) {
+export async function createTsConfigs({
+  cjs,
+  config,
+  development,
+  library,
+  react,
+  source,
+  sourceMap,
+  umd,
+}: TsConfigArgs) {
   const root = gitRoot();
   const sourceDir = join(root, source);
   const sourceExists = existsSync(sourceDir);
@@ -71,21 +80,10 @@ export async function createTsConfigs({ config, development, library, react, sou
   const sourceMapConfig = sourceMap ? { inlineSources: true, sourceMap: true } : undefined;
 
   const configs: Record<string, ConfigOptions> = {
-    cjs: {
-      compilerOptions: {
-        ...sourceMapConfig,
-        jsx,
-        module: ModuleKind.Node16,
-        moduleResolution: ModuleResolutionKind.Node16,
-        outDir: join(prefix, library, 'cjs'),
-        types,
-      },
-      include,
-      exclude,
-    },
     es: {
       compilerOptions: {
         ...sourceMapConfig,
+        declarationDir: join(prefix, library, 'es', 'types'),
         jsx,
         module: ModuleKind.NodeNext,
         moduleResolution: ModuleResolutionKind.NodeNext,
@@ -97,10 +95,27 @@ export async function createTsConfigs({ config, development, library, react, sou
     },
   };
 
+  if (cjs) {
+    configs.cjs = {
+      compilerOptions: {
+        ...sourceMapConfig,
+        declarationDir: join(prefix, library, 'cjs', 'types'),
+        jsx,
+        module: ModuleKind.Node16,
+        moduleResolution: ModuleResolutionKind.Node16,
+        outDir: join(prefix, library, 'cjs'),
+        types,
+      },
+      include,
+      exclude,
+    };
+  }
+
   if (umd) {
     configs.umd = {
       compilerOptions: {
         ...sourceMapConfig,
+        declarationDir: join(prefix, library, 'umd', 'types'),
         jsx,
         module: ModuleKind.ESNext,
         moduleResolution: ModuleResolutionKind.Bundler,

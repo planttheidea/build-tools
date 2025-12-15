@@ -62,11 +62,10 @@ export async function createPackageJson(args: PackageJsonArgs) {
   await writeFile(join(root, 'package.json'), content, 'utf8');
 }
 
-function getBuildCommands({ config, library }: PackageJsonArgs) {
+function getBuildCommands({ config }: PackageJsonArgs) {
   return {
-    build: 'npm run clean && npm run build:dist && npm run build:types',
+    build: 'npm run clean && npm run build:dist',
     'build:dist': `NODE_ENV=production rollup -c ${config}/rollup.config.js`,
-    'build:types': `pti fix-types -l ${library}`,
   };
 }
 

@@ -7,8 +7,6 @@ import {
 } from '../utils/constants.js';
 import type { EslintArgs } from './eslint.js';
 import { createEslintConfig } from './eslint.js';
-import type { FixTypesArgs } from './fixTypes.js';
-import { fixTypes } from './fixTypes.js';
 import type { GitArgs } from './git.js';
 import { createGitFiles } from './git.js';
 import type { InitArgs } from './init.js';
@@ -89,12 +87,6 @@ export function runPtiCommand(argv: string[]) {
           .option('source', SOURCE_SETUP)
           .help(),
       createEslintConfig,
-    )
-    .command<FixTypesArgs>(
-      'fix-types',
-      'Rename the types files to have correct extension for the module type',
-      (yargs) => yargs.option('library', LIBRARY_SETUP).help(),
-      fixTypes,
     )
     .command<GitArgs>(
       'git',
