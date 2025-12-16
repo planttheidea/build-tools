@@ -2,13 +2,16 @@ import { join } from 'node:path';
 import gitRoot from 'git-root';
 import type { UserConfig } from 'vite';
 import { defineConfig } from 'vite';
+import type { StandardConfigOptions } from './internalTypes.js';
+import { DEFAULT_DEVELOPMENT_FOLDER } from './utils/constants.js';
 
-interface Options {
-  development?: string;
+interface ViteConfigOptions extends Partial<Pick<StandardConfigOptions, 'development'>> {
   overrides?: UserConfig;
 }
 
-export function createViteConfig({ development = 'dev', overrides }: Options = {} as Options) {
+export function createViteConfig(
+  { development = DEFAULT_DEVELOPMENT_FOLDER, overrides }: ViteConfigOptions = {} as ViteConfigOptions,
+) {
   const developmentDir = join(gitRoot(), development);
 
   return defineConfig({

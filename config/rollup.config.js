@@ -29,7 +29,7 @@ export default {
     dir: 'dist',
     exports: 'named',
     format: 'es',
-    sourcemap: true,
+    sourcemap: false,
   },
   plugins: [
     typescript({
@@ -37,4 +37,8 @@ export default {
       typescript: tsc,
     }),
   ],
+  treeshake: {
+    experimentalLogSideEffects: true,
+    preset: 'smallest',
+  },
 };

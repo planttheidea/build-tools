@@ -2,10 +2,9 @@ import { constants, existsSync } from 'node:fs';
 import { copyFile, mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import gitRoot from 'git-root';
+import type { StandardConfigOptions } from '../internalTypes.js';
 
-export interface ReleaseItArgs {
-  config: string;
-}
+export interface ReleaseItArgs extends Pick<StandardConfigOptions, 'config'> {}
 
 export async function createReleaseItConfigs({ config }: ReleaseItArgs) {
   const root = gitRoot();

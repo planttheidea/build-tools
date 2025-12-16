@@ -1,15 +1,14 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+import { readFileSync } from 'node:fs';
 import { writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { execa } from 'execa';
 import gitRoot from 'git-root';
+import type { StandardConfigOptions } from '../internalTypes.js';
 import { format } from '../utils/format.js';
 import { getPackageJson } from '../utils/packageJson.js';
 
-export interface PackageJsonArgs {
-  config: string;
-  library: string;
-  react: boolean;
-}
+export interface PackageJsonArgs extends Pick<StandardConfigOptions, 'cjs' | 'config' | 'library' | 'react' | 'umd'> {}
 
 const BUILD_FORMATS = ['cjs', 'es', 'umd'] as const;
 const RELEASE_FORMATS = ['alpha', 'beta', 'rc', 'stable'] as const;
@@ -20,13 +19,21 @@ export async function createPackageJson(args: PackageJsonArgs) {
 
   const updatedTargetPackageJson = sortObject({
     ...targetPackageJson,
+    author: {
+      email: 'tony.quetano@planttheidea.com',
+      name: 'Tony Quetano',
+      url: 'https://www.planttheidea.com/',
+    },
     devDependencies: {
       ...targetPackageJson.devDependencies,
       ...getDevDependencies(args),
     },
-    ...getExports(args),
-    files: [args.library, 'CHANGELOG.md', 'LICENSE', 'README.md', 'index.d.ts', 'package.json'],
+    ...getExportsConfig(args),
+    files: [args.library, 'LICENSE', 'README.md', 'index.d.ts', 'package.json'],
     license: 'MIT',
+    publishConfig: {
+      access: 'public',
+    },
     scripts: {
       ...targetPackageJson.scripts,
       ...getBuildCommands(args),
@@ -55,19 +62,20 @@ export async function createPackageJson(args: PackageJsonArgs) {
   await writeFile(join(root, 'package.json'), content, 'utf8');
 }
 
-function getBuildCommands({ config, library }: PackageJsonArgs) {
+function getBuildCommands({ config }: PackageJsonArgs) {
   return {
-    build: 'npm run clean && npm run build:dist && npm run build:types',
+    build: 'npm run clean && npm run build:dist',
     'build:dist': `NODE_ENV=production rollup -c ${config}/rollup.config.js`,
-    'build:types': `pti fix-types -l ${library}`,
   };
 }
 
-function getCleanCommands({ library }: PackageJsonArgs) {
+function getCleanCommands({ cjs, library, umd }: PackageJsonArgs) {
   const clean = `rm -rf ${library}`;
+  const supportedFormats = { cjs, es: true, umd };
 
   return BUILD_FORMATS.reduce<Record<string, string>>(
-    (commands, type) => ({ ...commands, [`clean:${type}`]: `rm -rf ${library}/${type}` }),
+    (commands, type) =>
+      supportedFormats[type] ? { ...commands, [`clean:${type}`]: `rm -rf ${library}/${type}` } : commands,
     { clean },
   );
 }
@@ -102,32 +110,79 @@ function getDevDependencies({ react }: PackageJsonArgs) {
   }, {});
 }
 
-function getExports({ library }: PackageJsonArgs) {
-  return {
-    browser: `${library}/umd/index.js`,
-    exports: {
-      '.': {
-        import: {
-          types: `./${library}/es/index.d.mts`,
-          default: `./${library}/es/index.mjs`,
-        },
-        require: {
-          types: `./${library}/cjs/index.d.cts`,
-          default: `./${library}/cjs/index.cjs`,
-        },
-        default: {
-          types: `./${library}/umd/index.d.ts`,
-          default: `./${library}/umd/index.js`,
+function getExportsConfig({ cjs, library, umd }: PackageJsonArgs) {
+  const esDefinition = { types: `./${library}/es/index.d.mts`, default: `./${library}/es/index.mjs` };
+  const cjsDefinition = cjs ? { types: `./${library}/cjs/index.d.cts`, default: `./${library}/cjs/index.cjs` } : null;
+  const umdDefinition = umd ? { types: `./${library}/umd/index.d.ts`, default: `./${library}/umd/index.js` } : null;
+
+  if (cjsDefinition && umdDefinition) {
+    // - ES drives `import` and `module` (modern use-case)
+    // - CJS drives `require` (CJS-specific) and `main` (assume legacy Node version)
+    // - UMD drives `default` (ultimate fallback for legacy module systems) and `browser` (allow for globals)
+    return {
+      browser: umdDefinition.default,
+      exports: {
+        '.': {
+          import: esDefinition,
+          require: cjsDefinition,
+          default: umdDefinition,
         },
       },
+      main: cjsDefinition.default,
+      module: esDefinition.default,
+    };
+  }
+
+  if (cjsDefinition) {
+    // - ES drives `import` and `module` (modern use-case)
+    // - CJS drives `require` (CJS-specific) and `main` (assume legacy Node version)
+    // - Assumes no other module systems are used
+    return {
+      exports: {
+        '.': {
+          import: esDefinition,
+          require: cjsDefinition,
+        },
+      },
+      main: cjsDefinition.default,
+      module: esDefinition.default,
+    };
+  }
+
+  // - ES drives `import` and `module` (modern use-case)
+  // - UMD drives `default` (ultimate fallback for legacy module systems), `browser` (allow for globals), and `main` (allow for CJS usage)
+  if (umdDefinition) {
+    return {
+      browser: umdDefinition.default,
+      exports: {
+        '.': {
+          import: esDefinition,
+          default: umdDefinition,
+        },
+      },
+      main: umdDefinition.default,
+      module: esDefinition.default,
+    };
+  }
+
+  // - ES drives `import` and `module` (modern use-case)
+  // - Assumes no legacy module systems are used
+  return {
+    exports: {
+      '.': {
+        import: esDefinition,
+      },
     },
-    main: `${library}/cjs/index.cjs`,
-    module: `${library}/es/index.mjs`,
+    main: esDefinition.default,
   };
 }
 
 function getReleaseCommands({ config }: PackageJsonArgs) {
-  const releaseScripts = 'npm run format:check && npm run typecheck && npm run lint && npm run test && npm run build';
+  const releaseItConfig = JSON.parse(
+    readFileSync(resolve(import.meta.dirname, '..', '..', 'templates', 'release-it', 'stable.json'), 'utf8'),
+  ) as Record<string, any>;
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+  const releaseScripts = releaseItConfig.hooks['before:init'].join(' && ') as string;
 
   return RELEASE_FORMATS.reduce<Record<string, string>>(
     (commands, format) => ({

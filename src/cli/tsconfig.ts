@@ -6,18 +6,25 @@ import { join, resolve } from 'node:path';
 import gitRoot from 'git-root';
 import type { CompilerOptions } from 'typescript';
 import { ModuleDetectionKind, ModuleKind, ModuleResolutionKind, ScriptTarget } from 'typescript';
+import type { StandardConfigOptions } from '../internalTypes.js';
 import { TEST_FOLDER } from '../utils/constants.js';
 import { format } from '../utils/format.js';
 
-export interface TsConfigArgs {
-  config: string;
-  development: string;
-  library: string;
-  react: boolean;
-  source: string;
-}
+export interface TsConfigArgs extends Pick<
+  StandardConfigOptions,
+  'cjs' | 'config' | 'development' | 'library' | 'react' | 'source' | 'sourceMap' | 'umd'
+> {}
 
-export async function createTsConfigs({ config, development, library, react, source }: TsConfigArgs) {
+export async function createTsConfigs({
+  cjs,
+  config,
+  development,
+  library,
+  react,
+  source,
+  sourceMap,
+  umd,
+}: TsConfigArgs) {
   const root = gitRoot();
   const sourceDir = join(root, source);
   const sourceExists = existsSync(sourceDir);
@@ -44,9 +51,11 @@ export async function createTsConfigs({ config, development, library, react, sou
     compilerOptions: {
       baseUrl: source,
       declaration: false,
+      inlineSources: true,
       jsx,
       outDir: library,
       rootDir: './',
+      sourceMap: true,
       types,
     },
     exclude: ['**/node_modules/**', `${library}/**/*`],
@@ -68,21 +77,13 @@ export async function createTsConfigs({ config, development, library, react, sou
   const prefix = join('..', '..');
   const include = getInclude({ source, prefix });
   const exclude = [...BASE_CONFIG.exclude, `**/${TEST_FOLDER}/**`];
+  const sourceMapConfig = sourceMap ? { inlineSources: true, sourceMap: true } : undefined;
 
-  await writeConfigs(resolve(configTypes), {
-    cjs: {
-      compilerOptions: {
-        jsx,
-        module: ModuleKind.Node16,
-        moduleResolution: ModuleResolutionKind.Node16,
-        outDir: join(prefix, library, 'cjs'),
-        types,
-      },
-      include,
-      exclude,
-    },
+  const configs: Record<string, ConfigOptions> = {
     es: {
       compilerOptions: {
+        ...sourceMapConfig,
+        declarationDir: join(prefix, library, 'es', 'types'),
         jsx,
         module: ModuleKind.NodeNext,
         moduleResolution: ModuleResolutionKind.NodeNext,
@@ -92,8 +93,29 @@ export async function createTsConfigs({ config, development, library, react, sou
       include,
       exclude,
     },
-    umd: {
+  };
+
+  if (cjs) {
+    configs.cjs = {
       compilerOptions: {
+        ...sourceMapConfig,
+        declarationDir: join(prefix, library, 'cjs', 'types'),
+        jsx,
+        module: ModuleKind.Node16,
+        moduleResolution: ModuleResolutionKind.Node16,
+        outDir: join(prefix, library, 'cjs'),
+        types,
+      },
+      include,
+      exclude,
+    };
+  }
+
+  if (umd) {
+    configs.umd = {
+      compilerOptions: {
+        ...sourceMapConfig,
+        declarationDir: join(prefix, library, 'umd', 'types'),
         jsx,
         module: ModuleKind.ESNext,
         moduleResolution: ModuleResolutionKind.Bundler,
@@ -102,8 +124,10 @@ export async function createTsConfigs({ config, development, library, react, sou
       },
       include,
       exclude,
-    },
-  });
+    };
+  }
+
+  await writeConfigs(resolve(configTypes), configs);
 }
 
 interface ConfigOptions {
@@ -140,10 +164,9 @@ const BASE_CONFIG = {
     noUncheckedIndexedAccess: true,
     resolveJsonModule: true,
     skipLibCheck: true,
-    sourceMap: true,
+    sourceMap: false,
     strict: true,
     strictNullChecks: true,
-    inlineSources: true,
     target: ScriptTarget.ES2015,
     verbatimModuleSyntax: true,
     types: ['node'],

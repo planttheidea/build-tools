@@ -2,13 +2,10 @@ import { existsSync } from 'node:fs';
 import { copyFile, mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import gitRoot from 'git-root';
+import type { StandardConfigOptions } from '../internalTypes.js';
 import { format } from '../utils/format.js';
 
-export interface ViteArgs {
-  config: string;
-  development: string;
-  react: boolean;
-}
+export interface ViteArgs extends Pick<StandardConfigOptions, 'config' | 'development' | 'react'> {}
 
 export async function createViteConfig({ config, development, react }: ViteArgs) {
   const root = gitRoot();

@@ -3,6 +3,7 @@ import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { execa } from 'execa';
 import gitRoot from 'git-root';
+import type { StandardConfigOptions } from '../internalTypes.js';
 import { TEST_FOLDER } from '../utils/constants.js';
 import { createEslintConfig } from './eslint.js';
 import { createGitFiles } from './git.js';
@@ -15,13 +16,7 @@ import { createViteConfig } from './vite.js';
 import { createVitestConfig } from './vitest.js';
 import { createYarnFiles } from './yarn.js';
 
-export interface InitArgs {
-  config: string;
-  development: string;
-  library: string;
-  react: boolean;
-  source: string;
-}
+export interface InitArgs extends StandardConfigOptions {}
 
 export async function init(args: InitArgs) {
   await createPackageJson(args);

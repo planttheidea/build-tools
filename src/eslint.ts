@@ -7,6 +7,7 @@ import eslintReact from 'eslint-plugin-react';
 import eslintReactHooks from 'eslint-plugin-react-hooks';
 import gitRoot from 'git-root';
 import typescriptEslint from 'typescript-eslint';
+import type { StandardConfigOptions } from './internalTypes.js';
 import {
   DEFAULT_CONFIG_FOLDER,
   DEFAULT_DEVELOPMENT_FOLDER,
@@ -14,12 +15,10 @@ import {
   TEST_FOLDER,
 } from './utils/constants.js';
 
-interface Options {
-  config?: string;
-  development?: string;
+interface EslintConfigOptions extends Partial<
+  Pick<StandardConfigOptions, 'config' | 'development' | 'react' | 'source'>
+> {
   configs?: Config[] | ConfigWithExtends[];
-  react?: boolean;
-  source?: string;
 }
 
 export function createEslintConfig(
@@ -29,7 +28,7 @@ export function createEslintConfig(
     development = DEFAULT_DEVELOPMENT_FOLDER,
     react,
     source = DEFAULT_SOURCE_FOLDER,
-  }: Options = {} as Options,
+  }: EslintConfigOptions = {} as EslintConfigOptions,
 ) {
   const optionalConfigs: ConfigWithExtends[] = [];
 

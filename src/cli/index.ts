@@ -7,8 +7,6 @@ import {
 } from '../utils/constants.js';
 import type { EslintArgs } from './eslint.js';
 import { createEslintConfig } from './eslint.js';
-import type { FixTypesArgs } from './fixTypes.js';
-import { fixTypes } from './fixTypes.js';
 import type { GitArgs } from './git.js';
 import { createGitFiles } from './git.js';
 import type { InitArgs } from './init.js';
@@ -30,6 +28,11 @@ import { createVitestConfig } from './vitest.js';
 import type { YarnArgs } from './yarn.js';
 import { createYarnFiles } from './yarn.js';
 
+const CJS_SETUP = {
+  default: true,
+  description: 'Whether CJS builds are included with distributed files',
+  type: 'boolean',
+} as const;
 const CONFIG_SETUP = {
   alias: 'c',
   default: DEFAULT_CONFIG_FOLDER,
@@ -49,7 +52,6 @@ const LIBRARY_SETUP = {
   type: 'string',
 } as const;
 const REACT_SETUP = {
-  alias: 'r',
   default: false,
   description: 'Whether React is used, either for development or the library itself',
   type: 'boolean',
@@ -59,6 +61,16 @@ const SOURCE_SETUP = {
   default: DEFAULT_SOURCE_FOLDER,
   description: 'Location of source files',
   type: 'string',
+} as const;
+const SOURCE_MAP_SETUP = {
+  default: false,
+  description: 'Whether source maps are included with distributed files',
+  type: 'boolean',
+} as const;
+const UMD_SETUP = {
+  default: false,
+  description: 'Whether UMD builds are included with distributed files',
+  type: 'boolean',
 } as const;
 
 export function runPtiCommand(argv: string[]) {
@@ -76,12 +88,6 @@ export function runPtiCommand(argv: string[]) {
           .help(),
       createEslintConfig,
     )
-    .command<FixTypesArgs>(
-      'fix-types',
-      'Rename the types files to have correct extension for the module type',
-      (yargs) => yargs.option('library', LIBRARY_SETUP).help(),
-      fixTypes,
-    )
     .command<GitArgs>(
       'git',
       'Initialize the files needed for `git` infrastructure',
@@ -93,18 +99,27 @@ export function runPtiCommand(argv: string[]) {
       'Initialize the package with the necessary build infrastructure',
       (yargs) =>
         yargs
+          .option('cjs', CJS_SETUP)
           .option('config', CONFIG_SETUP)
           .option('development', DEVELOPMENT_SETUP)
           .option('library', LIBRARY_SETUP)
           .option('react', REACT_SETUP)
           .option('source', SOURCE_SETUP)
+          .option('sourceMap', SOURCE_MAP_SETUP)
+          .option('umd', UMD_SETUP)
           .help(),
       init,
     )
     .command<PackageJsonArgs>(
       'package-json',
       'Create the `package.json` file with the appropriate script references',
-      (yargs) => yargs.option('config', CONFIG_SETUP).option('library', LIBRARY_SETUP).help(),
+      (yargs) =>
+        yargs
+          .option('cjs', CJS_SETUP)
+          .option('config', CONFIG_SETUP)
+          .option('library', LIBRARY_SETUP)
+          .option('umd', UMD_SETUP)
+          .help(),
       createPackageJson,
     )
     .command<PrettierArgs>(
@@ -122,7 +137,13 @@ export function runPtiCommand(argv: string[]) {
     .command<RollupArgs>(
       'rollup',
       'Create the rollup configuration',
-      (yargs) => yargs.option('config', CONFIG_SETUP).help(),
+      (yargs) =>
+        yargs
+          .option('cjs', CJS_SETUP)
+          .option('config', CONFIG_SETUP)
+          .option('sourceMap', SOURCE_MAP_SETUP)
+          .option('umd', UMD_SETUP)
+          .help(),
       createRollupConfigs,
     )
     .command<TsConfigArgs>(
@@ -130,11 +151,14 @@ export function runPtiCommand(argv: string[]) {
       'Create the `tsconfig.json` files, both for the main application and for the building of the library',
       (yargs) =>
         yargs
+          .option('cjs', CJS_SETUP)
           .option('config', CONFIG_SETUP)
           .option('development', DEVELOPMENT_SETUP)
           .option('library', LIBRARY_SETUP)
           .option('react', REACT_SETUP)
           .option('source', SOURCE_SETUP)
+          .option('sourceMap', SOURCE_MAP_SETUP)
+          .option('umd', UMD_SETUP)
           .help(),
       createTsConfigs,
     )

@@ -8,5 +8,6 @@ export async function createPrettierConfig(_args: PrettierArgs) {
   const root = gitRoot();
   const templatesDir = resolve(import.meta.dirname, '..', '..', 'templates', 'prettier');
 
+  await copyFile(join(templatesDir, '.prettierignore'), join(root, '.prettierignore'));
   await copyFile(join(templatesDir, '.prettierrc'), join(root, '.prettierrc'));
 }
