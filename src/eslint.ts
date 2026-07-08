@@ -21,15 +21,13 @@ interface EslintConfigOptions extends Partial<
   configs?: Config[] | ConfigWithExtends[];
 }
 
-export function createEslintConfig(
-  {
-    config = DEFAULT_CONFIG_FOLDER,
-    configs = [],
-    development = DEFAULT_DEVELOPMENT_FOLDER,
-    react,
-    source = DEFAULT_SOURCE_FOLDER,
-  }: EslintConfigOptions = {} as EslintConfigOptions,
-) {
+export function createEslintConfig({
+  config = DEFAULT_CONFIG_FOLDER,
+  configs = [],
+  development = DEFAULT_DEVELOPMENT_FOLDER,
+  react,
+  source = DEFAULT_SOURCE_FOLDER,
+}: EslintConfigOptions = {}) {
   const optionalConfigs: ConfigWithExtends[] = [];
 
   if (react) {

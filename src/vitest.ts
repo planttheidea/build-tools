@@ -5,13 +5,11 @@ import { defineConfig } from 'vitest/config';
 import type { StandardConfigOptions } from './internalTypes.js';
 import { DEFAULT_SOURCE_FOLDER, TEST_FOLDER, TEST_HELPERS_FOLDER } from './utils/constants.js';
 
-interface VitestConfigOptons extends Partial<Pick<StandardConfigOptions, 'react' | 'source'>> {
+interface VitestConfigOptions extends Partial<Pick<StandardConfigOptions, 'react' | 'source'>> {
   overrides?: ViteUserConfig;
 }
 
-export function createVitestConfig(
-  { overrides, react, source = DEFAULT_SOURCE_FOLDER }: VitestConfigOptons = {} as VitestConfigOptons,
-) {
+export function createVitestConfig({ overrides, react, source = DEFAULT_SOURCE_FOLDER }: VitestConfigOptions = {}) {
   const sourcePath = join(gitRoot(), source);
   const sourceFiles = react ? [`${sourcePath}/**/*.ts`, `${sourcePath}/**/*.tsx`] : [`${sourcePath}/**/*.ts`];
 
@@ -29,7 +27,6 @@ export function createVitestConfig(
       coverage: {
         exclude: [testHelpersPattern],
         include: sourceFiles,
-        // @ts-expect-error - Narrow types down validate the full set.
         provider: 'v8',
         ...overrides?.test?.coverage,
       },
