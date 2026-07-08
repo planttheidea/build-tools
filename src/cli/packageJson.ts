@@ -181,7 +181,6 @@ function getReleaseCommands({ config }: PackageJsonArgs) {
   const releaseItConfig = JSON.parse(
     readFileSync(resolve(import.meta.dirname, '..', '..', 'templates', 'release-it', 'stable.json'), 'utf8'),
   ) as Record<string, any>;
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
   const releaseScripts = releaseItConfig.hooks['before:init'].join(' && ') as string;
 
   return RELEASE_FORMATS.reduce<Record<string, string>>(

@@ -9,9 +9,7 @@ interface ViteConfigOptions extends Partial<Pick<StandardConfigOptions, 'develop
   overrides?: UserConfig;
 }
 
-export function createViteConfig(
-  { development = DEFAULT_DEVELOPMENT_FOLDER, overrides }: ViteConfigOptions = {} as ViteConfigOptions,
-) {
+export function createViteConfig({ development = DEFAULT_DEVELOPMENT_FOLDER, overrides }: ViteConfigOptions = {}) {
   const developmentDir = join(gitRoot(), development);
 
   return defineConfig({

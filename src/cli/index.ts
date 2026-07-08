@@ -141,6 +141,7 @@ export function runPtiCommand(argv: string[]) {
         yargs
           .option('cjs', CJS_SETUP)
           .option('config', CONFIG_SETUP)
+          .option('source', SOURCE_SETUP)
           .option('sourceMap', SOURCE_MAP_SETUP)
           .option('umd', UMD_SETUP)
           .help(),

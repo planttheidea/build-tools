@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## 2.0.1
+
+- Fix `init` options (`cjs`, `sourceMap`, `umd`, etc.) not passing through to the generated `rollup` config
+- Fix `rollup` CLI command missing the `--source` option
+- Fix `react` option not applying to per-format `tsconfig` `include` patterns
+- Fix `init` silently skipping the `src/index.ts` / `__tests__/index.test.ts` placeholder files
+- Add test suite covering the CLI generators and runtime config builders
+
+## 2.0.0
+
+### BREAKING CHANGES
+
+- `umd` and `sourceMap` options now default to `false`, dropping support without explicit opt-in
+
 ## 1.2.3
 
 - [#11](https://github.com/planttheidea/build-tools/pull/11) - Add `release-it` to the list of transferred dependencies
