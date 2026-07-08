@@ -103,7 +103,9 @@
     "release:rc": "release-it --config=config/release-it/rc.json",
     "release:scripts": "npm run format:check && npm run typecheck && npm run lint && npm run test && npm run build",
     "release:stable": "release-it --config=config/release-it/stable.json",
-    "test": "echo 'TODO TEST'",
+    "test": "vitest run --config config/vitest.config.ts",
+    "test:coverage": "vitest run --config config/vitest.config.ts --coverage",
+    "test:watch": "vitest --config config/vitest.config.ts",
     "typecheck": "tsc --noEmit"
   },
   "sideEffects": "false",
