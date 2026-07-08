@@ -5,8 +5,8 @@ import { createTempProject, writeFixturePackageJson, writeFixtureTsConfigs } fro
 
 let project: TempProject;
 
-vi.mock('git-root', () => ({
-  default: () => project.root,
+vi.mock('../src/utils/gitRoot.js', () => ({
+  gitRoot: () => project.root,
 }));
 
 beforeEach(async () => {

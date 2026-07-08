@@ -1,13 +1,13 @@
 import { dirname, join, resolve } from 'node:path';
 import typescript from '@rollup/plugin-typescript';
 import camelCase from 'camelcase';
-import gitRoot from 'git-root';
 import type { Plugin, RollupOptions, TreeshakingOptions } from 'rollup/dist/rollup.d.ts';
 import del from 'rollup-plugin-delete';
 import { dts } from 'rollup-plugin-dts';
 import tsc from 'typescript';
 import type { StandardConfigOptions } from './internalTypes.js';
 import { DEFAULT_CONFIG_FOLDER, DEFAULT_SOURCE_FOLDER } from './utils/constants.js';
+import { gitRoot } from './utils/gitRoot.js';
 import { getPackageJson } from './utils/packageJson.js';
 
 interface RollupConfigOptions extends Partial<
