@@ -1,12 +1,13 @@
-import { constants, existsSync } from 'node:fs';
-import { copyFile, mkdir } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import gitRoot from 'git-root';
 import type { StandardConfigOptions } from '../internalTypes.js';
+import { format } from '../utils/format.js';
 
-export interface RollupArgs extends Pick<StandardConfigOptions, 'config'> {}
+export interface RollupArgs extends Pick<StandardConfigOptions, 'cjs' | 'config' | 'source' | 'sourceMap' | 'umd'> {}
 
-export async function createRollupConfigs({ config }: RollupArgs) {
+export async function createRollupConfigs({ cjs, config, source, sourceMap, umd }: RollupArgs) {
   const root = gitRoot();
   const configDir = join(root, config);
 
@@ -14,12 +15,17 @@ export async function createRollupConfigs({ config }: RollupArgs) {
     await mkdir(configDir);
   }
 
-  const scriptDirectory = import.meta.dirname;
-  const templateDirectory = join(scriptDirectory, '..', '..', 'templates');
+  const content = await format(`
+    import { createRollupConfig } from '@planttheidea/build-tools';
 
-  await copyFile(
-    join(templateDirectory, 'rollup', 'rollup.config.js'),
-    join(configDir, 'rollup.config.js'),
-    constants.COPYFILE_FICLONE,
-  );
+    export default createRollupConfig({
+      cjs: ${String(cjs)},
+      config: '${config}',
+      source: '${source}',
+      sourceMap: ${String(sourceMap)},
+      umd: ${String(umd)},
+    });
+  `);
+
+  await writeFile(join(configDir, 'rollup.config.js'), content, 'utf8');
 }
