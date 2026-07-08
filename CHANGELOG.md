@@ -2,7 +2,7 @@
 
 ## 2.0.2
 
-- Removed `git-root` in favor of internal utility, to remove a transient version of `execa` deemed a security risk
+- Removed `git-root` in favor of internal utility, to remove a transient version of `cross-spawn` deemed a security risk
 
 ## 2.0.1
 
