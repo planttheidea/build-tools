@@ -2,8 +2,8 @@ import { readFileSync } from 'node:fs';
 import { extname, relative, resolve } from 'node:path';
 import typescript from '@rollup/plugin-typescript';
 import fastGlob from 'fast-glob';
-import gitRoot from 'git-root';
 import tsc from 'typescript';
+import { gitRoot } from '../src/utils/gitRoot.ts';
 
 export const ROOT = gitRoot();
 

@@ -7,7 +7,7 @@
     "url": "https://github.com/planttheidea/build-tools/issues"
   },
   "dependencies": {
-    "@eslint/js": "^10.0.1",
+    "@eslint/js": "^9.39.4",
     "@rollup/plugin-terser": "^1.0.0",
     "@rollup/plugin-typescript": "^12.3.0",
     "@types/node": "^24.13.3",
@@ -21,7 +21,6 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "execa": "^9.6.1",
     "fast-glob": "^3.3.3",
-    "git-root": "^1.0.1",
     "prettier": "^3.9.4",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",

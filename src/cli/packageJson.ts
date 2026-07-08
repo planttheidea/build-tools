@@ -3,9 +3,9 @@ import { readFileSync } from 'node:fs';
 import { writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { execa } from 'execa';
-import gitRoot from 'git-root';
 import type { StandardConfigOptions } from '../internalTypes.js';
 import { format } from '../utils/format.js';
+import { gitRoot } from '../utils/gitRoot.js';
 import { getPackageJson } from '../utils/packageJson.js';
 
 export interface PackageJsonArgs extends Pick<StandardConfigOptions, 'cjs' | 'config' | 'library' | 'react' | 'umd'> {}

@@ -1,9 +1,9 @@
 import { join } from 'node:path';
-import gitRoot from 'git-root';
 import type { UserConfig } from 'vite';
 import { defineConfig } from 'vite';
 import type { StandardConfigOptions } from './internalTypes.js';
 import { DEFAULT_DEVELOPMENT_FOLDER } from './utils/constants.js';
+import { gitRoot } from './utils/gitRoot.js';
 
 interface ViteConfigOptions extends Partial<Pick<StandardConfigOptions, 'development'>> {
   overrides?: UserConfig;

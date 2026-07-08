@@ -2,9 +2,9 @@ import eslint from '@eslint/js';
 // eslint-disable-next-line import/no-unresolved
 import { defineConfig, globalIgnores } from 'eslint/config';
 import eslintImport from 'eslint-plugin-import';
-import gitRoot from 'git-root';
 // eslint-disable-next-line import/no-unresolved
 import typescriptEslint from 'typescript-eslint';
+import { gitRoot } from '../src/utils/gitRoot.ts';
 
 export default defineConfig([
   globalIgnores([

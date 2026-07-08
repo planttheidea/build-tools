@@ -1,9 +1,9 @@
 import { join } from 'node:path';
-import gitRoot from 'git-root';
 import type { ViteUserConfig } from 'vitest/config';
 import { defineConfig } from 'vitest/config';
 import type { StandardConfigOptions } from './internalTypes.js';
 import { DEFAULT_SOURCE_FOLDER, TEST_FOLDER, TEST_HELPERS_FOLDER } from './utils/constants.js';
+import { gitRoot } from './utils/gitRoot.js';
 
 interface VitestConfigOptions extends Partial<Pick<StandardConfigOptions, 'react' | 'source'>> {
   overrides?: ViteUserConfig;

@@ -1,9 +1,9 @@
 import { existsSync } from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import gitRoot from 'git-root';
 import type { StandardConfigOptions } from '../internalTypes.js';
 import { format } from '../utils/format.js';
+import { gitRoot } from '../utils/gitRoot.js';
 
 export interface RollupArgs extends Pick<StandardConfigOptions, 'cjs' | 'config' | 'source' | 'sourceMap' | 'umd'> {}
 

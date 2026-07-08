@@ -8,8 +8,8 @@ import { createTempProject } from '../__helpers__/tempProject.js';
 
 let project: TempProject;
 
-vi.mock('git-root', () => ({
-  default: () => project.root,
+vi.mock('../../src/utils/gitRoot.js', () => ({
+  gitRoot: () => project.root,
 }));
 
 vi.mock('execa', () => ({

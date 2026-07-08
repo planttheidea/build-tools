@@ -5,7 +5,6 @@ import { defineConfig, globalIgnores } from 'eslint/config';
 import eslintImport from 'eslint-plugin-import';
 import eslintReact from 'eslint-plugin-react';
 import eslintReactHooks from 'eslint-plugin-react-hooks';
-import gitRoot from 'git-root';
 import typescriptEslint from 'typescript-eslint';
 import type { StandardConfigOptions } from './internalTypes.js';
 import {
@@ -14,6 +13,7 @@ import {
   DEFAULT_SOURCE_FOLDER,
   TEST_FOLDER,
 } from './utils/constants.js';
+import { gitRoot } from './utils/gitRoot.js';
 
 interface EslintConfigOptions extends Partial<
   Pick<StandardConfigOptions, 'config' | 'development' | 'react' | 'source'>

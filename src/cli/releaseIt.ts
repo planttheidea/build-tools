@@ -1,8 +1,8 @@
 import { constants, existsSync } from 'node:fs';
 import { copyFile, mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
-import gitRoot from 'git-root';
 import type { StandardConfigOptions } from '../internalTypes.js';
+import { gitRoot } from '../utils/gitRoot.js';
 
 export interface ReleaseItArgs extends Pick<StandardConfigOptions, 'config'> {}
 

@@ -1,6 +1,6 @@
 import { copyFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
-import gitRoot from 'git-root';
+import { gitRoot } from '../utils/gitRoot.js';
 
 export interface PrettierArgs {}
 
