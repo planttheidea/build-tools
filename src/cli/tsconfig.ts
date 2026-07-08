@@ -75,7 +75,7 @@ export async function createTsConfigs({
   files.push(writeFile(join(root, 'tsconfig.json'), configContent, 'utf8'));
 
   const prefix = join('..', '..');
-  const include = getInclude({ source, prefix });
+  const include = getInclude({ react, source, prefix });
   const exclude = [...BASE_CONFIG.exclude, `**/${TEST_FOLDER}/**`];
   const sourceMapConfig = sourceMap ? { inlineSources: true, sourceMap: true } : undefined;
 

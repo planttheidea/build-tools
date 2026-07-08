@@ -4,7 +4,6 @@ import { join } from 'node:path';
 import { execa } from 'execa';
 import gitRoot from 'git-root';
 import type { StandardConfigOptions } from '../internalTypes.js';
-import { TEST_FOLDER } from '../utils/constants.js';
 import { createEslintConfig } from './eslint.js';
 import { createGitFiles } from './git.js';
 import { createPackageJson } from './packageJson.js';
@@ -37,14 +36,10 @@ export async function init(args: InitArgs) {
   await execa`npm run format`;
 }
 
-async function createFileFolderStructure({ config, development, source }: InitArgs) {
+async function createFileFolderStructure({ config, development }: InitArgs) {
   const root = gitRoot();
 
-  await Promise.all([
-    createConfigDirs(root, config),
-    createDevelopmentDirs(root, development),
-    createSourceDirs(root, source),
-  ]);
+  await Promise.all([createConfigDirs(root, config), createDevelopmentDirs(root, development)]);
 }
 
 async function createConfigDirs(root: string, config: string) {
@@ -70,19 +65,5 @@ async function createDevelopmentDirs(root: string, development: string) {
 
   if (!existsSync(developmentDir)) {
     await mkdir(developmentDir);
-  }
-}
-
-async function createSourceDirs(root: string, source: string) {
-  const sourceDir = join(root, source);
-
-  if (!existsSync(sourceDir)) {
-    await mkdir(sourceDir);
-  }
-
-  const testsDir = join(root, TEST_FOLDER);
-
-  if (!existsSync(testsDir)) {
-    await mkdir(testsDir);
   }
 }
