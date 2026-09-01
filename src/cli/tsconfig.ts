@@ -41,7 +41,6 @@ export async function createTsConfigs(configArgs: TsConfigArgs) {
   const types = react ? [...BASE_CONFIG.compilerOptions.types, 'react'] : [...BASE_CONFIG.compilerOptions.types];
   const baseConfig = getStandardConfig({
     compilerOptions: {
-      baseUrl: source,
       declaration: false,
       inlineSources: true,
       jsx,
