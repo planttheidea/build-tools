@@ -42,31 +42,31 @@
   "exports": {
     ".": {
       "default": {
-        "types": "./dist/index.d.ts",
+        "types": "./dist/src/index.d.ts",
         "default": "./dist/index.js"
       }
     },
     "./eslint": {
       "default": {
-        "types": "./dist/eslint.d.ts",
+        "types": "./dist/src/eslint.d.ts",
         "default": "./dist/eslint.js"
       }
     },
     "./rollup": {
       "default": {
-        "types": "./dist/rollup.d.ts",
+        "types": "./dist/src/rollup.d.ts",
         "default": "./dist/rollup.js"
       }
     },
     "./vite": {
       "default": {
-        "types": "./dist/vite.d.ts",
+        "types": "./dist/src/vite.d.ts",
         "default": "./dist/vite.js"
       }
     },
     "./vitest": {
       "default": {
-        "types": "./dist/vitest.d.ts",
+        "types": "./dist/src/vitest.d.ts",
         "default": "./dist/vitest.js"
       }
     }
