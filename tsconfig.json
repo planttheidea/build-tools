@@ -1,7 +1,4 @@
 {
   "extends": "./config/types/tsconfig.json",
-  "compilerOptions": {
-    "rootDir": "./"
-  },
   "include": ["./__tests__/**/*.ts", "./config/**/*.ts", "./src/**/*.ts", "./templates/**/*"]
 }
