@@ -15,16 +15,8 @@ export interface TsConfigArgs extends Pick<
   'cjs' | 'config' | 'development' | 'library' | 'react' | 'source' | 'sourceMap' | 'umd'
 > {}
 
-export async function createTsConfigs({
-  cjs,
-  config,
-  development,
-  library,
-  react,
-  source,
-  sourceMap,
-  umd,
-}: TsConfigArgs) {
+export async function createTsConfigs(configArgs: TsConfigArgs) {
+  const { cjs, config, development, library, react, source, umd } = configArgs;
   const root = gitRoot();
   const sourceDir = join(root, source);
   const sourceExists = existsSync(sourceDir);
@@ -74,57 +66,16 @@ export async function createTsConfigs({
 
   files.push(writeFile(join(root, 'tsconfig.json'), configContent, 'utf8'));
 
-  const prefix = join('..', '..');
-  const include = getInclude({ react, source, prefix });
-  const exclude = [...BASE_CONFIG.exclude, `**/${TEST_FOLDER}/**`];
-  const sourceMapConfig = sourceMap ? { inlineSources: true, sourceMap: true } : undefined;
-
   const configs: Record<string, ConfigOptions> = {
-    es: {
-      compilerOptions: {
-        ...sourceMapConfig,
-        declarationDir: join(prefix, library, 'es', 'types'),
-        jsx,
-        module: ModuleKind.NodeNext,
-        moduleResolution: ModuleResolutionKind.NodeNext,
-        outDir: join(prefix, library, 'es'),
-        types,
-      },
-      include,
-      exclude,
-    },
+    es: getModuleTsConfig('es', configArgs),
   };
 
   if (cjs) {
-    configs.cjs = {
-      compilerOptions: {
-        ...sourceMapConfig,
-        declarationDir: join(prefix, library, 'cjs', 'types'),
-        jsx,
-        module: ModuleKind.Node16,
-        moduleResolution: ModuleResolutionKind.Node16,
-        outDir: join(prefix, library, 'cjs'),
-        types,
-      },
-      include,
-      exclude,
-    };
+    configs.cjs = getModuleTsConfig('cjs', configArgs);
   }
 
   if (umd) {
-    configs.umd = {
-      compilerOptions: {
-        ...sourceMapConfig,
-        declarationDir: join(prefix, library, 'umd', 'types'),
-        jsx,
-        module: ModuleKind.ESNext,
-        moduleResolution: ModuleResolutionKind.Bundler,
-        outDir: join(prefix, library, 'umd'),
-        types,
-      },
-      include,
-      exclude,
-    };
+    configs.umd = getModuleTsConfig('umd', configArgs);
   }
 
   await writeConfigs(resolve(configTypes), configs);
@@ -191,6 +142,41 @@ function getInclude({ config, development, react, source, prefix = '.', test }: 
 
     return react ? [standard, `${standard}x`] : [standard];
   });
+}
+
+function getModuleTsConfig(type: 'cjs' | 'es' | 'umd', { library, react, source, sourceMap }: TsConfigArgs) {
+  const jsx = react ? 'react-jsx' : undefined;
+  const types = react ? [...BASE_CONFIG.compilerOptions.types, 'react'] : [...BASE_CONFIG.compilerOptions.types];
+  const prefix = join('..', '..');
+  const include = getInclude({ react, source, prefix });
+  const exclude = [...BASE_CONFIG.exclude, `**/${TEST_FOLDER}/**`];
+  const sourceMapConfig = sourceMap ? { inlineSources: true, sourceMap: true } : undefined;
+
+  let moduleKind = ModuleKind.NodeNext;
+  let moduleResolution = ModuleResolutionKind.NodeNext;
+
+  if (type === 'cjs') {
+    moduleKind = ModuleKind.Node16;
+    moduleResolution = ModuleResolutionKind.Node16;
+  } else if (type === 'umd') {
+    moduleKind = ModuleKind.ESNext;
+    moduleResolution = ModuleResolutionKind.Bundler;
+  }
+
+  return {
+    compilerOptions: {
+      ...sourceMapConfig,
+      declarationDir: join(prefix, library, type, 'types'),
+      jsx,
+      module: moduleKind,
+      moduleResolution,
+      outDir: join(prefix, library, type),
+      rootDir: join(prefix, source),
+      types,
+    },
+    include,
+    exclude,
+  };
 }
 
 function getNormalizedCompilerOptions<Options extends Record<string, any>>(options: Options): Options {
